@@ -21,6 +21,3 @@ db: SQLAlchemy = SQLAlchemy(app)
 bcrypt: Bcrypt = Bcrypt()
 bcrypt.init_app(app)
 
-login_manager: LoginManager = LoginManager(app)
-login_manager.login_view = 'login' # type: ignore
-login_manager.login_message_category = 'danger'
