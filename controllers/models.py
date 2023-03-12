@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey, DDL, event
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from app import app, db
 import sys
@@ -20,6 +19,17 @@ class Transaction(db.Model): # type: ignore
     
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
+    
+    def to_json(self) -> dict[str, Column]:
+        return {
+            "transactionid": self.transactionid,
+            "transaction_date": self.transaction_date,
+            "categoryid": self.categoryid,
+            "merchant_name": self.merchant_name,
+            "transaction_type": self.transaction_type,
+            "amount": self.amount,
+            "note": self.note
+        }
     
 class Category(db.Model): # type: ignore
     __tablename__ = 'category'

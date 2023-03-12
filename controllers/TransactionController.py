@@ -1,5 +1,5 @@
-from models import Transaction
 from app import db
+from controllers.models import Transaction
 
 def insert_transaction(transaction_data: dict) -> Transaction:
     if transaction_data.get('transaction_type','') == 'credit':
