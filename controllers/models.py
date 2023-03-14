@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql import func
 from app import app, db
 import sys
+from typing import Any
 
 class Transaction(db.Model): # type: ignore
     __tablename__ = 'transaction'
@@ -20,7 +22,7 @@ class Transaction(db.Model): # type: ignore
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
     
-    def to_json(self) -> dict[str, Column]:
+    def to_json(self, category_name: str='Uncategorized') -> dict[str, Any]:
         return {
             "transactionid": self.transactionid,
             "transaction_date": self.transaction_date,
@@ -28,9 +30,11 @@ class Transaction(db.Model): # type: ignore
             "merchant_name": self.merchant_name,
             "transaction_type": self.transaction_type,
             "amount": self.amount,
-            "note": self.note
+            "note": self.note,
+            "category": category_name
         }
-    
+
+# ToDo: parentcategoryid
 class Category(db.Model): # type: ignore
     __tablename__ = 'category'
     categoryid: Column = Column(Integer, primary_key=True)
@@ -39,10 +43,22 @@ class Category(db.Model): # type: ignore
     insert_by: Column = Column(String(100), server_default=func.current_user())
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    transactions = db.relationship('Transaction', backref='category')
+    budgets = db.relationship('Budget', backref='category')
+    
+    def __repr__(self) -> str:
+        return "Category({},{})".format(self.categoryid, self.category_name)
+    
+    def to_json(self) -> dict[str, Column]:
+        return {
+            "categoryid": self.categoryid,
+            "category_name": self.category_name
+        }
     
 class Budget(db.Model): # type: ignore
     __tablename__ = 'budget'
     budgetid: Column = Column(Integer, primary_key=True)
+    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
     budget_name: Column = Column(String(200), nullable=False)
     budget_amount: Column = Column(DECIMAL(7,2))
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
@@ -50,16 +66,16 @@ class Budget(db.Model): # type: ignore
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
     
-class BudgetCategory(db.Model): # type: ignore
-    __tablename__ = 'budgetcategory'
-    budgetcategoryid: Column = Column(Integer, primary_key=True)
-    budgetid: Column = Column(Integer, ForeignKey('budget.budgetid'), nullable=False)
-    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), nullable=False)
-    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
-    insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    def __repr__(self) -> str:
+        return "Budget({},{},{})".format(self.budgetid, self.budget_name, self.budget_amount)
     
+    def to_json(self) -> dict[str, Column]:
+        return {
+            "budgetid": self.budgetid,
+            "budget_name": self.budget_name,
+            "budget_amount": self.budget_amount
+        }
+
 # Merchant
 
 # MerchantAlias - enable aliased merchant display
