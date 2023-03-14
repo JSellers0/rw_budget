@@ -3,8 +3,14 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, TextAreaField, SelectMultipleField, SubmitField
 from wtforms.validators import (DataRequired, Length)
 
+# ToDo: category as single select field
+# ToDo: transactiontype as single select field
+# ToDo: transaction date as date selection field
+
 class TransactionForm(FlaskForm):
-    merchant: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
+    transaction_date:StringField = StringField("Date", validators=[DataRequired()])
+    transaction_type: StringField = StringField("Type", validators=[DataRequired()])
+    merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     category: StringField = StringField("Category", validators=[DataRequired(), Length(max=200)])
     amount: DecimalField = DecimalField("Transaction Amount", validators=[DataRequired()])
     note: TextAreaField = TextAreaField("Notes")
