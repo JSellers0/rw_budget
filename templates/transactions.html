@@ -5,8 +5,45 @@
 
 {% block body %}
 <div class="content-section">
-    <div>List of transactions</div>
+    <div>
+        <h2>List of transactions</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Merchant</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Note</th>
+            </tr>
+        {% for transaction in transactions %}
+            <tr>
+                <td>{{transaction.transaction_date}}</td>
+                <td>{{transaction.transaction_type}}</td>
+                <td>{{transaction.merchant_name}}</td>
+                <td>{{transaction.amount}}</td>
+                <td>{{transaction.category}}</td>
+                <td>{{transaction.note}}</td>
+                <td><button>Update</button>
+            </tr>
+        {% endfor %}
+        {# ToDo: Should form go in table or be separate? #}
+        <tr>
+            <form method="POST", action="">
+                {{ form.hidden_tag() }}
+                <td>{{form.transaction_date()}}</td>
+                <td>{{form.transaction_type()}}</td>
+                <td>{{form.merchant_name()}}</td>
+                <td>{{form.amount()}}</td>
+                <td>{{form.category()}}</td>
+                <td>{{form.note()}}</td>
+                <td>{{form.submit()}}</td>
+            </form>
+        </tr>
+        </table>
+    </div>
     <div>Apply category</div>
+    <div>Insert Transactions</div>
     <div>Split Transactions</div>
     <div>Add Notes</div>
     <div>Import Transactions</div>
