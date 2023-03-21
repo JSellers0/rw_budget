@@ -5,6 +5,7 @@ from app import app, db
 import sys
 from typing import Any
 
+# TODO: User table
 class Transaction(db.Model): # type: ignore
     __tablename__ = 'transaction'
     transactionid: Column = Column(Integer, primary_key=True)
@@ -52,8 +53,13 @@ class Category(db.Model): # type: ignore
     def to_json(self) -> dict[str, Column]:
         return {
             "categoryid": self.categoryid,
-            "category_name": self.category_name
+            "category_name": self.category_name,
+            "transations": self.transactions,
+            "budgets": self.budgets
         }
+        
+    def to_tuple(self) -> tuple[Column, Column]:
+        return (self.categoryid, self.category_name)
     
 class Budget(db.Model): # type: ignore
     __tablename__ = 'budget'
