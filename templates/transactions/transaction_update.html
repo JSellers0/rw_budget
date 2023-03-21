@@ -1,0 +1,45 @@
+{% extends "parent.html" %}
+{% block head %}
+{% endblock %}
+{% block page_name %}Rock Willow Transactions{% endblock %}
+
+{% block body %}
+<div class="content-section">
+    <h2>List of transactions</h2>
+    <div>
+        <form method="POST", action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <div class="form-group">
+                    {{form.transaction_date.label(class="form-control-label")}}
+                    {{form.transaction_date(class="form-control", value=transaction.get("transaction_date"))}}
+                </div>
+                <div class="form-group">
+                    {{form.merchant_name.label(class="form-control-label")}}
+                    {{form.merchant_name(class="form-control", value=transaction.get("merchant_name"))}}
+                </div>
+                <div class="form-group">
+                    {{form.amount.label(class="form-control-label")}}
+                    {{form.amount(class="form-control", value=transaction.get("amount"))}}
+                </div>
+                <div class="form-group">
+                    {{form.category.label(class="form-control-label")}}
+                    {{form.category(class="form-control", value=transaction.get("category"))}}
+                    <datalist id="category-list">
+                        {% for category in categories %}
+                            <option value="{{ category }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="form-group">
+                    {{form.note.label(class="form-control-label")}}
+                    {{form.note(class="form-control", innerHTML=transaction.get("note"))}}
+                </div>
+            </fieldset>
+                <div class="form-group">
+                    {{form.submit(class="btn btn-outline-info", value="Update")}}
+                </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
