@@ -18,12 +18,17 @@ def get_category_by_name(category_name: str) -> Category:
     
     return category
     
+def get_all_categories() -> list[dict[str, Any]]:
+    categories = Category.query.all()
+    category_dump = [category.to_tuple() for category in categories]
+    
+    return category_dump
 
 def insert_category(category_name: str)-> Category:
-    category: Category = Category(category_name = category_name)
+    category: Category = Category(category_name = category_name.lower())
     
     db.session.add(category)
-    db.commit()
+    db.session.commit()
     
     return category
 
@@ -36,7 +41,7 @@ def update_category(category_data: dict) -> Category:
     if category_data.get('category_name') != category.category_name:
         category.category_name = category_data.get('category_name', '')
     
-    db.commit()
+    db.session.commit()
     
     return category
 
@@ -47,6 +52,6 @@ def delete_category(categoryid: int) -> None:
         raise ValueError(f"{categoryid} is not a valid category id.")
     
     db.session.delete(category)
-    db.commit()
+    db.session.commit()
      
      

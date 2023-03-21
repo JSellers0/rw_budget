@@ -4,7 +4,7 @@ from datetime import date
 from typing import Any
 
 def get_all_transactions() -> list[dict[str, Any]]:
-    transactions = Transaction.query.order_by(Transaction.transaction_date.desc()).all()
+    transactions = Transaction.query.order_by(Transaction.transaction_date.asc()).all()
     transaction_dump = [transaction.to_json(transaction.category.category_name) for transaction in transactions]
     
     return transaction_dump
@@ -44,39 +44,25 @@ def get_twenty_recent_transactions() -> list[Any]:
     
     return transaction_dump
     
-def insert_transaction(transaction_data: dict) -> dict[str, Any]:
+def insert_transaction(transaction_data: dict) -> Transaction:
     # Make sure credit values are negative
     if transaction_data.get('transaction_type','') == 'credit':
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
-    
-    # Get Category ID from category name
-    categoryid = 1
-    category_name = 'Uncategorized'
-    category: dict = Category.query.filter(Category.category_name == transaction_data.get('category_name', 'Uncategorized')).one_or_none().to_json()
-    if category != None:
-        categoryid = category.get('categoryid', 1)
-        category_name = category.get('category_name', 'Uncategorized')
-            
+                
     transaction: Transaction = Transaction(
         transaction_date=transaction_data.get('transaction_date', date.today()),
-        categoryid=categoryid,
+        categoryid=transaction_data.get('categoryid', 1),
         merchant_name=transaction_data.get('merchant_name', ''),
         transaction_type=transaction_data.get('transaction_type', ''),
         amount=transaction_data.get('amount', 0),
         note=transaction_data.get('note', '')
     )
-    tr_dump = transaction.to_json(category_name=category_name)
-    
-    try:
-        db.session.add(transaction)    
-        db.session.commit()
-        tr_dump['state'] = 'SUCCESS'
-    except Exception as e:
-        tr_dump['state'] = 'FAIL'
-        return tr_dump
+
+    db.session.add(transaction)    
+    db.session.commit()
         
-    return tr_dump
+    return transaction
 
 def update_transaction(transaction_data: dict) -> Transaction:
     transaction: Transaction = Transaction.query.filter(Transaction.transactionid == transaction_data.get('transactionid')).one_or_none()
@@ -97,9 +83,9 @@ def update_transaction(transaction_data: dict) -> Transaction:
     if transaction_data.get('note') != transaction.note:
         transaction.note = transaction_data.get('note', '')
 
-    db.commit()
+    db.session.commit()
     
-    return Transaction
+    return transaction
 
 def delete_transaction(transactionid: int)-> None:
     transaction = Transaction.query.filter(Transaction.transactionid == transactionid).one_or_none()
