@@ -1,6 +1,5 @@
-from tkinter.tix import Select
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, TextAreaField, SelectMultipleField, SubmitField
+from wtforms import StringField, DecimalField, TextAreaField, SelectMultipleField, SubmitField, DateField, SelectField
 from wtforms.validators import (DataRequired, Length)
 
 # ToDo: category as single select field
@@ -8,16 +7,20 @@ from wtforms.validators import (DataRequired, Length)
 # ToDo: transaction date as date selection field
 
 class TransactionForm(FlaskForm):
-    transaction_date:StringField = StringField("Date", validators=[DataRequired()])
-    transaction_type: StringField = StringField("Type", validators=[DataRequired()])
-    merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
-    category: StringField = StringField("Category", validators=[DataRequired(), Length(max=200)])
+    tran_types = [
+        ('Credit','credit'),
+        ('Debit','debit')
+    ]
+    transaction_date:DateField = DateField("Date", validators=[DataRequired()])
+    transaction_type: SelectField = SelectField("Type", choices=tran_types, validators=[DataRequired()])
+    merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)], description="Merchant Name")
+    category: SelectField = SelectField("Category", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Transaction Amount", validators=[DataRequired()])
     note: TextAreaField = TextAreaField("Notes")
-    submit: SubmitField = SubmitField("Submit")
+    submit: SubmitField = SubmitField("Insert")
     
 class CategoryForm(FlaskForm):
-    name: StringField = StringField("Category Name", validators=[DataRequired(), Length(max=200)])
+    category_name: StringField = StringField("Category Name", validators=[DataRequired(), Length(max=200)])
     submit: SubmitField = SubmitField("Submit")
     
 class BudgetForm(FlaskForm):
