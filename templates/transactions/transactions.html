@@ -6,54 +6,60 @@
 {% block body %}
 <div class="content-section">
     <h2>List of transactions</h2>
-    <div>
-        <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Type</th>
-                <th scope="col">Merchant</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Category</th>
-                <th scope="col">Note</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for transaction in transactions %}
-            <tr>
-                <th scope="row">{{transaction.transaction_date}}</th>
-                <td>{{transaction.transaction_type}}</td>
-                <td>{{transaction.merchant_name}}</td>
-                <td>{{transaction.amount}}</td>
-                <td>{{transaction.category}}</td>
-                <td>{{transaction.note}}</td>
-                <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction.transactionid)}}>Update</a>
-            </tr>
-        {% endfor %}
-        </tbody>
-        </table>
-    </div>
-    <div>
-        <form method="POST", action="">
-            {{ form.hidden_tag() }}
-            <fieldset class="form-row">
-                <div class="col">{{form.transaction_date(class="form-control")}}</div>
-                <div class="col">{{form.transaction_type(class="form-control")}}</div>
-                <div class="col">{{form.merchant_name(class="form-control", placeholder="Merchant Name")}}</div>
-                <div class="col">{{form.amount(class="form-control")}}</div>
-                <div class="col">{{form.category(class="form-control")}}</div>
-                <datalist id="category-list">
-                    {% for category in categories %}
-                        <option value="{{ category }}"></option>
-                    {% endfor %}
-                </datalist>
-                <div class="col">{{form.note(class="form-control")}}</div>
-                <div class="col">{{form.submit(class="btn btn-outline-info")}}</div>
-            </fieldset>
-        </form>
-    </div>
+    <table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Type</th>
+            <th scope="col">Merchant</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Note</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for transaction in transactions %}
+        <tr>
+            <th scope="row">{{transaction.transaction_date}}</th>
+            <td>{{transaction.transaction_type}}</td>
+            <td>{{transaction.merchant_name}}</td>
+            <td>{{transaction.amount}}</td>
+            <td>{{transaction.category}}</td>
+            <td>{{transaction.note}}</td>
+            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction.transactionid)}}>Update</a>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+<div class="content-section">
+    <form method="POST", action="">
+        {{ form.hidden_tag() }}
+        {# ToDo: Turn this back into a regular form #}
+        <fieldset class="form-row">
+            <div class="col">{{form.transaction_date(class="form-control")}}</div>
+            <div class="col">{{form.transaction_type(class="form-control")}}</div>
+            <div class="col">{{form.merchant_name(class="form-control", placeholder="Merchant Name")}}</div>
+            <div class="col">{{form.amount(class="form-control")}}</div>
+            <div class="col">{{form.category(class="form-control")}}</div>
+            <datalist id="category-list">
+                {% for category in categories %}
+                    <option value="{{ category }}"></option>
+                {% endfor %}
+            </datalist>
+            <div class="col">{{form.note(class="form-control")}}</div>
+            <div class="col">{{form.submit(class="btn btn-outline-info")}}</div>
+        </fieldset>
+    </form>
+</div>
+<div class="content-section">
     <a href="{{url_for("new_category")}}" class="btn btn-outline-info">Add Category</a>
+    <a href="{{url_for("new_account")}}" class="btn btn-outline-info">Add Account</a>
+</div>
+<div class="content-section">
+    <h2> Upcoming Features</h2>
     <div>Split Transactions</div>
     <div>Import Transactions</div>
+    <div>set up recurring transactions</div>
 </div>
 {% endblock %}
