@@ -25,11 +25,6 @@
                 <div class="form-group">
                     {{form.category.label(class="form-control-label")}}
                     {{form.category(class="form-control", value=transaction.get("category"))}}
-                    <datalist id="category-list">
-                        {% for category in categories %}
-                            <option value="{{ category }}"></option>
-                        {% endfor %}
-                    </datalist>
                 </div>
                 <div class="form-group">
                     {{form.note.label(class="form-control-label")}}
@@ -38,6 +33,7 @@
             </fieldset>
                 <div class="form-group">
                     {{form.submit(class="btn btn-outline-info", value="Update")}}
+                    <a href="{{ url_for("transactions") }}" class="btn btn-outline-info">Back</a>
                 </div>
         </form>
     </div>
