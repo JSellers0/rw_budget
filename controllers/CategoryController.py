@@ -25,7 +25,8 @@ def get_all_categories() -> list[dict[str, Any]]:
     return category_dump
 
 def insert_category(category_name: str)-> Category:
-    category: Category = Category(category_name = category_name.lower())
+    # ToDo: Check for category name existing already.
+    category: Category = Category(category_name = category_name)
     
     db.session.add(category)
     db.session.commit()
@@ -33,12 +34,13 @@ def insert_category(category_name: str)-> Category:
     return category
 
 def update_category(category_data: dict) -> Category:
+    # ToDo: Check for category name existing already.
     category: Category = Category.query.filter(Category.categoryid == category_data.get('categoryid')).one_or_none()
     
     if category == None:
         raise ValueError(f"{category_data.get('categoryid')} is not a valid category id.")
     
-    if category_data.get('category_name') != category.category_name:
+    if category_data.get('category_name','').lower() != category.category_name.lower():
         category.category_name = category_data.get('category_name', '')
     
     db.session.commit()
