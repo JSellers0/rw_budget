@@ -1,0 +1,35 @@
+{% extends "parent.html" %}
+{% block head %}
+{% endblock %}
+{% block page_name %}Add Account{% endblock %}
+
+{% block body %}
+<div class="content-section">
+    <form method="POST", action="">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            <legend>Add a new account</legend>
+            <div class="form-group">
+                {{form.account_name.label(class="form-control-label")}}
+                {{form.account_name(class="form-control")}}
+            <div class="form-group">
+                {{form.account_type.label(class="form-control-label")}}
+                {{form.account_type(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.payment_day.label(class="form-control-label")}}
+                {{form.payment_day(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.statement_day.label(class="form-control-label")}}
+                {{form.statement_day(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.rewards_features.label(class="form-control-label")}}
+                {{form.rewards_features(class="form-control")}}
+            </div>
+        </fieldset>
+        <div class="form-group">{{form.submit(class="btn btn-outline-info")}}</div>
+    </form>
+</div>
+{% endblock %}
