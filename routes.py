@@ -1,11 +1,11 @@
-from controllers.forms import TransactionForm, CategoryForm, AccountForm
+from controllers.objects.forms import TransactionForm, CategoryForm, AccountForm
 from controllers import TransactionController as TC, CategoryController as CC, AccountController as AC
 from datetime import date
 from flask import render_template, redirect, url_for
 from app import app
 
 # ToDo: Implement flash message system
-# ToDo: Fix all returned transactions to utlize new json structure {'transaction':Transaction, 'category':Category, 'account':Account}
+# ToDo: Recurring transaction system
 
 @app.route("/", methods=["GET"])
 def home():

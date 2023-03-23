@@ -1,5 +1,5 @@
 from controllers import TransactionController
-from controllers.models import Transaction_Interface
+from controllers.objects.models import Transaction_Interface
 from app import app
 
 # ToDo: test all transaction controller methods

@@ -1,5 +1,5 @@
 from app import db
-from controllers.models import Budget
+from controllers.objects.models import Budget
 from typing import Any
 
 def get_budget_by_id(budgetid: int) -> Budget:

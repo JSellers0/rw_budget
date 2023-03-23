@@ -9,7 +9,8 @@ from wtforms.validators import (DataRequired, Length)
 class TransactionForm(FlaskForm):
     tran_types = [
         ('credit','Credit'),
-        ('debit','Debit')
+        ('debit','Debit'),
+        ('pending','Pending')
     ]
     transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])

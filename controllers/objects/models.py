@@ -8,7 +8,7 @@ from typing import Any
 
 # ToDo: User table
 # ToDo: Split db init from models
-
+# ToDo: Recurring Transactions table
 
 # ToDo: parentcategoryid
 class Category(db.Model): # type: ignore

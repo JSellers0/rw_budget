@@ -1,6 +1,6 @@
 from app import db
-from controllers.models import Account
-from controllers.forms import AccountForm
+from controllers.objects.models import Account
+from controllers.objects.forms import AccountForm
 from typing import Any
 
 def get_account_by_id(accountid: int) -> Account:

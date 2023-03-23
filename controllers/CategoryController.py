@@ -1,5 +1,5 @@
 from app import db
-from controllers.models import Category
+from controllers.objects.models import Category
 from typing import Any
 
 def get_category_by_id(categoryid: int) -> Category:
