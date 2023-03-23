@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, TextAreaField, SelectMultipleField, SubmitField, DateField, SelectField
+from wtforms import StringField, DecimalField, SelectMultipleField, SubmitField, DateField, SelectField, HiddenField
 from wtforms.validators import (DataRequired, Length)
 
 # ToDo: category as single select field
@@ -11,11 +11,13 @@ class TransactionForm(FlaskForm):
         ('credit','Credit'),
         ('debit','Debit')
     ]
+    transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])
     transaction_type: SelectField = SelectField("Type", choices=tran_types, validators=[DataRequired()])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     category: SelectField = SelectField("Category", validators=[DataRequired()])
-    amount: DecimalField = DecimalField("Transaction Amount", validators=[DataRequired()])
+    account: SelectField = SelectField("Account", validators=[DataRequired()])
+    amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
     
