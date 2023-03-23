@@ -6,6 +6,7 @@
 {% block body %}
 <div class="content-section">
     <h2>List of transactions</h2>
+    {# Section for Pending Transactions, part of recurring transactions system #}
     <table class="table table-hover">
     <thead>
         <tr>
@@ -37,8 +38,8 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        {# ToDo: Turn this back into a regular form #}
-        {# BUG: Do I need transactionid field to exist? #}
+        {# ToDo: Hybrid between regular and compact form #}
+        {# BUG: Need transactionid field to exist? #}
         <fieldset class="form-row">
             <div class="col">{{form.transaction_date(class="form-control")}}</div>
             <div class="col">{{form.transaction_type(class="form-control")}}</div>
@@ -60,9 +61,11 @@
     <a href="{{url_for("new_account")}}" class="btn btn-outline-info">Add Account</a>
 </div>
 <div class="content-section">
-    <h2> Upcoming Features</h2>
-    <div>Split Transactions</div>
-    <div>Import Transactions</div>
-    <div>set up recurring transactions</div>
+    <h2>Upcoming Features</h2>
+    <ul>
+        <li>#ToDo: Split Transactions</li>
+        <li>#ToDo: Import Transactions</li>
+        <li>#ToDo: set up recurring transactions</li>
+    </ul>
 </div>
 {% endblock %}
