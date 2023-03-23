@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from sqlalchemy import Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql import func
@@ -5,35 +6,9 @@ from app import app, db
 import sys
 from typing import Any
 
-# TODO: User table
-class Transaction(db.Model): # type: ignore
-    __tablename__ = 'transaction'
-    transactionid: Column = Column(Integer, primary_key=True)
-    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
-    merchant_name: Column = Column(String(200), nullable=False)
-    transaction_type: Column = Column(String(200), nullable=False)
-    amount: Column = Column(DECIMAL(7,2), nullable=False)
-    note: Column = Column(String(1000))
-    transaction_date: Column = Column(Date(), nullable=False)
-    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
-    insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
-    
-    def __repr__(self) -> str:
-        return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
-    
-    def to_json(self, category_name: str='Uncategorized') -> dict[str, Any]:
-        return {
-            "transactionid": self.transactionid,
-            "transaction_date": self.transaction_date,
-            "categoryid": self.categoryid,
-            "merchant_name": self.merchant_name,
-            "transaction_type": self.transaction_type,
-            "amount": self.amount,
-            "note": self.note,
-            "category": category_name
-        }
+# ToDo: User table
+# ToDo: Split db init from models
+
 
 # ToDo: parentcategoryid
 class Category(db.Model): # type: ignore
@@ -90,6 +65,7 @@ class Account(db.Model): # type: ignore
     rewards_features: Column = Column(String(300))
     payment_day: Column = Column(String(50))
     statement_day: Column = Column(String(50))
+    transactions = db.relationship('Transaction', backref='account')
     
     def __repr__(self) -> str:
         return "account({},{})".format(self.accountid, self.account_name)
@@ -106,6 +82,31 @@ class Account(db.Model): # type: ignore
         
     def to_tuple(self) -> tuple[Column, Column]:
         return (self.accountid, self.account_name)
+
+class Transaction(db.Model): # type: ignore
+    __tablename__ = 'transaction'
+    transactionid: Column = Column(Integer, primary_key=True)
+    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
+    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
+    merchant_name: Column = Column(String(200), nullable=False)
+    transaction_type: Column = Column(String(200), nullable=False)
+    amount: Column = Column(DECIMAL(7,2), nullable=False)
+    note: Column = Column(String(1000))
+    transaction_date: Column = Column(Date(), nullable=False)
+    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
+    insert_by: Column = Column(String(100), server_default=func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    
+    def __repr__(self) -> str:
+        return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
+    
+@dataclass
+class Transaction_Interface:
+    transaction: Transaction
+    category: Category
+    account: Account
+    operation_status: str = 'SUCCESS'
     
 def build_accounts():
     barlcays = Account(
