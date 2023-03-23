@@ -17,8 +17,15 @@ def get_category_by_name(category_name: str) -> Category:
         raise ValueError(f"{category_name} does not exist.")
     
     return category
-    
+
+# ToDo: Accept return type parameter
 def get_all_categories() -> list[dict[str, Any]]:
+    categories = Category.query.all()
+    category_dump = [category.to_json() for category in categories]
+    
+    return category_dump
+
+def get_categories_for_listbox() -> list[tuple[int, str]]:
     categories = Category.query.all()
     category_dump = [category.to_tuple() for category in categories]
     
