@@ -9,15 +9,21 @@
         <form method="POST", action="">
             {{ form.hidden_tag() }}
             <fieldset >
-                <div class="form-group">{{form.category_name.label(class="form-control")}}</div>
-                <div class="form-group">{{form.category_name(class="form-control", list="category-list")}}</div>
-                <datalist id="category-list">
-                    {% for category in categories %}
-                        <option value="{{ category[1] }}"></option>
-                    {% endfor %}
-                </datalist>
+                <div class="form-group">
+                    {{form.category_name.label(class="form-control-label")}}
+                    {{form.category_name(class="form-control", list="category-list")}}
+                    <datalist id="category-list">
+                        {% for category in categories %}
+                            <option value="{{ category[1] }}"></option>
+                        {% endfor %}
+                    </datalist>
+                </div>
             </fieldset>
-            <div class="form-group">{{form.submit(class="btn btn-outline-info")}}</div>
+            <div class="form-group">
+                {{form.submit(class="btn btn-outline-info")}}
+                <a href="{{ url_for("transactions") }}" class="btn btn-outline-info">Back</a>
+            </div>
+            
         </form>
     </div>
 </div>

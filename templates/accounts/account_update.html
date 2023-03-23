@@ -11,22 +11,22 @@
             <legend>Update account information</legend>
             <div class="form-group">
                 {{form.account_name.label(class="form-control-label")}}
-                {{form.account_name(class="form-control")}}
+                {{form.account_name(class="form-control", value=account.account_name)}}
             <div class="form-group">
                 {{form.account_type.label(class="form-control-label")}}
-                {{form.account_type(class="form-control")}}
+                {{form.account_type(class="form-control", value=account.account_type)}}
             </div>
             <div class="form-group">
                 {{form.payment_day.label(class="form-control-label")}}
-                {{form.payment_day(class="form-control")}}
+                {{form.payment_day(class="form-control", value=account.payment_day)}}
             </div>
             <div class="form-group">
                 {{form.statement_day.label(class="form-control-label")}}
-                {{form.statement_day(class="form-control")}}
+                {{form.statement_day(class="form-control", value=account.statement_day)}}
             </div>
             <div class="form-group">
                 {{form.rewards_features.label(class="form-control-label")}}
-                {{form.rewards_features(class="form-control")}}
+                {{form.rewards_features(class="form-control", value=account.rewards_features)}}
             </div>
         </fieldset>
         <div class="form-group">
