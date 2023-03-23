@@ -4,6 +4,9 @@ from datetime import date
 from flask import render_template, redirect, url_for
 from app import app
 
+# ToDo: Implement flash message system
+# ToDo: Fix all returned transactions to utlize new json structure {'transaction':Transaction, 'category':Category, 'account':Account}
+
 @app.route("/", methods=["GET"])
 def home():
     return render_template("home.html")
@@ -12,21 +15,13 @@ def home():
 def transactions():
     transactions = TC.get_all_transactions()
     form:TransactionForm = TransactionForm()
-    form.category.choices = CC.get_all_categories()
+    form.category.choices = CC.get_categories_for_listbox()
+    form.account.choices = AC.get_accounts_for_listbox()
     if form.validate_on_submit():
-        transaction_data = {
-            "transaction_date": date.today(),
-            "transaction_type": form.transaction_type.data,
-            "merchant_name": form.merchant_name.data,
-            "amount": form.amount.data,
-            "categoryid": form.category.data,
-            "note": form.note.data
-        }
-        
-        tr = TC.insert_transaction(transaction_data=transaction_data)
+        tr = TC.insert_transaction_form(transaction_data=form)
         return redirect(url_for("transactions"))
         # ToDo: Flash insert failure
-        # ToDo: Implement flash message system
+        
         
     return render_template(
         "transactions/transactions.html", 
@@ -36,9 +31,10 @@ def transactions():
     
 @app.route("/transactions/<int:transaction_id>", methods=['GET','POST'])
 def update_transaction(transaction_id:int):
+    transaction = TC.get_transaction_by_id(transactionid=transaction_id)
     form:TransactionForm = TransactionForm()
-    transaction = TC.get_transaction_by_id(transactionid=transaction_id).to_json()
-    categories = CC.get_all_categories()
+    form.category.choices = CC.get_categories_for_listbox()
+    form.account.choices = AC.get_accounts_for_listbox()
     
     if form.validate_on_submit():
         
@@ -58,7 +54,8 @@ def update_transaction(transaction_id:int):
     return render_template(
         "transactions/transaction_update.html",
         transaction=transaction,
-        categories=categories,
+        categories=CC.get_categories_for_listbox(),
+        accounts = AC.get_accounts_for_listbox(),
         form=form
     )
     
@@ -89,7 +86,7 @@ def new_category():
 @app.route("/category/<int:categoryid>", methods=["GET","POST"])
 def update_category(categoryid: int):
     form = CategoryForm()
-    category = CC.get_category_by_id(categoryid).to_json()
+    category = CC.get_category_by_id(categoryid)
     if form.validate_on_submit():
         category_data = {
             "categoryid": categoryid,
@@ -100,7 +97,8 @@ def update_category(categoryid: int):
     return render_template(
         "categories/category_update.html",
         form=form,
-        category=category
+        category=category,
+        categories=CC.get_all_categories
         )
 
 @app.route("/budgets", methods=["GET"])
