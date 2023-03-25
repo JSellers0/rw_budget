@@ -1,5 +1,5 @@
 from controllers import TransactionController
-from controllers.objects.models import Transaction_Interface
+from controllers.objects.models import TransactionInterface
 from app import app
 
 # ToDo: test all transaction controller methods
@@ -31,15 +31,15 @@ def test_bad_credit_amount():
     }
     
     with app.app_context():
-        tran_res:Transaction_Interface = TransactionController.insert_transaction(test_transaction_data)
+        tran_res:TransactionInterface = TransactionController.insert_transaction(test_transaction_data)
         assert tran_res.transaction.amount == -100
         
 def test_get_transaction():
     with app.app_context():
-        tran_get_res:Transaction_Interface = TransactionController.get_transaction_by_id(1)
+        tran_get_res:TransactionInterface = TransactionController.get_transaction_by_id(1)
         assert tran_get_res.transaction.transactionid == 1
         
 def test_get_tran_by_date():
     with app.app_context():
-        tran_get_res:list[Transaction_Interface] = TransactionController.get_transaction_by_date('2023-03-01')
+        tran_get_res:list[TransactionInterface] = TransactionController.get_transaction_by_date('2023-03-01')
         assert len(tran_get_res) == 1
