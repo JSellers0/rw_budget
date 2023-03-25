@@ -9,7 +9,7 @@ from typing import Any
 # ToDo: Split db init from models
 # ToDo: Accounts Interface to get all transactions for an account?
 # ToDo: Parent Categories
-# DECISION: Do I need parent budgets if I'm going to have parent categories?
+# DECISION: Do I need parent budgets if I'm going to have parent categories?  I think views are realistically the only way to do this.
 # ToDo: User table
 
 class Category(db.Model):
