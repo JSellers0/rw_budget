@@ -6,7 +6,7 @@
 {% block body %}
 <div class="content-section">
     <h2>Pending transactions</h2>
-    {# Section for Pending Transactions, part of recurring transactions system #}
+    {# ToDo: Section for Pending Transactions, part of recurring transactions system #}
     <h2>Posted transactions</h2>
     <table class="table table-hover">
     <thead>
@@ -21,6 +21,7 @@
         </tr>
     </thead>
     <tbody>
+        {# BUG: Need to handle no transactions in case of bad filter conditions #}
     {% for transaction in transactions %}
         <tr>
             <th scope="row">{{transaction.transaction.transaction_date}}</th>
@@ -60,6 +61,8 @@
 <div class="content-section">
     <a href="{{url_for("new_category")}}" class="btn btn-outline-info">Add Category</a>
     <a href="{{url_for("new_account")}}" class="btn btn-outline-info">Add Account</a>
+    #ToDo: "Add Recurring Transaction" button
+    ==#ToDo: "Add Budget" button
 </div>
 <div class="content-section">
     <h2>Upcoming Features</h2>
