@@ -1,4 +1,4 @@
-from controllers.objects.forms import TransactionForm, CategoryForm, AccountForm
+from controllers.objects.forms import TransactionForm, CategoryForm, AccountForm, RecurringTransactionForm
 from controllers import TransactionController as TC, CategoryController as CC, AccountController as AC
 from datetime import date
 from flask import render_template, redirect, url_for
@@ -6,6 +6,7 @@ from app import app
 
 # ToDo: Implement flash message system
 # ToDo: Recurring transaction system
+# ToDo: Error Handling
 
 @app.route("/", methods=["GET"])
 def home():
@@ -13,135 +14,157 @@ def home():
 
 @app.route("/transactions", methods=["GET","POST"])
 def transactions():
-    transactions = TC.get_all_transactions()
+    response: TC.TransactionResponse = TC.get_all_transactions()
     form:TransactionForm = TransactionForm()
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
     if form.validate_on_submit():
-        tr = TC.insert_transaction_form(transaction_data=form)
+        insert_response: TC.TransactionResponse = TC.insert_transaction(transaction_data=form.to_json())
         return redirect(url_for("transactions"))
-        # ToDo: Flash insert failure
-        
         
     return render_template(
         "transactions/transactions.html", 
-        transactions=transactions,
+        transactions=response["transactions"],
         form=form
         )
     
 @app.route("/transactions/<int:transaction_id>", methods=['GET','POST'])
 def update_transaction(transaction_id:int):
-    transaction = TC.get_transaction_by_id(transactionid=transaction_id)
+    response: TC.TransactionResponse = TC.get_transaction_by_id(transactionid=transaction_id)
     form:TransactionForm = TransactionForm()
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
     
-    if form.validate_on_submit():
-        
-        transaction_data = {
-            "transaction_date": form.transaction_date.data,
-            "transaction_type": form.transaction_type.data,
-            "merchant_name": form.merchant_name.data,
-            "amount": form.amount.data,
-            "categoryid": form.category.data,
-            "note": form.note.data
-        }
-        
-        tr = TC.update_transaction(transaction_data=transaction_data)
-        
+    if form.validate_on_submit():        
+        update_response: TC.TransactionResponse = TC.update_transaction(transaction_data=form.to_json())
         return redirect(url_for("transactions"))
                   
     return render_template(
         "transactions/transaction_update.html",
-        transaction=transaction,
-        categories=CC.get_categories_for_listbox(),
-        accounts = AC.get_accounts_for_listbox(),
+        transaction=response["transactions"][0],
         form=form
+    )
+    
+@app.route("/transactions/recurring", methods=["GET","POST"])
+def recurring_transactions():
+    form = RecurringTransactionForm()
+    if form.validate_on_submit():
+        return redirect(url_for("recurring_transactions"))
+    return render_template(
+        "transactions/recurring_transactions.html"
+    )
+    
+@app.route("/transactions/recurring/new", methods=["GET","POST"])
+def new_recurring_transactions():
+    form = RecurringTransactionForm()
+    if form.validate_on_submit():
+        return redirect(url_for("transactions"))
+    return render_template(
+        "transactions/recurring_transactions_new.html"
+    )
+    
+
+@app.route("/transactions/recurring/<int:rtranid>", methods=["GET","POST"])
+def update_recurring_transactions(rtranid):
+    form = RecurringTransactionForm()
+    if form.validate_on_submit():
+        return redirect(url_for("recurring_transactions"))
+    return render_template(
+        "transactions/recurring_transactions_update.html"
     )
     
 @app.route("/category", methods=["GET", "POST"])
 def categories():
+    response: CC.CategoryResponse = CC.get_all_categories()
     form = CategoryForm()
     if form.validate_on_submit():
-        CC.insert_category(form.category_name.data)
+        insert_response: CC.CategoryResponse = CC.insert_category(form.category_name.data)
         return redirect(url_for("categories"))
     return render_template(
         "categories/categories.html",
         form=form,
-        categories=CC.get_all_categories()
+        categories=response["categories"]
         )
     
 @app.route("/category/new", methods=["GET","POST"])
 def new_category():
+    # Need all categories for the datalist
+    response: CC.CategoryResponse = CC.get_all_categories()
     form = CategoryForm()
     if form.validate_on_submit():
-        CC.insert_category(form.category_name.data)
+        insert_response: CC.CategoryResponse = CC.insert_category(form.category_name.data)
         return redirect(url_for("transactions"))
     return render_template(
         "categories/category_new.html",
         form=form,
-        categories=CC.get_all_categories()
+        categories=response["categories"]
         )
     
 @app.route("/category/<int:categoryid>", methods=["GET","POST"])
 def update_category(categoryid: int):
+    # Need all categories for the datalist
+    all_cats_response: CC.CategoryResponse = CC.get_all_categories()
     form = CategoryForm()
-    category = CC.get_category_by_id(categoryid)
+    category_response: CC.CategoryResponse = CC.get_category_by_id(categoryid)
     if form.validate_on_submit():
         category_data = {
             "categoryid": categoryid,
             "category_name": form.category_name.data
         }
-        CC.update_category(category_data)
+        update_response: CC.CategoryResponse = CC.update_category(category_data)
         return redirect(url_for("categories"))
     return render_template(
         "categories/category_update.html",
         form=form,
-        category=category,
-        categories=CC.get_all_categories
+        category=category_response["categories"][0],
+        categories=all_cats_response["categories"]
         )
 
 @app.route("/budgets", methods=["GET"])
 def budgets():
-    return render_template("budgets.html")
+    return render_template("budgets/budgets.html")
 
 @app.route("/account", methods=["GET", "POST"])
 def accounts():
+    # Need all accounts for datalist
+    response: AC.AccountResponse = AC.get_all_accounts()
     form = AccountForm()
     if form.validate_on_submit():
-        AC.insert_account(form)
+        response: AC.AccountResponse = AC.insert_account(form.to_json())
         return redirect(url_for("accounts"))
     return render_template(
         "accounts/accounts.html",
         form=form,
-        accounts=AC.get_all_accounts()
+        accounts=response["accounts"]
         )
     
 @app.route("/account/new", methods=["GET","POST"])
 def new_account():
+    # Need all accounts for datalist
+    response: AC.AccountResponse = AC.get_all_accounts()
     form = AccountForm()
     if form.validate_on_submit():
-        AC.insert_account(form)
+        response: AC.AccountResponse = AC.insert_account(form.to_json())
         return redirect(url_for("transactions"))
     return render_template(
         "accounts/account_new.html",
         form=form,
-        accounts=AC.get_all_accounts()
+        accounts=response["accounts"]
         )
     
 @app.route("/account/<int:accountid>", methods=["GET","POST"])
 def update_account(accountid: int):
     form = AccountForm()
-    account = AC.get_account_by_id(accountid).to_json()
+    response: AC.AccountResponse = AC.get_account_by_id(accountid)
     if form.validate_on_submit():
         account_data = {
             "accountid": accountid,
             "account_name": form.account_name.data
         }
-        AC.update_account(account_data)
+        response: AC.AccountResponse = AC.update_account(account_data)
         return redirect(url_for("accounts"))
     return render_template(
         "accounts/account_update.html",
         form=form,
-        account=account
+        account=response["accounts"][0]
         )
