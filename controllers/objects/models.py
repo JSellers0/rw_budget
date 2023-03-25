@@ -6,12 +6,13 @@ from app import app, db
 import sys
 from typing import Any
 
-# ToDo: User table
 # ToDo: Split db init from models
-# ToDo: Recurring Transactions table
+# ToDo: Accounts Interface to get all transactions for an account?
+# ToDo: Parent Categories
+# DECISION: Do I need parent budgets if I'm going to have parent categories?
+# ToDo: User table
 
-# ToDo: parentcategoryid
-class Category(db.Model): # type: ignore
+class Category(db.Model):
     __tablename__ = 'category'
     categoryid: Column = Column(Integer, primary_key=True)
     category_name: Column = Column(String(200), nullable=False)
@@ -35,8 +36,9 @@ class Category(db.Model): # type: ignore
         
     def to_tuple(self) -> tuple[Column, Column]:
         return (self.categoryid, self.category_name)
-    
-class Budget(db.Model): # type: ignore
+
+# 
+class Budget(db.Model):
     __tablename__ = 'budget'
     budgetid: Column = Column(Integer, primary_key=True)
     categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
@@ -57,7 +59,7 @@ class Budget(db.Model): # type: ignore
             "budget_amount": self.budget_amount
         }
 
-class Account(db.Model): # type: ignore
+class Account(db.Model):
     __tablename__ = 'account'
     accountid: Column = Column(Integer, primary_key=True)
     account_name: Column = Column(String(200), nullable=False)
@@ -83,7 +85,7 @@ class Account(db.Model): # type: ignore
     def to_tuple(self) -> tuple[Column, Column]:
         return (self.accountid, self.account_name)
 
-class Transaction(db.Model): # type: ignore
+class Transaction(db.Model):
     __tablename__ = 'transaction'
     transactionid: Column = Column(Integer, primary_key=True)
     categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
@@ -102,11 +104,44 @@ class Transaction(db.Model): # type: ignore
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
     
 @dataclass
-class Transaction_Interface:
+class TransactionInterface:
     transaction: Transaction
     category: Category
     account: Account
-    operation_status: str = 'SUCCESS'
+    
+# ToDo: Recurrance interval.  Right now I'm assumign monthly recurrance.  Do I need a last tran and next tran date?
+class RecuringTransaction(db.Model):
+    __tablename__ = 'recurring_transaction'
+    rtranid: Column = Column(Integer, primary_key=True)
+    expected_day: Column = Column(Integer, nullable=False)
+    recur_interval_typeid: Column = Column(Integer, ForeignKey('recur_tran_interval_types.intervalid'), default=1)
+    recur_interval: Column = Column(Integer, nullable=False)
+    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
+    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
+    merchant_name: Column = Column(String(200), nullable=False)
+    amount: Column = Column(DECIMAL(7,2), nullable=False)
+    note: Column = Column(String(1000))
+    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
+    insert_by: Column = Column(String(100), server_default=func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+
+class RTranInterval(db.Model):
+    __tablename__ = 'recur_tran_interval_types'
+    intervalid: Column = Column(Integer, primary_key=True)
+    interval_type: Column = Column(String(100), nullable=False)
+    interval_day_add: Column = Column(Integer, nullable=False)
+    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
+    insert_by: Column = Column(String(100), server_default=func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+     
+@dataclass
+class RecurringTransactionInterface:
+    transaction: Transaction
+    interval: RTranInterval
+    category: Category
+    account: Account
     
 def build_accounts():
     barlcays = Account(
@@ -116,6 +151,13 @@ def build_accounts():
         payment_day='3rd',
         statement_day='6th'
         )
+    pnc_bills = Account(
+        account_name='PNC Bills',
+        account_type='Checking Account',
+        rewards_features='',
+        payment_day='',
+        statement_day=''
+    )
     pnc_cash = Account(
         account_name='PNC Rewards',
         account_type='Credit Card',
@@ -147,7 +189,7 @@ def build_accounts():
     
     
     with app.app_context():
-        db.session.add_all([venture,pnc_cash,pnc_spend,quicksilver,barlcays])
+        db.session.add_all([venture,pnc_bills,pnc_cash,pnc_spend,quicksilver,barlcays])
         db.session.commit()
     
 # Merchant
