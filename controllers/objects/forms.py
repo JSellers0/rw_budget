@@ -10,7 +10,8 @@ class TransactionForm(FlaskForm):
     tran_types = [
         ('credit','Credit'),
         ('debit','Debit'),
-        ('pending','Pending')
+        ('pending','Pending'),
+        ('ccp','Card Pmnt'),
     ]
     transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])
@@ -22,9 +23,35 @@ class TransactionForm(FlaskForm):
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
     
+    def to_json(self):
+        return {
+            "transactionid": self.transactionid.data,
+            "transaction_date": self.transaction_date.data,
+            "transaction_type": self.transaction_type.data,
+            "merchant_name": self.merchant_name.data,
+            "category": self.category.data,
+            "account": self.account.data,
+            "amount": self.amount.data,
+            "note": self.note.data,
+        }
+    
+class RecurringTransactionForm(FlaskForm):
+    rtranid: HiddenField = HiddenField("RecuringTransactionID")
+    merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
+    category: SelectField = SelectField("Category", validators=[DataRequired()])
+    account: SelectField = SelectField("Account", validators=[DataRequired()])
+    amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
+    note: StringField = StringField("Notes")
+    submit: SubmitField = SubmitField("Insert")
+    
 class CategoryForm(FlaskForm):
     category_name: StringField = StringField("Category Name", validators=[DataRequired(), Length(max=200)])
     submit: SubmitField = SubmitField("Submit")
+    
+    def to_json(self):
+        return {
+            "category_name": self.category_name.data
+        }
     
 class BudgetForm(FlaskForm):
     category_options = ""
