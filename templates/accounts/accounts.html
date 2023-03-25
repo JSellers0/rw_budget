@@ -18,13 +18,13 @@
     <tbody>
         {% for account in accounts %}
         <tr>
-            <td>{{ account.get('account_name') }}</td>
-            <td>{{ account.get('account_type') }}</td>
-            <td>{{ account.get('payment_day') }}</td>
-            <td>{{ account.get('statement_day') }}</td>
-            <td>{{ account.get('rewards_features') }}</td>
+            <td>{{ account.account_name }}</td>
+            <td>{{ account.account_type }}</td>
+            <td>{{ account.payment_day }}</td>
+            <td>{{ account.statement_day }}</td>
+            <td>{{ account.rewards_features }}</td>
             <td>
-                <a href="{{ url_for("update_account",accountid=account.get('accountid')) }}" class="btn btn-outline-info">
+                <a href="{{ url_for("update_account",accountid=account.accountid) }}" class="btn btn-outline-info">
                     Update
                 </a>
             </td>
