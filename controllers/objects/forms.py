@@ -74,7 +74,7 @@ class BudgetForm(FlaskForm):
     budgetid: HiddenField = HiddenField("BudgetID")
     budget_name: StringField = StringField("Budget Name", validators=[DataRequired(), Length(max=200)])
     budget_amount: DecimalField = DecimalField("Budget Amount", validators=[DataRequired()])
-    category: SelectField = SelectField("Budget Categories", validators=[DataRequired()])
+    category: SelectField = SelectField("Budget Category", validators=[DataRequired()])
     submit: SubmitField = SubmitField("Submit")
     
     def to_json(self) -> dict[str, Any]:

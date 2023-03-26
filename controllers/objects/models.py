@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from sqlalchemy import Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql import func
@@ -8,6 +7,7 @@ from typing import Any
 
 # ToDo: Split db init from models
 # ToDo: Accounts Interface to get all transactions for an account?
+# ToDo: Budget Interface to get category
 # ToDo: Parent Categories
 # DECISION: Do I need parent budgets if I'm going to have parent categories?  I think views are realistically the only way to do this.
 # ToDo: User table
@@ -102,17 +102,18 @@ class Transaction(db.Model):
     
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
-    
-@dataclass
+
 class TransactionInterface:
     transaction: Transaction
     category: Category
     account: Account
     
-# ToDo: Recurrance interval.  Right now I'm assumign monthly recurrance.  Do I need a last tran and next tran date?
+# ToDo: Recurrance interval.  Right now I'm assumign monthly recurrance.
+# ToDo: Last transactionid to get last transaction date and amount to calculate next recurrance
 class RecuringTransaction(db.Model):
     __tablename__ = 'recurring_transaction'
     rtranid: Column = Column(Integer, primary_key=True)
+    last_transactionid: Column = Column(Integer, ForeignKey('transaction.transactionid'), default=1)
     expected_day: Column = Column(Integer, nullable=False)
     recur_interval_typeid: Column = Column(Integer, ForeignKey('recur_tran_interval_types.intervalid'), default=1)
     recur_interval: Column = Column(Integer, nullable=False)
@@ -136,7 +137,6 @@ class RTranInterval(db.Model):
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
      
-@dataclass
 class RecurringTransactionInterface:
     transaction: Transaction
     interval: RTranInterval

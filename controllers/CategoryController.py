@@ -72,7 +72,7 @@ def insert_category(category_name: str)-> CategoryResponse:
     
     if cat_check["categories"][0] is None:
         category: Category = Category(category_name=category_name)
-        # ToDo: try/except?
+
         db.session.add(category)
         db.session.commit()
     
@@ -101,8 +101,7 @@ def update_category(category_data: dict) -> CategoryResponse:
     
     if category_data.get('category_name','').lower() != category.category_name.lower():
         category.category_name = category_data.get('category_name', '')
-    
-    # ToDo: try/except?
+
     db.session.commit()
     
     return CategoryResponse(
@@ -120,8 +119,7 @@ def delete_category(categoryid: int) -> CategoryResponse:
             message=f"{categoryid} is not a valid category id.",
             categories=[None]
         )
-    
-    # ToDo: try/except?
+
     db.session.delete(category)
     db.session.commit()
     
