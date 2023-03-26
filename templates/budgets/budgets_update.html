@@ -1,37 +1,30 @@
 {% extends "parent.html" %}
 {% block head %}
 {% endblock %}
-{% block page_name %}Update Account{% endblock %}
+{% block page_name %}Update Budget{% endblock %}
 
 {% block body %}
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
         <fieldset>
-            <legend>Update account information</legend>
+            <legend>Update budget</legend>
+                {{ form.budgetid }}
             <div class="form-group">
-                {{form.account_name.label(class="form-control-label")}}
-                {{form.account_name(class="form-control", value=account.account_name)}}
+                {{ form.budget_name.label(class="form-control-label") }}
+                {{ form.budget_name(class="form-control") }}
             <div class="form-group">
-                {{form.account_type.label(class="form-control-label")}}
-                {{form.account_type(class="form-control", value=account.account_type)}}
+                {{ form.budget_amount.label(class="form-control-label") }}
+                {{ form.budget_amount(class="form-control") }}
             </div>
             <div class="form-group">
-                {{form.payment_day.label(class="form-control-label")}}
-                {{form.payment_day(class="form-control", value=account.payment_day)}}
-            </div>
-            <div class="form-group">
-                {{form.statement_day.label(class="form-control-label")}}
-                {{form.statement_day(class="form-control", value=account.statement_day)}}
-            </div>
-            <div class="form-group">
-                {{form.rewards_features.label(class="form-control-label")}}
-                {{form.rewards_features(class="form-control", value=account.rewards_features)}}
+                {{ form.category.label(class="form-control-label") }}
+                {{ form.category(class="form-control") }}
             </div>
         </fieldset>
         <div class="form-group">
             {{form.submit(class="btn btn-outline-info")}}
-            <a href="{{ url_for("accounts") }}" class="btn btn-outline-info">Back</a>
+            <a href="{{ url_for("budgets") }}" class="btn btn-outline-info">Back</a>
         </div>
         
     </form>
