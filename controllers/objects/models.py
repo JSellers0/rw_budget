@@ -62,6 +62,7 @@ class Budget(db.Model):
         }
 
 class Account(db.Model):
+    # ToDo: credit limit to figure out utilization
     __tablename__ = 'account'
     accountid: Column = Column(Integer, primary_key=True)
     account_name: Column = Column(String(200), nullable=False)
@@ -133,6 +134,7 @@ class TransactionInterface:
     account: Account
     
 def build_accounts():
+#ToDo: add care credit account
     barlcays = Account(
         account_name='Barclays',
         account_type='Credit Card',
