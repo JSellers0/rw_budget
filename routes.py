@@ -3,19 +3,33 @@ from controllers import (
     AccountController as AC, BudgetController as BC
 )
 from controllers.objects.forms import (
-    AccountForm, BudgetForm, CategoryForm, RecurringTransactionForm, TransactionForm
+    AccountForm, ApplyRecurringTransactions, BudgetForm, 
+    CategoryForm, RecurringTransactionForm, TransactionForm
 )
 from controllers.objects.models import TransactionInterface
 from datetime import date
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, request, url_for
 from app import app
 
 # ToDo: Implement flash message system
 # ToDo: Recurring transaction system
 # ToDo: Error Handling
+# ToDo: Dynamic back buttons based on where user just was
+# ToDo: Month end dict?
 
 @app.route("/", methods=["GET"])
 def home():
+    # CashFlow
+    # Get all transactions by date: 1st to end of month
+    # Load into Pandas
+    # Split by 15th
+    # remaining = sum of amount
+    # income = sum of debit/pending debit
+    # expense = sum of credit
+    # pending expense = sum of pending credit
+    # accounts- group by account, sum amounts
+    
+    
     return render_template("home.html")
 
 @app.route("/transaction", methods=["GET","POST"])
@@ -66,12 +80,18 @@ def update_transaction(transaction_id:int):
     
 @app.route("/transaction/recurring", methods=["GET","POST"])
 def recurring_transactions():
+    get_response = TC.get_all_recurring_transactions()
     form = RecurringTransactionForm()
+    form.category.choices = CC.get_categories_for_listbox()
+    form.account.choices = AC.get_accounts_for_listbox()
+    
     if form.validate_on_submit():
+        insert_response = TC.insert_recurring_transaction(form.to_json())
         return redirect(url_for("recurring_transactions"))
     return render_template(
         "transactions/recurring_transactions.html",
-        form=form
+        form=form,
+        transactions=get_response["transactions"]
     )
     
 @app.route("/transaction/recurring/new", methods=["GET","POST"])
@@ -84,15 +104,29 @@ def new_recurring_transaction():
         form=form
     )
     
-
 @app.route("/transaction/recurring/<int:rtranid>", methods=["GET","POST"])
 def update_recurring_transaction(rtranid):
+    get_response = TC.get_rtran_by_id(rtranid)
     form = RecurringTransactionForm()
     if form.validate_on_submit():
         return redirect(url_for("recurring_transactions"))
     return render_template(
         "transactions/recurring_transactions_update.html",
         form=form
+    )
+    
+@app.route("/transaction/recurring/apply", methods=["GET","POST"])
+def apply_recurring_transactions():
+    get_response = TC.get_all_recurring_transactions()
+    # ToDo: loop through trans to get all monthly trans and add them as default to form.RTranIDs
+    form = ApplyRecurringTransactions()
+    if form.validate_on_submit():
+        apply_rtran_response = TC.apply_recurring_transactions(form.to_json())
+        return redirect(url_for("transactions"))
+    return render_template(
+        "transactions/apply_recurring_transactions.html",
+        form=form,
+        transactions=get_response["transactions"]
     )
     
 @app.route("/category", methods=["GET", "POST"])
