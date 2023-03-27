@@ -10,30 +10,33 @@
         <form method="POST", action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                {{ form.trasactionid(value=transaction.transaction.transaction_id)}}
                 <div class="form-group">
                     {{form.transaction_date.label(class="form-control-label")}}
-                    {{form.transaction_date(class="form-control", value=transaction.transaction.transaction_date)}}
+                    {{form.transaction_date(class="form-control")}}
                 </div>
                 <div class="form-group">
                     {{form.merchant_name.label(class="form-control-label")}}
-                    {{form.merchant_name(class="form-control", value=transaction.transaction.merchant_name)}}
+                    {{form.merchant_name(class="form-control")}}
+                </div>
+                <div class="form-group">
+                    {{form.category.label(class="form-control-label")}}
+                    {{form.category(class="form-control")}}
                 </div>
                 <div class="form-group">
                     {{form.amount.label(class="form-control-label")}}
-                    {{form.amount(class="form-control", value=transaction.transaction.amount)}}
+                    {{form.amount(class="form-control")}}
                 </div>
                 <div class="form-group">
-                    {{form.category.label(class="form-control-label")}}
-                    {{form.category(class="form-control", value=transaction.category.categoryid)}}
+                    {{form.account.label(class="form-control-label")}}
+                    {{form.account(class="form-control")}}
                 </div>
                 <div class="form-group">
-                    {{form.category.label(class="form-control-label")}}
-                    {{form.category(class="form-control", value=transaction.category.categoryid)}}
+                    {{form.transaction_type.label(class="form-control-label")}}
+                    {{form.transaction_type(class="form-control")}}
                 </div>
                 <div class="form-group">
                     {{form.note.label(class="form-control-label")}}
-                    {{form.note(class="form-control", innerHTML=transaction.transaction.note)}}
+                    {{form.note(class="form-control")}}
                 </div>
             </fieldset>
                 <div class="form-group">
