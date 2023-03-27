@@ -5,10 +5,39 @@
 
 {% block body %}
 <div class="content-section">
+    <h1>Cashflow for {Month}</h1>
+    <div>
+        <h2>1st - 14th</h2>
+        Remaining:
+        <br>
+        Income: ${income}| Expenses: ${expense}| Pending Expenses: ${pend_expense}
+        <table>
+            <thead>
+            <tr>
+                <th>Account</th>
+                <th>Current Balance</th>
+                <th>Expected Balance</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div>
+        <h2>15th - {End of Month}</h2>
+        Remaining:
+        Income: | Expenses: | Pending Expenses:
+        <table>
+            <thead>
+            <tr>
+                <th>Account</th>
+                <th>Current Balance</th>
+                <th>Expected Balance</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<div class="content-section">
     <div>Summary Info will go here</div>
     <div>Interactive Charts</div>
-    <li>#ToDo: Income checkpoints</li>
-    <div>List transactions since income checkpoint</div>
-    <li>#ToDo: Paginate by income checkpoints</div>
 </div>
 {% endblock %}
