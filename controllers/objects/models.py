@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
+from dataclasses import dataclass
+from sqlalchemy import Boolean, Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql import func
 from app import app, db
@@ -95,6 +96,7 @@ class Transaction(db.Model):
     amount: Column = Column(DECIMAL(7,2), nullable=False)
     note: Column = Column(String(1000))
     transaction_date: Column = Column(Date(), nullable=False)
+    is_pending: Column = Column(Boolean())
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
@@ -103,6 +105,7 @@ class Transaction(db.Model):
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
 
+@dataclass
 class TransactionInterface:
     transaction: Transaction
     category: Category
@@ -136,7 +139,8 @@ class RTranInterval(db.Model):
     insert_by: Column = Column(String(100), server_default=func.current_user())
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
-     
+
+@dataclass
 class RecurringTransactionInterface:
     transaction: Transaction
     interval: RTranInterval
