@@ -41,7 +41,7 @@ def test_pending_insert():
         'merchant_name': 'Test Merchant',
         'transaction_type': 'pending',
         'amount': -100,
-        'note': 'Test insert bad credit amount'
+        'note': 'Test insert pending transaction'
     }
     
     with app.app_context():

@@ -1,0 +1,54 @@
+{% extends "parent.html" %}
+{% block head %}
+{% endblock %}
+{% block page_name %}Rock Willow Transactions{% endblock %}
+
+{% block body %}
+<div class="content-section">
+    <h2>List of Recurring Transactions</h2>
+    {# Section for Pending Transactions, part of recurring transactions system #}
+    <table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">RTranID</th>
+            <th scope="col">Expected Date</th>
+            <th scope="col">Merchant</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Account</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for transaction in transactions %}
+        <tr>
+            <th scope="row">{{transaction.transaction.rtranid}}</th>
+            <td>{{transaction.transaction.expected_day}}</td>
+            <td>{{transaction.transaction.merchant_name}}</td>
+            <td>{{transaction.transaction.amount}}</td>
+            <td>{{transaction.category.category_name}}</td>
+            <td>{{transaction.account.account_name}}</td>
+            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].rtranid)}}>Update</a>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+<div class="content-section">
+    <form method="POST", action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <div class="form-group">
+                {{form.RTranIDs.label(class="form-control-label")}}
+                {{form.RTranIDs(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.month.label(class="form-control-label")}}
+                {{form.month(class="form-control")}}
+            </div>
+        </fieldset>
+        <fieldset class="form-group">
+            {{form.submit(class="btn btn-outline-info")}}
+        </fieldset>
+    </form>
+</div>
+{% endblock %}

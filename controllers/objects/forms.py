@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from typing import Any
-from wtforms import StringField, IntegerField, DecimalField, SubmitField, DateField, SelectField, HiddenField
+from wtforms import StringField, BooleanField, DecimalField, SubmitField, DateField, SelectField, HiddenField, IntegerField
 from wtforms.validators import (DataRequired, Length)
 
 # ToDo: category as single select field
@@ -43,22 +43,31 @@ class RecurringTransactionForm(FlaskForm):
     account: SelectField = SelectField("Account", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
     expected_day: StringField = StringField("Expected Day of Transaction", validators=[DataRequired(), Length(max=200)])
-    recur_interval_type: SelectField = SelectField("Recurrance Interval", validators=[DataRequired()])
-    recur_interval: IntegerField = IntegerField("Recurrance Interval", validators=[DataRequired()])
+    is_monthly: BooleanField = BooleanField("Monthly Transaction")
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
     
     def to_json(self) -> dict[str, Any]:
         return {
             "rtranid": self.rtranid.data,
+            "expected_day": self.expected_day.data,
             "merchant_name": self.merchant_name.data,
             "category": self.category.data,
             "account": self.account.data,
             "amount": self.amount.data,
-            "expected_day": self.expected_day.data,
-            "recur_interval_type": self.recur_interval_type.data,
-            "recur_interval": self.recur_interval.data,
+            "is_monthly": self.is_monthly.data,
             "note": self.note.data,
+        }
+        
+class ApplyRecurringTransactions(FlaskForm):
+    RTranIDs: StringField = StringField("List recurring transaction ids:")
+    month: IntegerField = IntegerField("Month to apply rtrans to this year:")
+    submit: SubmitField = SubmitField("Apply")
+    
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "RTranIDs": self.RTranIDs.data,
+            "month": self.month.data
         }
     
 class CategoryForm(FlaskForm):

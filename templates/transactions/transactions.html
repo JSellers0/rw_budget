@@ -67,7 +67,6 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        {{ form.transactionid()}}
         {# BUG: Need transactionid field to exist #}
         <fieldset class="form-row">
             <div class="col">
@@ -111,13 +110,16 @@
     <a href="{{url_for("new_budget")}}" class="btn btn-outline-info">Add Budget</a>
     <a href="{{url_for("new_category")}}" class="btn btn-outline-info">Add Category</a>
     <a href="{{url_for("new_recurring_transaction")}}" class="btn btn-outline-info">Add Recurring Transaction</a>
+    <a href="{{url_for("apply_recurring_transactions")}}" class="btn btn-outline-info">Apply Recurring Transactions</a>
 </div>
 <div class="content-section">
     <h2>Upcoming Features</h2>
     <ul>
         <li>#ToDo: Split Transactions</li>
         <li>#ToDo: Import Transactions</li>
-        <li>#ToDo: Set up recurring transactions</li>
+        <li>#ToDo: Apply recurring transactions - New Form.  Checkboxes next to transactions. Pick the ones to pull.</li>
+        <li>#ToDo: Recurring Transactions - is_monthly or default_add or something checkbox to flag these by default in add form.</li>
+        <li>#ToDo: Recurring Transactions - Don't need interval anymore.</li>
         <li>#ToDo: Export Transactions</li>
         <li>#ToDo: Paginate by Month and Year</li>
     </ul>

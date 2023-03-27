@@ -1,5 +1,5 @@
 from app import db
-from controllers.objects.models import Transaction, TransactionInterface, RecuringTransaction, RecurringTransactionInterface
+from controllers.objects.models import Transaction, TransactionInterface, RecuringTransaction
 from controllers.objects.forms import TransactionForm
 from datetime import date
 from typing import TypedDict
@@ -17,7 +17,7 @@ from typing import TypedDict
 class TransactionResponse(TypedDict):
     response_code: int
     message: str
-    transactions: list[TransactionInterface | RecurringTransactionInterface | None]
+    transactions: list[TransactionInterface | None]
 
 def get_all_transactions(is_pending:int) -> TransactionResponse:
     transactions = Transaction.query.filter(Transaction.is_pending == is_pending).order_by(Transaction.transaction_date.asc()).all()
@@ -201,5 +201,73 @@ def get_all_recurring_transactions() -> TransactionResponse:
     return TransactionResponse(
             response_code=200,
             message=f"Retrieved {len(r_trans)} recurring transactions.",
-            transactions=[RecurringTransactionInterface(r_tran, r_tran.interval, r_tran.category, r_tran.account) for r_tran in r_trans]
+            transactions=[TransactionInterface(r_tran, r_tran.category, r_tran.account) for r_tran in r_trans]
         )
+    
+def get_rtran_by_id(rtranid: int) -> TransactionResponse:
+    r_tran = RecuringTransaction.query.filter(RecuringTransaction.rtranid == rtranid).one_or_none()
+    
+    if r_tran == None:
+        return TransactionResponse(
+            response_code=404,
+            message="No transactions found",
+            transactions=[None]
+        )
+    
+    return TransactionResponse(
+            response_code=200,
+            message=f"Successfully retrieved transaction {rtranid}.",
+            transactions=[TransactionInterface(r_tran, r_tran.category, r_tran.account)]
+        )
+    
+def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:          
+    # ToDo: Check for record with the exact same values?
+                
+    transaction: RecuringTransaction = RecuringTransaction(
+        expected_day=transaction_data.get('expected_day'),
+        merchant_name=transaction_data.get('merchant_name', ''),
+        categoryid=transaction_data.get('category', 1),
+        amount=transaction_data.get('amount', 0),
+        accountid=transaction_data.get('account', 1),
+        is_monthly=transaction_data.get('is_monthly'),
+        note=transaction_data.get('note', ''),
+    )
+
+    db.session.add(transaction)    
+    db.session.commit()
+    
+    return TransactionResponse(
+            response_code=200,
+            message=f"Transaction insert successful.",
+            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+    )
+    
+def update_recurring_transaction(transaction_data: dict) -> None:
+    return None
+
+def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
+    transactions = []
+    for rtranid in rtrans_data.get("RTranIDs").split(","):
+        # ToDo: Check Response
+        get_rtran_response = get_rtran_by_id(int(rtranid))
+        rtran = get_rtran_response['transactions'][0]
+        tran_data = {
+            "transaction_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
+            "merchant_name": rtran.transaction.merchant_name, # type: ignore
+            "categoryid": rtran.transaction.categoryid, # type: ignore
+            "amount": rtran.transaction.amount, # type: ignore
+            "accountid": rtran.transaction.accountid, # type: ignore
+            "note": rtran.transaction.note, # type: ignore
+            "transaction_type": "pending",
+            "is_pending": 1
+        }
+        # ToDo: Check Response
+        tran_insert_response = insert_transaction(transaction_data=tran_data)
+        transactions.append(tran_insert_response['transactions'][0])
+        
+    return TransactionResponse(
+        response_code=200,
+        message=f"Successfully inserted {len(transactions)} recurring transactions.",
+        transactions=transactions
+    )
+    

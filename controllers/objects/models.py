@@ -22,6 +22,7 @@ class Category(db.Model):
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
     transactions = db.relationship('Transaction', backref='category')
+    recur_transactions = db.relationship('RecuringTransaction', backref='category')
     budgets = db.relationship('Budget', backref='category')
     
     def __repr__(self) -> str:
@@ -69,6 +70,7 @@ class Account(db.Model):
     payment_day: Column = Column(String(50))
     statement_day: Column = Column(String(50))
     transactions = db.relationship('Transaction', backref='account')
+    recur_transactions = db.relationship('RecuringTransaction', backref='account')
     
     def __repr__(self) -> str:
         return "account({},{})".format(self.accountid, self.account_name)
@@ -104,46 +106,29 @@ class Transaction(db.Model):
     
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
-
-@dataclass
-class TransactionInterface:
-    transaction: Transaction
-    category: Category
-    account: Account
     
 # ToDo: Recurrance interval.  Right now I'm assumign monthly recurrance.
 # ToDo: Last transactionid to get last transaction date and amount to calculate next recurrance
+# ToDo: Fix misspelling
 class RecuringTransaction(db.Model):
     __tablename__ = 'recurring_transaction'
     rtranid: Column = Column(Integer, primary_key=True)
-    last_transactionid: Column = Column(Integer, ForeignKey('transaction.transactionid'), default=1)
+    last_transactionid: Column = Column(Integer, ForeignKey('transaction.transactionid'))
     expected_day: Column = Column(Integer, nullable=False)
-    recur_interval_typeid: Column = Column(Integer, ForeignKey('recur_tran_interval_types.intervalid'), default=1)
-    recur_interval: Column = Column(Integer, nullable=False)
     categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
     accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
     merchant_name: Column = Column(String(200), nullable=False)
     amount: Column = Column(DECIMAL(7,2), nullable=False)
     note: Column = Column(String(1000))
+    is_monthly: Column = Column(Boolean)
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
-
-class RTranInterval(db.Model):
-    __tablename__ = 'recur_tran_interval_types'
-    intervalid: Column = Column(Integer, primary_key=True)
-    interval_type: Column = Column(String(100), nullable=False)
-    interval_day_add: Column = Column(Integer, nullable=False)
-    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
-    insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
-
+    
 @dataclass
-class RecurringTransactionInterface:
-    transaction: Transaction
-    interval: RTranInterval
+class TransactionInterface:
+    transaction: Transaction | RecuringTransaction
     category: Category
     account: Account
     
@@ -195,7 +180,7 @@ def build_accounts():
     with app.app_context():
         db.session.add_all([venture,pnc_bills,pnc_cash,pnc_spend,quicksilver,barlcays])
         db.session.commit()
-    
+            
 # Merchant
 
 # MerchantAlias - enable aliased merchant display

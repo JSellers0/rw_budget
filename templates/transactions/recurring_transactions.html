@@ -11,7 +11,6 @@
     <thead>
         <tr>
             <th scope="col">Expected Date</th>
-            <th scope="col">Recurrance Interval</th>
             <th scope="col">Merchant</th>
             <th scope="col">Amount</th>
             <th scope="col">Category</th>
@@ -22,12 +21,11 @@
     {% for transaction in transactions %}
         <tr>
             <th scope="row">{{transaction.transaction.expected_day}}</th>
-            <td>{{transaction.transaction.recur_interval}}</td>
             <td>{{transaction.transaction.merchant_name}}</td>
             <td>{{transaction.transaction.amount}}</td>
             <td>{{transaction.category.category_name}}</td>
             <td>{{transaction.account.account_name}}</td>
-            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
+            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].rtranid)}}>Update</a>
         </tr>
     {% endfor %}
     </tbody>
@@ -36,23 +34,39 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        {# ToDo: Hybrid between regular and compact form #}
-        {# BUG: Need transactionid field to exist? #}
         <fieldset class="form-row">
-            <div class="col">{{form.expected_day(class="form-control")}}</div>
-            <div class="col">{{form.transaction_type(class="form-control")}}</div>
-            <div class="col">{{form.merchant_name(class="form-control", placeholder="Merchant Name")}}</div>
+            <div class="col">
+                {{form.expected_day.label(class="form-control-label")}}
+                {{form.expected_day(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.merchant_name.label(class="form-control-label")}}
+                {{form.merchant_name(class="form-control", placeholder="Merchant Name")}}
+            </div>
+            <div class="col">
+                {{form.category.label(class="form-control-label")}}
+                {{form.category(class="form-control")}}
+            </div>
         </fieldset>
         <fieldset class="form-row">
-            <div class="col">{{form.amount(class="form-control")}}</div>
-            <div class="col">{{form.category(class="form-control")}}</div>
-            <datalist id="category-list">
-                {% for category in categories %}
-                    <option value="{{ category }}"></option>
-                {% endfor %}
-            </datalist>
-            <div class="col">{{form.note(class="form-control")}}</div>
-            <div class="col">{{form.submit(class="btn btn-outline-info")}}</div>
+            <div class="col">
+                {{form.amount.label(class="form-control-label")}}
+                {{form.amount(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.account.label(class="form-control-label")}}
+                {{form.account(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.note.label(class="form-control-label")}}
+                {{form.note(class="form-control")}}
+            </div>
+        </fieldset>
+        <br />
+        <fieldset class="form-group">
+            {{form.is_monthly.label(class="form-control-label")}}
+            {{form.is_monthly()}}
+            {{form.submit(class="btn btn-outline-info")}}
         </fieldset>
     </form>
 </div>

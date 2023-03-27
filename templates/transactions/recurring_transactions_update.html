@@ -1,0 +1,46 @@
+{% extends "parent.html" %}
+{% block head %}
+{% endblock %}
+{% block page_name %}Update Recurring Transaction{% endblock %}
+
+{% block body %}
+<div class="content-section">
+    <form method="POST", action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <div class="form-group">
+                {{form.expected_day.label(class="form-control-label")}}
+                {{form.expected_day(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.merchant_name.label(class="form-control-label")}}
+                {{form.merchant_name(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.category.label(class="form-control-label")}}
+                {{form.category(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.amount.label(class="form-control-label")}}
+                {{form.amount(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.account.label(class="form-control-label")}}
+                {{form.account(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.is_monthly.label(class="form-control-label")}}
+                {{form.is_monthly(class="form-control")}}
+            </div>
+            <div class="form-group">
+                {{form.note.label(class="form-control-label")}}
+                {{form.note(class="form-control")}}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{form.submit(class="btn btn-outline-info", value="Update")}}
+            <a href="{{ url_for("recurring_transactions") }}" class="btn btn-outline-info">Back</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
