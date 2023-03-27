@@ -16,11 +16,11 @@ class TransactionForm(FlaskForm):
     ]
     transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])
-    transaction_type: SelectField = SelectField("Type", choices=tran_types, validators=[DataRequired()])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     category: SelectField = SelectField("Category", validators=[DataRequired()])
-    account: SelectField = SelectField("Account", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
+    account: SelectField = SelectField("Account", validators=[DataRequired()])
+    transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
     
