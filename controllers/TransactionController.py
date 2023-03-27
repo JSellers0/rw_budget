@@ -3,6 +3,7 @@ from controllers.objects.models import Transaction, TransactionInterface, Recuri
 from controllers.objects.forms import TransactionForm
 from datetime import date
 from typing import TypedDict
+import pandas as pd
 
 # ToDo: Get all transactions by accountid
 # DECISION: Return all account transactions and let web layer filter by dates?  Or get by account and date function?
@@ -271,3 +272,10 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
         transactions=transactions
     )
     
+def get_cashflow() -> None:
+    # ToDo: Move end of month calculation here.
+    # ToDo: try pd query with orm objects
+    # ToDo: move cashflow todos from home here.
+    #DECISION: Return 1 df or 2?
+
+    return None
