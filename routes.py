@@ -1,5 +1,11 @@
-from controllers.objects.forms import TransactionForm, CategoryForm, AccountForm, RecurringTransactionForm
-from controllers import TransactionController as TC, CategoryController as CC, AccountController as AC
+from controllers import (
+    TransactionController as TC, CategoryController as CC,
+    AccountController as AC, BudgetController as BC
+)
+from controllers.objects.forms import (
+    AccountForm, BudgetForm, CategoryForm, RecurringTransactionForm, TransactionForm
+)
+from controllers.objects.models import TransactionInterface
 from datetime import date
 from flask import render_template, redirect, url_for
 from app import app
@@ -12,9 +18,10 @@ from app import app
 def home():
     return render_template("home.html")
 
-@app.route("/transactions", methods=["GET","POST"])
+@app.route("/transaction", methods=["GET","POST"])
 def transactions():
-    response: TC.TransactionResponse = TC.get_all_transactions()
+    curr_response: TC.TransactionResponse = TC.get_all_transactions(is_pending=0)
+    pend_response: TC.TransactionResponse = TC.get_all_transactions(is_pending=1)
     form:TransactionForm = TransactionForm()
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
@@ -24,53 +31,68 @@ def transactions():
         
     return render_template(
         "transactions/transactions.html", 
-        transactions=response["transactions"],
+        current_transactions=curr_response["transactions"],
+        pending_transactions=pend_response["transactions"],
         form=form
         )
     
-@app.route("/transactions/<int:transaction_id>", methods=['GET','POST'])
+@app.route("/transaction/<int:transaction_id>", methods=['GET','POST'])
 def update_transaction(transaction_id:int):
     response: TC.TransactionResponse = TC.get_transaction_by_id(transactionid=transaction_id)
-    form:TransactionForm = TransactionForm()
+    
+    target_transaction: TransactionInterface = response["transactions"][0]#type: ignore # ToDo: Figure out how to handle multiple return types
+    form:TransactionForm = TransactionForm(
+        transactionid=target_transaction.transaction.transactionid,
+        transaction_date = target_transaction.transaction.transaction_date,
+        merchant_name=target_transaction.transaction.merchant_name,
+        category=target_transaction.category.categoryid,
+        amount=target_transaction.transaction.amount,
+        account=target_transaction.account.accountid,
+        transaction_type=target_transaction.transaction.transaction_type,
+        note=target_transaction.transaction.note
+    )
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
     
     if form.validate_on_submit():        
         update_response: TC.TransactionResponse = TC.update_transaction(transaction_data=form.to_json())
+        print(update_response)
         return redirect(url_for("transactions"))
                   
     return render_template(
         "transactions/transaction_update.html",
-        transaction=response["transactions"][0],
         form=form
     )
     
-@app.route("/transactions/recurring", methods=["GET","POST"])
+@app.route("/transaction/recurring", methods=["GET","POST"])
 def recurring_transactions():
     form = RecurringTransactionForm()
     if form.validate_on_submit():
         return redirect(url_for("recurring_transactions"))
     return render_template(
-        "transactions/recurring_transactions.html"
+        "transactions/recurring_transactions.html",
+        form=form
     )
     
-@app.route("/transactions/recurring/new", methods=["GET","POST"])
-def new_recurring_transactions():
+@app.route("/transaction/recurring/new", methods=["GET","POST"])
+def new_recurring_transaction():
     form = RecurringTransactionForm()
     if form.validate_on_submit():
         return redirect(url_for("transactions"))
     return render_template(
-        "transactions/recurring_transactions_new.html"
+        "transactions/recurring_transactions_new.html",
+        form=form
     )
     
 
-@app.route("/transactions/recurring/<int:rtranid>", methods=["GET","POST"])
-def update_recurring_transactions(rtranid):
+@app.route("/transaction/recurring/<int:rtranid>", methods=["GET","POST"])
+def update_recurring_transaction(rtranid):
     form = RecurringTransactionForm()
     if form.validate_on_submit():
         return redirect(url_for("recurring_transactions"))
     return render_template(
-        "transactions/recurring_transactions_update.html"
+        "transactions/recurring_transactions_update.html",
+        form=form
     )
     
 @app.route("/category", methods=["GET", "POST"])
@@ -120,9 +142,33 @@ def update_category(categoryid: int):
         categories=all_cats_response["categories"]
         )
 
-@app.route("/budgets", methods=["GET"])
+@app.route("/budget", methods=["GET","POST"])
 def budgets():
-    return render_template("budgets/budgets.html")
+    budgets = BC.get_all_budgets()
+    form = BudgetForm()
+    return render_template(
+        "budgets/budgets.html",
+        form=form,
+        budgets=budgets["budgets"]
+        )
+
+@app.route("/budget/new", methods=["GET","POST"])
+def new_budget():
+    form = BudgetForm()
+    return render_template(
+        "budgets/budget_new.html",
+        form=form
+        )
+
+@app.route("/budget/<int:budgetid>", methods=["GET","POST"])
+def update_budget(budgetid):
+    budget = BC.get_budget_by_id(budgetid=budgetid)
+    form = BudgetForm()
+    return render_template(
+        "budgets/budget_update.html",
+        form=form,
+        budget=budget
+        )
 
 @app.route("/account", methods=["GET", "POST"])
 def accounts():
