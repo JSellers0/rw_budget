@@ -21,13 +21,12 @@
     <tbody>
     {% for transaction in transactions %}
         <tr>
-            <th scope="row">{{transaction.transaction.transaction_date}}</th>
-            <td>{{transaction.transaction.transaction_type}}</td>
+            <th scope="row">{{transaction.transaction.expected_day}}</th>
+            <td>{{transaction.transaction.recur_interval}}</td>
             <td>{{transaction.transaction.merchant_name}}</td>
             <td>{{transaction.transaction.amount}}</td>
             <td>{{transaction.category.category_name}}</td>
             <td>{{transaction.account.account_name}}</td>
-            <td>{{transaction.transaction.note}}</td>
             <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
         </tr>
     {% endfor %}
@@ -40,9 +39,11 @@
         {# ToDo: Hybrid between regular and compact form #}
         {# BUG: Need transactionid field to exist? #}
         <fieldset class="form-row">
-            <div class="col">{{form.transaction_date(class="form-control")}}</div>
+            <div class="col">{{form.expected_day(class="form-control")}}</div>
             <div class="col">{{form.transaction_type(class="form-control")}}</div>
             <div class="col">{{form.merchant_name(class="form-control", placeholder="Merchant Name")}}</div>
+        </fieldset>
+        <fieldset class="form-row">
             <div class="col">{{form.amount(class="form-control")}}</div>
             <div class="col">{{form.category(class="form-control")}}</div>
             <datalist id="category-list">
