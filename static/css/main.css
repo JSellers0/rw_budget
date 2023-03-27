@@ -81,16 +81,20 @@ a.article-title:hover {
 
 .dropdown-content {
   display: none;
-  position: absolute;
+  position: relative;
   background-color: #061F47;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
 }
 
-.dropdown:hover .dropdown-content {
-  display: block;
+.dropdown:hover .dropdown-menu {
+  display: flex;
 }
+
+.dropdown:hover .dropdown-content {
+    display: block;
+  }
 
 .comment-img {
   height: 35x;
@@ -98,7 +102,7 @@ a.article-title:hover {
   margin-right: 8px;
 }
 
-li.dropdown {display: inline-block;}
+
 
 .add-comment{
   margin-left:auto;
