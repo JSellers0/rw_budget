@@ -11,14 +11,16 @@ from typing import TypedDict
 # ToDo: try/except around db operations?
 # ToDo: use get functions instead of repeating Transaction.query in insert,update,delete
 # ToDo: Recurring transaction CRUD
+# ToDo: ispending flag to all get methods
+# ToDo: set ispending flag on insert/update
 
 class TransactionResponse(TypedDict):
     response_code: int
     message: str
     transactions: list[TransactionInterface | RecurringTransactionInterface | None]
 
-def get_all_transactions() -> TransactionResponse:
-    transactions = Transaction.query.order_by(Transaction.transaction_date.asc()).all()
+def get_all_transactions(is_pending:int) -> TransactionResponse:
+    transactions = Transaction.query.filter(Transaction.is_pending == is_pending).order_by(Transaction.transaction_date.asc()).all()
     
     if len(transactions) == 0:
         return TransactionResponse(
@@ -116,6 +118,10 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
             
+    is_pending = 0
+    if transaction_data.get('transaction_type','') == 'pending':
+        is_pending = 1
+            
     # ToDo: Check for record with the exact same values?
                 
     transaction: Transaction = Transaction(
@@ -125,7 +131,8 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
         merchant_name=transaction_data.get('merchant_name', ''),
         transaction_type=transaction_data.get('transaction_type', ''),
         amount=transaction_data.get('amount', 0),
-        note=transaction_data.get('note', '')
+        note=transaction_data.get('note', ''),
+        is_pending=is_pending
     )
 
     db.session.add(transaction)    
@@ -141,21 +148,31 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
     transaction: Transaction = Transaction.query.filter(Transaction.transactionid == transaction_data.get('transactionid')).one_or_none()
     
     if transaction == None:
-        raise ValueError(f"{transaction_data.get('transactionid')} is not a valid transaction id.")
+        return TransactionResponse(
+            response_code=404,
+            message=f"Transaction { transaction_data.get('transactionid')} not found.",
+            transactions=[None]
+        )
     
     if transaction_data.get('transaction_date') != transaction.transaction_date:
         transaction.transaction_date = transaction_data.get('transaction_date', '')
-    if transaction_data.get('categoryid') != transaction.categoryid:
-        transaction.categoryid = transaction_data.get('categoryid', 1)
     if transaction_data.get('merchant_name') != transaction.merchant_name:
         transaction.merchant_name = transaction_data.get('merchant_name', '')
-    if transaction_data.get('transaction_type') != transaction.transaction_type:
-        transaction.transaction_type = transaction_data.get('transaction_type', '')
+    if transaction_data.get('category') != transaction.categoryid:
+        transaction.categoryid = transaction_data.get('category', 1)
     if transaction_data.get('amount') != transaction.amount:
         transaction.amount = transaction_data.get('amount', 0)
+    if transaction_data.get('account') != transaction.accountid:
+        transaction.accountid = transaction_data.get('account', 0)
+    if transaction_data.get('transaction_type') != transaction.transaction_type:
+        transaction.transaction_type = transaction_data.get('transaction_type', '')
+        if transaction_data.get('transaction_type') == 'pending':
+            transaction.is_pending = True # type: ignore
+        else:
+            transaction.is_pending = False # type: ignore
     if transaction_data.get('note') != transaction.note:
         transaction.note = transaction_data.get('note', '')
-
+    
     db.session.commit()
     
     return TransactionResponse(
