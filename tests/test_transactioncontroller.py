@@ -33,6 +33,21 @@ def test_bad_credit_amount():
         tran_res: TransactionController.TransactionResponse = TransactionController.insert_transaction(test_transaction_data)
         assert tran_res['transactions'][0].transaction.amount == -100 # type: ignore -- need to figure out typing OR situation
         
+def test_pending_insert():
+    test_transaction_data = {
+        'transaction_date': '2023-03-02',
+        'categoryid': 1,
+        'accountid': 2,
+        'merchant_name': 'Test Merchant',
+        'transaction_type': 'pending',
+        'amount': -100,
+        'note': 'Test insert bad credit amount'
+    }
+    
+    with app.app_context():
+        tran_res: TransactionController.TransactionResponse = TransactionController.insert_transaction(test_transaction_data)
+        assert tran_res['transactions'][0].transaction.is_pending == 1 # type: ignore -- need to figure out typing OR situation
+        
 def test_get_transaction():
     with app.app_context():
         tran_res:TransactionController.TransactionResponse = TransactionController.get_transaction_by_id(1)
