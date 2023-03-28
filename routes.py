@@ -101,7 +101,24 @@ def new_recurring_transaction():
 @app.route("/transaction/recurring/<int:rtranid>", methods=["GET","POST"])
 def update_recurring_transaction(rtranid):
     get_response = TC.get_rtran_by_id(rtranid)
-    form = RecurringTransactionForm()
+    # ToDo: Check Response
+    rtran = get_response["transactions"][0]
+    # ToDo: Fill out form with transaction data
+    form = RecurringTransactionForm(
+        rtranid=rtran.transaction.rtranid,
+        expected_day=rtran.transaction.expected_day,
+        merchant_name=rtran.transaction.merchant_name,
+        category=rtran.transaction.categoryid,
+        amount=rtran.transaction.amount,
+        account=rtran.transaction.accountid,
+        transaction_type=rtran.transaction.transaction_type,
+        is_monthly=rtran.transaction.is_monthly,
+        note=rtran.transaction.note
+    )
+    
+    form.account.choices = AC.get_accounts_for_listbox()
+    form.category.choices = CC.get_categories_for_listbox()
+    
     if form.validate_on_submit():
         return redirect(url_for("recurring_transactions"))
     return render_template(

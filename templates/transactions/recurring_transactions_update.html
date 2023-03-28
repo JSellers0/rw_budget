@@ -29,8 +29,12 @@
                 {{form.account(class="form-control")}}
             </div>
             <div class="form-group">
+                {{form.transaction_type.label(class="form-control-label")}}
+                {{form.transaction_type(class="form-control")}}
+            </div>
+            <div class="form-group">
                 {{form.is_monthly.label(class="form-control-label")}}
-                {{form.is_monthly(class="form-control")}}
+                {{form.is_monthly()}}
             </div>
             <div class="form-group">
                 {{form.note.label(class="form-control-label")}}

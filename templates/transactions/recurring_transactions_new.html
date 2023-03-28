@@ -1,0 +1,50 @@
+{% extends "parent.html" %}
+{% block head %}
+{% endblock %}
+{% block page_name %}Rock Willow Transactions{% endblock %}
+
+{% block body %}
+<div class="content-section">
+    <form method="POST", action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-row">
+            <div class="col">
+                {{form.expected_day.label(class="form-control-label")}}
+                {{form.expected_day(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.merchant_name.label(class="form-control-label")}}
+                {{form.merchant_name(class="form-control", placeholder="Merchant Name")}}
+            </div>
+            <div class="col">
+                {{form.category.label(class="form-control-label")}}
+                {{form.category(class="form-control")}}
+            </div>
+        </fieldset>
+        <fieldset class="form-row">
+            <div class="col">
+                {{form.amount.label(class="form-control-label")}}
+                {{form.amount(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.account.label(class="form-control-label")}}
+                {{form.account(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.transaction_type.label(class="form-control-label")}}
+                {{form.transaction_type(class="form-control")}}
+            </div>
+            <div class="col">
+                {{form.note.label(class="form-control-label")}}
+                {{form.note(class="form-control")}}
+            </div>
+        </fieldset>
+        <br />
+        <fieldset class="form-group">
+            {{form.is_monthly.label(class="form-control-label")}}
+            {{form.is_monthly()}}
+            {{form.submit(class="btn btn-outline-info")}}
+        </fieldset>
+    </form>
+</div>
+{% endblock %}
