@@ -22,7 +22,7 @@
             </tr>
             </thead>
             <tbody>
-                {% for acct_name, account in cashflow["top"]["accounts"].iterrows() %}
+                {% for acct_name, account in cashflow["top"]["accounts"].iterrows() if len(cashflow["bot"]["accounts"]) > 0 %}
                 <tr>
                     <td>{{ acct_name }}</td>
                     <td>${{ account['amount'] }}</td>
@@ -46,7 +46,7 @@
             </tr>
             </thead>
             <tbody>
-                {% for acct_name, account in cashflow["bot"]["accounts"].iterrows() %}
+                {% for acct_name, account in cashflow["bot"]["accounts"].iterrows() if len(cashflow["bot"]["accounts"]) > 0 %}
                 <tr>
                     <td>{{ acct_name }}</td>
                     <td>${{ account['amount'] }}</td>

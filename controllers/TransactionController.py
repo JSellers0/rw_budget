@@ -282,6 +282,10 @@ def get_cashflow_df() -> pd.DataFrame:
     start = date(date.today().year, date.today().month, 1).strftime("%Y-%m-%d")
     end = get_month_end(date.today().month).strftime("%Y-%m-%d")
     get_response = get_transactions_by_date_range(start=start, end=end)
+    
+    if get_response["response_code"] == 404:
+        return pd.DataFrame()
+    
     cashflow_transactions = []
     for transaction in get_response['transactions']:
         cashflow_transactions.append({
@@ -313,23 +317,27 @@ def get_cashflow() -> dict:
     # pending expense = sum of pending credit
     # accounts- group by account, sum amounts
     #DECISION: Return 1 df or 2?
-    cashflow_df = get_cashflow_df()
     
     cashflow_data = {
         "top": {
             "remain": 0,
             "income": 0,
             "expens": 0,
-            "accounts": [],
+            "accounts": pd.DataFrame(),
         },
         "bot": {
             "remain": 0,
             "income": 0,
             "expens": 0,
-            "accounts": [],
+            "accounts": pd.DataFrame(),
         }
     }
     
+    cashflow_df = get_cashflow_df()
+    
+    if len(cashflow_df) == 0:
+        return cashflow_data
+     
     top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(date.today().year, date.today().month, 15)]
     bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(date.today().year, date.today().month, 14)]
     
