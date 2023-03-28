@@ -21,7 +21,7 @@ class TransactionResponse(TypedDict):
     transactions: list[TransactionInterface]
 
 def get_all_transactions(is_pending:int) -> TransactionResponse:
-    transactions = Transaction.query.filter(Transaction.is_pending == is_pending).order_by(Transaction.transaction_date.asc()).all()
+    transactions = Transaction.query.filter(Transaction.is_pending == is_pending).order_by(Transaction.transaction_date.desc()).all()
     
     if len(transactions) == 0:
         return TransactionResponse(
