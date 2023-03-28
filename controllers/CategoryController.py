@@ -5,7 +5,6 @@ from typing import TypedDict
 # ToDo: Standardize response messages
 # ToDo: Response status checks where appropriate
 # ToDo: try/except around db operations?
-# ToDo: use get functions instead of repeating Category.query in insert,update,delete
 
 class CategoryResponse(TypedDict):
     response_code: int

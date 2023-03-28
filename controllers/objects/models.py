@@ -20,7 +20,7 @@ class Category(db.Model):
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
     update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
     transactions = db.relationship('Transaction', backref='category')
-    recur_transactions = db.relationship('RecuringTransaction', backref='category')
+    recur_transactions = db.relationship('RecurringTransaction', backref='category')
     budgets = db.relationship('Budget', backref='category')
     
     def __repr__(self) -> str:
@@ -70,7 +70,7 @@ class Account(db.Model):
     payment_day: Column = Column(String(50))
     statement_day: Column = Column(String(50))
     transactions = db.relationship('Transaction', backref='account')
-    recur_transactions = db.relationship('RecuringTransaction', backref='account')
+    recur_transactions = db.relationship('RecurringTransaction', backref='account')
     
     def __repr__(self) -> str:
         return "account({},{})".format(self.accountid, self.account_name)
@@ -107,9 +107,7 @@ class Transaction(db.Model):
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
     
-# ToDo: Last transactionid to get last transaction date and amount to calculate next recurrance
-# ToDo: Fix misspelling
-class RecuringTransaction(db.Model):
+class RecurringTransaction(db.Model):
     __tablename__ = 'recurring_transaction'
     rtranid: Column = Column(Integer, primary_key=True)
     last_transactionid: Column = Column(Integer, ForeignKey('transaction.transactionid'))

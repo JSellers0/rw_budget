@@ -3,10 +3,6 @@ from typing import Any
 from wtforms import StringField, BooleanField, DecimalField, SubmitField, DateField, SelectField, HiddenField, IntegerField
 from wtforms.validators import (DataRequired, Length)
 
-# ToDo: category as single select field
-# ToDo: transactiontype as single select field
-# ToDo: transaction date as date selection field
-
 class TransactionForm(FlaskForm):
     tran_types = [
         ('credit','Credit'),

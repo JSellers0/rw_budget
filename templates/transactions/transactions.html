@@ -14,7 +14,6 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        {# BUG: Need transactionid field to exist #}
         <fieldset class="form-row">
             <div class="col">
                 {{form.transaction_date.label(class="form-control-label")}}
@@ -27,6 +26,7 @@
             <div class="col">
                 {{form.merchant_name.label(class="form-control-label")}}
                 {{form.merchant_name(class="form-control", placeholder="Merchant Name")}}
+                {# ToDo: Datalist for account names when doing card payment or transfer #}
             </div>
         </fieldset>
         <fieldset class="form-row">
@@ -67,7 +67,6 @@
             </tr>
         </thead>
         <tbody>
-            {# BUG: Need to handle no transactions in case of bad filter conditions #}
         {% for transaction in pending_transactions if not transaction == None %}
             <tr>
                 <th scope="row">{{transaction.transaction.transaction_date}}</th>
@@ -96,7 +95,6 @@
         </tr>
     </thead>
     <tbody>
-        {# BUG: Need to handle no transactions in case of bad filter conditions #}
     {% for transaction in current_transactions if not transaction == None %}
         <tr>
             <th scope="row">{{transaction.transaction.transaction_date}}</th>

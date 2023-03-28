@@ -79,9 +79,7 @@ def recurring_transactions():
     form = RecurringTransactionForm()
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
-    
     if form.validate_on_submit():
-        print(f"==============================recur tran form {form.to_json()}")
         insert_response = TC.insert_recurring_transaction(form.to_json())
         return redirect(url_for("recurring_transactions"))
     return render_template(
@@ -93,7 +91,10 @@ def recurring_transactions():
 @app.route("/transaction/recurring/new", methods=["GET","POST"])
 def new_recurring_transaction():
     form = RecurringTransactionForm()
+    form.account.choices = AC.get_accounts_for_listbox()
+    form.category.choices = CC.get_categories_for_listbox()
     if form.validate_on_submit():
+        insert_response = TC.insert_recurring_transaction(form.to_json())
         return redirect(url_for("transactions"))
     return render_template(
         "transactions/recurring_transactions_new.html",
@@ -105,7 +106,6 @@ def update_recurring_transaction(rtranid):
     get_response = TC.get_rtran_by_id(rtranid)
     # ToDo: Check Response
     rtran = get_response["transactions"][0]
-    # ToDo: Fill out form with transaction data
     form = RecurringTransactionForm(
         rtranid=rtran.transaction.rtranid,
         expected_day=rtran.transaction.expected_day,
@@ -133,7 +133,6 @@ def update_recurring_transaction(rtranid):
 def apply_recurring_transactions():
     get_response = TC.get_all_recurring_transactions()
     monthly_trans = [str(tran.transaction.rtranid) for tran in get_response["transactions"] if tran.transaction.is_monthly == 1]
-
     form = ApplyRecurringTransactions(
         RTranIDs=",".join(monthly_trans)
     )

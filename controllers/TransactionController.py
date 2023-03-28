@@ -1,5 +1,5 @@
 from app import db
-from controllers.objects.models import Transaction, TransactionInterface, RecuringTransaction
+from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
 from controllers.objects.forms import TransactionForm
 from datetime import date, timedelta
 from typing import TypedDict
@@ -191,7 +191,7 @@ def delete_transaction(transactionid: int)-> TransactionResponse:
     )
     
 def get_all_recurring_transactions() -> TransactionResponse:
-    r_trans = RecuringTransaction.query.order_by(RecuringTransaction.expected_day.asc()).all()
+    r_trans = RecurringTransaction.query.order_by(RecurringTransaction.expected_day.asc()).all()
     return TransactionResponse(
             response_code=200,
             message=f"Retrieved {len(r_trans)} recurring transactions.",
@@ -199,7 +199,7 @@ def get_all_recurring_transactions() -> TransactionResponse:
         )
     
 def get_rtran_by_id(rtranid: int) -> TransactionResponse:
-    r_tran = RecuringTransaction.query.filter(RecuringTransaction.rtranid == rtranid).one_or_none()
+    r_tran = RecurringTransaction.query.filter(RecurringTransaction.rtranid == rtranid).one_or_none()
     
     if r_tran == None:
         return TransactionResponse(
@@ -222,7 +222,7 @@ def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
     
     # ToDo: Check for record with the exact same values?
     
-    transaction: RecuringTransaction = RecuringTransaction(
+    transaction: RecurringTransaction = RecurringTransaction(
         expected_day=transaction_data.get('expected_day'),
         merchant_name=transaction_data.get('merchant_name', ''),
         categoryid=transaction_data.get('category', 1),
@@ -243,7 +243,7 @@ def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
     )
     
 def update_recurring_transaction(transaction_data: dict) -> TransactionResponse:
-    transaction: RecuringTransaction = RecuringTransaction.query.filter(RecuringTransaction.rtranid == transaction_data.get('rtranid')).one_or_none()
+    transaction: RecurringTransaction = RecurringTransaction.query.filter(RecurringTransaction.rtranid == transaction_data.get('rtranid')).one_or_none()
     
     if transaction == None:
         return TransactionResponse(
