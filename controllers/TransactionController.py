@@ -120,6 +120,7 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
             transaction_data['amount'] = transaction_data['amount'] * -1
             
     # ToDo: Check for record with the exact same values?
+    # ToDo: Credit Card Payments and Transfers auto-create a debit transaction to the account paid
                 
     transaction: Transaction = Transaction(
         transaction_date=transaction_data.get('transaction_date', date.today()),
@@ -163,10 +164,6 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
         transaction.accountid = transaction_data.get('account', 0)
     if transaction_data.get('transaction_type') != transaction.transaction_type:
         transaction.transaction_type = transaction_data.get('transaction_type', '')
-        if transaction_data.get('transaction_type') == 'pending':
-            transaction.is_pending = True # type: ignore
-        else:
-            transaction.is_pending = False # type: ignore
     if transaction_data.get('note') != transaction.note:
         transaction.note = transaction_data.get('note', '')
     
@@ -232,7 +229,7 @@ def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
         amount=transaction_data.get('amount', 0),
         accountid=transaction_data.get('account', 1),
         transaction_type=transaction_data.get('transaction_type'),
-        is_monthly=transaction_data.get('is_monthly'),
+        is_monthly=transaction_data.get('is_monthly', True),
         note=transaction_data.get('note', ''),
     )
 
@@ -245,8 +242,40 @@ def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
     )
     
-def update_recurring_transaction(transaction_data: dict) -> None:
-    return None
+def update_recurring_transaction(transaction_data: dict) -> TransactionResponse:
+    transaction: RecuringTransaction = RecuringTransaction.query.filter(RecuringTransaction.rtranid == transaction_data.get('rtranid')).one_or_none()
+    
+    if transaction == None:
+        return TransactionResponse(
+            response_code=404,
+            message=f"Transaction { transaction_data.get('rtranid')} not found.",
+            transactions=[None]
+        )
+            
+    if transaction_data.get('expected_day') != transaction.expected_day:
+        transaction.expected_day = transaction_data.get('expected_day', '')
+    if transaction_data.get('merchant_name') != transaction.merchant_name:
+        transaction.merchant_name = transaction_data.get('merchant_name', '')
+    if transaction_data.get('category') != transaction.categoryid:
+        transaction.categoryid = transaction_data.get('category', 1)
+    if transaction_data.get('amount') != transaction.amount:
+        transaction.amount = transaction_data.get('amount', 0)
+    if transaction_data.get('account') != transaction.accountid:
+        transaction.accountid = transaction_data.get('account', 0)
+    if transaction_data.get('transaction_type') != transaction.transaction_type:
+        transaction.transaction_type = transaction_data.get('transaction_type', '')
+    if transaction_data.get('is_monthly') != transaction.is_monthly:
+        transaction.is_monthly = transaction_data.get('is_monthly', True)
+    if transaction_data.get('note') != transaction.note:
+        transaction.note = transaction_data.get('note', '')
+    
+    db.session.commit()
+    
+    return TransactionResponse(
+            response_code=200,
+            message=f"Transaction insert successful.",
+            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+    )
 
 def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
     transactions = []
@@ -313,16 +342,7 @@ def get_cashflow_df() -> pd.DataFrame:
     
     return cashflow_df
     
-def get_cashflow() -> dict:
-    # CashFlow
-    # Split by 15th
-    # remaining = sum of amount
-    # income = sum of debit/pending debit
-    # expense = sum of credit
-    # pending expense = sum of pending credit
-    # accounts- group by account, sum amounts
-    #DECISION: Return 1 df or 2?
-    
+def get_cashflow() -> dict:   
     cashflow_data = {
         "top": {
             "remain": 0,
