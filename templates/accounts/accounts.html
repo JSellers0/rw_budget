@@ -16,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for account in accounts %}
+        {% for account in accounts if account != None %}
         <tr>
             <td>{{ account.account_name }}</td>
             <td>{{ account.account_type }}</td>

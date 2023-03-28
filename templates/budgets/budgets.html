@@ -16,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for budget in budgets %}
+        {% for budget in budgets if budget != None %}
         <tr>
             <td>{{ budget.budget_name }}</td>
             <td>{{ budget.categoryid }}</td>
