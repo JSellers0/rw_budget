@@ -114,10 +114,10 @@ class RecuringTransaction(db.Model):
     rtranid: Column = Column(Integer, primary_key=True)
     last_transactionid: Column = Column(Integer, ForeignKey('transaction.transactionid'))
     expected_day: Column = Column(Integer, nullable=False)
-    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
-    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
     merchant_name: Column = Column(String(200), nullable=False)
+    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
     amount: Column = Column(DECIMAL(7,2), nullable=False)
+    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
     transaction_type: Column = Column(String(200), nullable=False)
     note: Column = Column(String(1000))
     is_monthly: Column = Column(Boolean)
@@ -193,7 +193,6 @@ if __name__ == '__main__':
         with app.app_context():
             db.drop_all()
             db.create_all()
-            db.session.execute("INSERT INTO category(category_name) VALUES ('Uncategorized');")
             db.session.commit()
             
         build_accounts()
