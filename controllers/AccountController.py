@@ -10,7 +10,7 @@ from typing import Any, TypedDict
 class AccountResponse(TypedDict):
     response_code: int
     message: str
-    accounts: list[Account | None]
+    accounts: list[Account]
 
 def get_account_by_id(accountid: int) -> AccountResponse:
     account: Account = Account.query.filter(Account.accountid == accountid).one_or_none()

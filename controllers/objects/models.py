@@ -128,7 +128,7 @@ class RecuringTransaction(db.Model):
     
 @dataclass
 class TransactionInterface:
-    transaction: Transaction | RecuringTransaction
+    transaction: Transaction
     category: Category
     account: Account
     

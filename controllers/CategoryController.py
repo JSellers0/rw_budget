@@ -10,7 +10,7 @@ from typing import TypedDict
 class CategoryResponse(TypedDict):
     response_code: int
     message: str
-    categories: list[Category | None]
+    categories: list[Category]
 
 def get_category_by_id(categoryid: int) -> CategoryResponse:
     category: Category = Category.query.filter(Category.categoryid == categoryid).one_or_none()

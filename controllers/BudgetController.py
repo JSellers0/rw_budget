@@ -9,7 +9,7 @@ from typing import TypedDict
 class BudgetResponse(TypedDict):
     response_code: int
     message: str
-    budgets: list[Budget | None]
+    budgets: list[Budget]
 
 def get_budget_by_id(budgetid: int) -> BudgetResponse:
     budget: Budget = Budget.query.filter(Budget.budgetid == budgetid).one_or_none()

@@ -18,7 +18,7 @@ import pandas as pd
 class TransactionResponse(TypedDict):
     response_code: int
     message: str
-    transactions: list[TransactionInterface | None]
+    transactions: list[TransactionInterface]
 
 def get_all_transactions(is_pending:int) -> TransactionResponse:
     transactions = Transaction.query.filter(Transaction.is_pending == is_pending).order_by(Transaction.transaction_date.asc()).all()
