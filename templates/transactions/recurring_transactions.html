@@ -5,31 +5,8 @@
 
 {% block body %}
 <div class="content-section">
-    <h2>List of Recurring Transactions</h2>
-    {# Section for Pending Transactions, part of recurring transactions system #}
-    <table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Expected Date</th>
-            <th scope="col">Merchant</th>
-            <th scope="col">Amount</th>
-            <th scope="col">Category</th>
-            <th scope="col">Account</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for transaction in transactions %}
-        <tr>
-            <th scope="row">{{transaction.transaction.expected_day}}</th>
-            <td>{{transaction.transaction.merchant_name}}</td>
-            <td>{{transaction.transaction.amount}}</td>
-            <td>{{transaction.category.category_name}}</td>
-            <td>{{transaction.account.account_name}}</td>
-            <td><a class="btn btn-outline-info" href={{url_for("update_recurring_transaction", rtranid=transaction['transaction'].rtranid)}}>Update</a>
-        </tr>
-    {% endfor %}
-    </tbody>
-    </table>
+    <a href="{{url_for("new_category")}}" class="btn btn-outline-info">Add Category</a>
+    <a href="{{url_for("new_account")}}" class="btn btn-outline-info">Add Account</a>
 </div>
 <div class="content-section">
     <form method="POST", action="">
@@ -75,8 +52,31 @@
     </form>
 </div>
 <div class="content-section">
-    <a href="{{url_for("new_category")}}" class="btn btn-outline-info">Add Category</a>
-    <a href="{{url_for("new_account")}}" class="btn btn-outline-info">Add Account</a>
+    <h2>List of Recurring Transactions</h2>
+    {# Section for Pending Transactions, part of recurring transactions system #}
+    <table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Expected Date</th>
+            <th scope="col">Merchant</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Category</th>
+            <th scope="col">Account</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for transaction in transactions %}
+        <tr>
+            <th scope="row">{{transaction.transaction.expected_day}}</th>
+            <td>{{transaction.transaction.merchant_name}}</td>
+            <td>{{transaction.transaction.amount}}</td>
+            <td>{{transaction.category.category_name}}</td>
+            <td>{{transaction.account.account_name}}</td>
+            <td><a class="btn btn-outline-info" href={{url_for("update_recurring_transaction", rtranid=transaction['transaction'].rtranid)}}>Update</a>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
 </div>
 <div class="content-section">
     <h2>Upcoming Features</h2>
