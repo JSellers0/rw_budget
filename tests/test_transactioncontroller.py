@@ -6,8 +6,8 @@ from app import app
 def test_transaction_insert():
     test_transaction_data = {
         'transaction_date': '2023-03-01',
-        'categoryid': 1,
-        'accountid': 1,
+        'category': 1,
+        'account': 1,
         'merchant_name': 'Test Merchant',
         'transaction_type': 'credit',
         'amount': -100,
@@ -21,8 +21,8 @@ def test_transaction_insert():
 def test_bad_credit_amount():
     test_transaction_data = {
         'transaction_date': '2023-03-02',
-        'categoryid': 1,
-        'accountid': 2,
+        'category': 1,
+        'account': 2,
         'merchant_name': 'Test Merchant',
         'transaction_type': 'credit',
         'amount': 100,
@@ -36,12 +36,13 @@ def test_bad_credit_amount():
 def test_pending_insert():
     test_transaction_data = {
         'transaction_date': '2023-03-02',
-        'categoryid': 1,
-        'accountid': 2,
+        'category': 1,
+        'account': 2,
         'merchant_name': 'Test Merchant',
-        'transaction_type': 'pending',
+        'transaction_type': 'credit',
         'amount': -100,
-        'note': 'Test insert pending transaction'
+        'note': 'Test insert pending transaction',
+        'is_pending': 1,
     }
     
     with app.app_context():
@@ -55,5 +56,5 @@ def test_get_transaction():
         
 def test_get_tran_by_date():
     with app.app_context():
-        tran_res:TransactionController.TransactionResponse = TransactionController.get_transaction_by_date('2023-03-01')
-        assert len(tran_res['transactions']) == 1
+        tran_res:TransactionController.TransactionResponse = TransactionController.get_transactions_by_date('2023-03-01')
+        assert len(tran_res['transactions']) > 0

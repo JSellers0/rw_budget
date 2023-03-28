@@ -12,10 +12,9 @@ from flask import render_template, redirect, request, url_for
 from app import app
 
 # ToDo: Implement flash message system
-# ToDo: Recurring transaction system
 # ToDo: Error Handling
 # ToDo: Dynamic back buttons based on where user just was
-# ToDo: Month end dict?
+# ToDo: Async db calls
 
 @app.route("/", methods=["GET"])
 def home():
