@@ -19,18 +19,13 @@ from app import app
 
 @app.route("/", methods=["GET"])
 def home():
-    # CashFlow
-    # Get all transactions by date: 1st to end of month
-    # Load into Pandas
-    # Split by 15th
-    # remaining = sum of amount
-    # income = sum of debit/pending debit
-    # expense = sum of credit
-    # pending expense = sum of pending credit
-    # accounts- group by account, sum amounts
+    cashflow_data = TC.get_cashflow()
     
-    
-    return render_template("home.html")
+    return render_template(
+        "home.html",
+        cashflow=cashflow_data,
+        month=date.today().strftime("%B")
+        )
 
 @app.route("/transaction", methods=["GET","POST"])
 def transactions():

@@ -11,8 +11,8 @@ class TransactionForm(FlaskForm):
     tran_types = [
         ('credit','Credit'),
         ('debit','Debit'),
-        ('pending','Pending'),
         ('ccp','Card Pmnt'),
+        ('trfr', 'Transfer'),
     ]
     transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])
@@ -28,23 +28,30 @@ class TransactionForm(FlaskForm):
         return {
             "transactionid": self.transactionid.data,
             "transaction_date": self.transaction_date.data,
-            "transaction_type": self.transaction_type.data,
             "merchant_name": self.merchant_name.data,
             "category": self.category.data,
-            "account": self.account.data,
             "amount": self.amount.data,
+            "account": self.account.data,
+            "transaction_type": self.transaction_type.data,
             "note": self.note.data,
         }
     
 class RecurringTransactionForm(FlaskForm):
+    tran_types = [
+        ('credit','Credit'),
+        ('debit','Debit'),
+        ('ccp','Card Pmnt'),
+        ('trfr', 'Transfer'),
+    ]
     rtranid: HiddenField = HiddenField("RecuringTransactionID")
+    expected_day: StringField = StringField("Expected Day of Transaction", validators=[DataRequired(), Length(max=200)])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     category: SelectField = SelectField("Category", validators=[DataRequired()])
-    account: SelectField = SelectField("Account", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
-    expected_day: StringField = StringField("Expected Day of Transaction", validators=[DataRequired(), Length(max=200)])
-    is_monthly: BooleanField = BooleanField("Monthly Transaction")
+    account: SelectField = SelectField("Account", validators=[DataRequired()])
+    transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
     note: StringField = StringField("Notes")
+    is_monthly: BooleanField = BooleanField("Monthly Transaction")
     submit: SubmitField = SubmitField("Insert")
     
     def to_json(self) -> dict[str, Any]:
@@ -53,8 +60,9 @@ class RecurringTransactionForm(FlaskForm):
             "expected_day": self.expected_day.data,
             "merchant_name": self.merchant_name.data,
             "category": self.category.data,
-            "account": self.account.data,
             "amount": self.amount.data,
+            "account": self.account.data,
+            "transaction_type": self.transaction_type.data,
             "is_monthly": self.is_monthly.data,
             "note": self.note.data,
         }

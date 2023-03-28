@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from sqlalchemy import Boolean, Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
-from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.sql import func
 from app import app, db
 import sys
-from typing import Any
 
 # ToDo: Split db init from models
 # ToDo: Accounts Interface to get all transactions for an account?
@@ -63,6 +61,7 @@ class Budget(db.Model):
 
 class Account(db.Model):
     # ToDo: credit limit to figure out utilization
+    # ToDo: Account Type is dropdown
     __tablename__ = 'account'
     accountid: Column = Column(Integer, primary_key=True)
     account_name: Column = Column(String(200), nullable=False)
@@ -92,13 +91,13 @@ class Account(db.Model):
 class Transaction(db.Model):
     __tablename__ = 'transaction'
     transactionid: Column = Column(Integer, primary_key=True)
-    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
-    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
-    merchant_name: Column = Column(String(200), nullable=False)
-    transaction_type: Column = Column(String(200), nullable=False)
-    amount: Column = Column(DECIMAL(7,2), nullable=False)
-    note: Column = Column(String(1000))
     transaction_date: Column = Column(Date(), nullable=False)
+    merchant_name: Column = Column(String(200), nullable=False)
+    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
+    amount: Column = Column(DECIMAL(7,2), nullable=False)
+    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
+    transaction_type: Column = Column(String(200), nullable=False)
+    note: Column = Column(String(1000))
     is_pending: Column = Column(Boolean())
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
@@ -108,7 +107,6 @@ class Transaction(db.Model):
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
     
-# ToDo: Recurrance interval.  Right now I'm assumign monthly recurrance.
 # ToDo: Last transactionid to get last transaction date and amount to calculate next recurrance
 # ToDo: Fix misspelling
 class RecuringTransaction(db.Model):
@@ -120,6 +118,7 @@ class RecuringTransaction(db.Model):
     accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
     merchant_name: Column = Column(String(200), nullable=False)
     amount: Column = Column(DECIMAL(7,2), nullable=False)
+    transaction_type: Column = Column(String(200), nullable=False)
     note: Column = Column(String(1000))
     is_monthly: Column = Column(Boolean)
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())

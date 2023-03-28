@@ -1,7 +1,7 @@
 from app import db
 from controllers.objects.models import Transaction, TransactionInterface, RecuringTransaction
 from controllers.objects.forms import TransactionForm
-from datetime import date
+from datetime import date, timedelta
 from typing import TypedDict
 import pandas as pd
 
@@ -52,7 +52,7 @@ def get_transaction_by_id(transactionid: int) -> TransactionResponse:
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
         )
 
-def get_transaction_by_date(date: str) -> TransactionResponse:
+def get_transactions_by_date(date: str) -> TransactionResponse:
     transactions = Transaction.query.filter(Transaction.transaction_date == date).all()
     
     if len(transactions) == 0:
@@ -68,7 +68,7 @@ def get_transaction_by_date(date: str) -> TransactionResponse:
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
         )
 
-def get_transaction_by_date_range(start: str, end: str) -> TransactionResponse:
+def get_transactions_by_date_range(start: str, end: str) -> TransactionResponse:
     transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(Transaction.transaction_date >= start).all()
     if len(transactions) == 0:
         return TransactionResponse(
@@ -83,7 +83,7 @@ def get_transaction_by_date_range(start: str, end: str) -> TransactionResponse:
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
     )
     
-def get_transaction_by_category(categoryid: int) -> TransactionResponse:
+def get_transactions_by_category(categoryid: int) -> TransactionResponse:
     transactions = Transaction.query.filter(Transaction.categoryid == categoryid).all()
     if len(transactions) == 0:
         return TransactionResponse(
@@ -119,21 +119,17 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
             
-    is_pending = 0
-    if transaction_data.get('transaction_type','') == 'pending':
-        is_pending = 1
-            
     # ToDo: Check for record with the exact same values?
                 
     transaction: Transaction = Transaction(
         transaction_date=transaction_data.get('transaction_date', date.today()),
-        accountid=transaction_data.get('accountid', 1),
-        categoryid=transaction_data.get('categoryid', 1),
         merchant_name=transaction_data.get('merchant_name', ''),
-        transaction_type=transaction_data.get('transaction_type', ''),
+        categoryid=transaction_data.get('category', 1),
         amount=transaction_data.get('amount', 0),
+        accountid=transaction_data.get('account', 1),
+        transaction_type=transaction_data.get('transaction_type', ''),
         note=transaction_data.get('note', ''),
-        is_pending=is_pending
+        is_pending=transaction_data.get('is_pending', 0)
     )
 
     db.session.add(transaction)    
@@ -230,6 +226,7 @@ def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
         categoryid=transaction_data.get('category', 1),
         amount=transaction_data.get('amount', 0),
         accountid=transaction_data.get('account', 1),
+        transaction_type=transaction_data.get('transaction_type'),
         is_monthly=transaction_data.get('is_monthly'),
         note=transaction_data.get('note', ''),
     )
@@ -258,8 +255,8 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
             "categoryid": rtran.transaction.categoryid, # type: ignore
             "amount": rtran.transaction.amount, # type: ignore
             "accountid": rtran.transaction.accountid, # type: ignore
+            "transaction_type": rtran.transaction.transaction_type, # type: ignore
             "note": rtran.transaction.note, # type: ignore
-            "transaction_type": "pending",
             "is_pending": 1
         }
         # ToDo: Check Response
@@ -272,10 +269,81 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
         transactions=transactions
     )
     
-def get_cashflow() -> None:
-    # ToDo: Move end of month calculation here.
-    # ToDo: try pd query with orm objects
-    # ToDo: move cashflow todos from home here.
+def get_month_end(month: int) -> date:
+    if month == 12:
+        next_month = 1
+        year = date.today().year + 1
+    else:
+        next_month = month + 1
+        year = date.today().year
+    return date(year, next_month, 1) - timedelta(days=1)
+    
+def get_cashflow_df() -> pd.DataFrame:
+    start = date(date.today().year, date.today().month, 1).strftime("%Y-%m-%d")
+    end = get_month_end(date.today().month).strftime("%Y-%m-%d")
+    get_response = get_transactions_by_date_range(start=start, end=end)
+    cashflow_transactions = []
+    for transaction in get_response['transactions']:
+        cashflow_transactions.append({
+            "transactionid": transaction.transaction.transactionid, # type: ignore
+            "transaction_date": transaction.transaction.transaction_date, # type: ignore
+            "merchant_name": transaction.transaction.merchant_name, # type: ignore
+            "category": transaction.category.category_name, # type: ignore
+            "amount": transaction.transaction.amount, # type: ignore
+            "account": transaction.account.account_name, # type: ignore
+            "account_type": transaction.account.account_type, # type: ignore
+            "transaction_type": transaction.transaction.transaction_type, # type: ignore
+            "is_pending": transaction.transaction.is_pending, # type: ignore
+        })
+        
+    cashflow_df = pd.DataFrame.from_records(
+        cashflow_transactions,
+        index="transactionid",
+        columns=cashflow_transactions[0].keys()
+    )
+    
+    return cashflow_df
+    
+def get_cashflow() -> dict:
+    # CashFlow
+    # Split by 15th
+    # remaining = sum of amount
+    # income = sum of debit/pending debit
+    # expense = sum of credit
+    # pending expense = sum of pending credit
+    # accounts- group by account, sum amounts
     #DECISION: Return 1 df or 2?
+    cashflow_df = get_cashflow_df()
+    
+    cashflow_data = {
+        "top": {
+            "remain": 0,
+            "income": 0,
+            "expens": 0,
+            "accounts": [],
+        },
+        "bot": {
+            "remain": 0,
+            "income": 0,
+            "expens": 0,
+            "accounts": [],
+        }
+    }
+    
+    top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(date.today().year, date.today().month, 15)]
+    bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(date.today().year, date.today().month, 14)]
+    
+    cashflow_data["top"]["remain"] = top_df[["amount"]].sum().amount
+    cashflow_data["bot"]["remain"] = bot_df[["amount"]].sum().amount
+    
+    cashflow_data["top"]["income"] = top_df.loc[top_df["transaction_type"] == "debit"][["amount"]].sum().amount
+    cashflow_data["bot"]["income"] = bot_df.loc[bot_df["transaction_type"] == "debit"][["amount"]].sum().amount
+    
+    cashflow_data["top"]["expens"] = top_df.loc[top_df["transaction_type"] == "credit"][["amount"]].sum().amount
+    cashflow_data["bot"]["expens"] = bot_df.loc[bot_df["transaction_type"] == "credit"][["amount"]].sum().amount
+    
+    cashflow_data["top"]["accounts"] = top_df.loc[top_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
+    cashflow_data["bot"]["accounts"] = bot_df.loc[bot_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
+       
 
-    return None
+    return cashflow_data

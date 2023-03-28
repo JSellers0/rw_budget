@@ -5,34 +5,54 @@
 
 {% block body %}
 <div class="content-section">
-    <h1>Cashflow for {Month}</h1>
+    {{ cashflow }}
+    <h1>Cashflow for {{ month }}</h1>
     <div>
-        <h2>1st - 14th</h2>
-        Remaining:
+        <h2>First Paycheck</h2>
+        Remaining: ${{ cashflow["top"]["remain"]}}
         <br>
-        Income: ${income}| Expenses: ${expense}| Pending Expenses: ${pend_expense}
+        Income: ${{ cashflow["top"]["income"]}} <br />
+        Expenses: ${{ cashflow["top"]["expens"]}}
+        <h4>Credit Card Balances</h4>
         <table>
             <thead>
             <tr>
                 <th>Account</th>
-                <th>Current Balance</th>
-                <th>Expected Balance</th>
+                <th>Balance</th>
             </tr>
             </thead>
+            <tbody>
+                {% for acct_name, account in cashflow["top"]["accounts"].iterrows() %}
+                <tr>
+                    <td>{{ acct_name }}</td>
+                    <td>${{ account['amount'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
     <div>
-        <h2>15th - {End of Month}</h2>
-        Remaining:
-        Income: | Expenses: | Pending Expenses:
+        <h2>Second Paycheck</h2>
+        Remaining: ${{ cashflow["bot"]["remain"]}}
+        <br>
+        Income: ${{ cashflow["bot"]["income"]}} <br />
+        Expenses: ${{ cashflow["bot"]["expens"]}}
+        <h4>Credit Card Balances</h4>
         <table>
             <thead>
             <tr>
                 <th>Account</th>
-                <th>Current Balance</th>
-                <th>Expected Balance</th>
+                <th>Balance</th>
             </tr>
             </thead>
+            <tbody>
+                {% for acct_name, account in cashflow["bot"]["accounts"].iterrows() %}
+                <tr>
+                    <td>{{ acct_name }}</td>
+                    <td>${{ account['amount'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
