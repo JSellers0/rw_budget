@@ -218,8 +218,13 @@ def get_rtran_by_id(rtranid: int) -> TransactionResponse:
         )
     
 def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:          
+    # Make sure credit values are negative
+    if transaction_data.get('transaction_type','') == 'credit':
+        if transaction_data.get('amount', 0) > 0:
+            transaction_data['amount'] = transaction_data['amount'] * -1
+    
     # ToDo: Check for record with the exact same values?
-                
+    
     transaction: RecuringTransaction = RecuringTransaction(
         expected_day=transaction_data.get('expected_day'),
         merchant_name=transaction_data.get('merchant_name', ''),
