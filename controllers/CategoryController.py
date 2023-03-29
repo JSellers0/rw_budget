@@ -45,7 +45,7 @@ def get_category_by_name(category_name: str) -> CategoryResponse:
 
 # ToDo: Accept return type parameter
 def get_all_categories() -> CategoryResponse:
-    categories = Category.query.all()
+    categories = Category.query.order_by(Category.category_name).all()
     
     if len(categories) == 0:
         return CategoryResponse(
