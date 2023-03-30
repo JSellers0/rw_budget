@@ -30,6 +30,7 @@ class TransactionForm(FlaskForm):
             "amount": self.amount.data,
             "account": self.account.data,
             "transaction_type": self.transaction_type.data,
+            "is_pending": self.is_pending.data,
             "note": self.note.data,
         }
     
