@@ -48,6 +48,8 @@
             </div>
         </fieldset>
         <div class="form-group">
+            {{ form.is_pending.label(class="form-control-label")}}
+            {{ form.is_pending()}}
             {{form.submit(class="btn btn-outline-info")}}
         </div>
     </form>

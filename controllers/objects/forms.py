@@ -17,6 +17,7 @@ class TransactionForm(FlaskForm):
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
     account: SelectField = SelectField("Account", validators=[DataRequired()])
     transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
+    is_pending: BooleanField = BooleanField("Pending")
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
     

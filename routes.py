@@ -58,6 +58,7 @@ def update_transaction(transaction_id:int):
         amount=target_transaction.transaction.amount,
         account=target_transaction.account.accountid,
         transaction_type=target_transaction.transaction.transaction_type,
+        is_pending=target_transaction.transaction.is_pending,
         note=target_transaction.transaction.note
     )
     form.category.choices = CC.get_categories_for_listbox()
