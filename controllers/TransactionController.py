@@ -118,9 +118,13 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
     if transaction_data.get('transaction_type','') == 'credit':
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
+    elif transaction_data.get('transaction_type','') in ('transfer', 'card pmnt'):
+        # DECISION: Where to handle this?  As a function in routes?  Might make the most sense since it has all the controller imports.
+        # ToDo: Credit Card Payments and Transfers auto-create a debit transaction to the account paid
+        pass
             
     # ToDo: Check for record with the exact same values?
-    # ToDo: Credit Card Payments and Transfers auto-create a debit transaction to the account paid
+    
                 
     transaction: Transaction = Transaction(
         transaction_date=transaction_data.get('transaction_date', date.today()),
@@ -164,6 +168,8 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
         transaction.accountid = transaction_data.get('account', 0)
     if transaction_data.get('transaction_type') != transaction.transaction_type:
         transaction.transaction_type = transaction_data.get('transaction_type', '')
+    if transaction_data.get('is_pending') != transaction.is_pending:
+        transaction.is_pending = transaction_data.get('is_pending', 1)
     if transaction_data.get('note') != transaction.note:
         transaction.note = transaction_data.get('note', '')
     
@@ -286,9 +292,9 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
         tran_data = {
             "transaction_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
             "merchant_name": rtran.transaction.merchant_name, # type: ignore
-            "categoryid": rtran.transaction.categoryid, # type: ignore
+            "categoryid": rtran.category.categoryid, # type: ignore
             "amount": rtran.transaction.amount, # type: ignore
-            "accountid": rtran.transaction.accountid, # type: ignore
+            "accountid": rtran.account.accountid, # type: ignore
             "transaction_type": rtran.transaction.transaction_type, # type: ignore
             "note": rtran.transaction.note, # type: ignore
             "is_pending": 1
