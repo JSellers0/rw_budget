@@ -292,9 +292,9 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
         tran_data = {
             "transaction_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
             "merchant_name": rtran.transaction.merchant_name, # type: ignore
-            "categoryid": rtran.category.categoryid, # type: ignore
+            "category": rtran.transaction.categoryid, # type: ignore
             "amount": rtran.transaction.amount, # type: ignore
-            "accountid": rtran.account.accountid, # type: ignore
+            "account": rtran.transaction.accountid, # type: ignore
             "transaction_type": rtran.transaction.transaction_type, # type: ignore
             "note": rtran.transaction.note, # type: ignore
             "is_pending": 1
@@ -350,6 +350,11 @@ def get_cashflow_df() -> pd.DataFrame:
     
 def get_cashflow() -> dict:   
     cashflow_data = {
+        "sum": {
+            "remain": 0,
+            "income": 0,
+            "expens": 0,
+        },
         "top": {
             "remain": 0,
             "income": 0,
@@ -372,14 +377,17 @@ def get_cashflow() -> dict:
     top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(date.today().year, date.today().month, 15)]
     bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(date.today().year, date.today().month, 14)]
     
-    cashflow_data["top"]["remain"] = top_df[["amount"]].sum().amount
-    cashflow_data["bot"]["remain"] = bot_df[["amount"]].sum().amount
+    cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(cashflow_df[["amount"]].sum().amount)
+    cashflow_data["top"]["remain"] = '${:0,.2f}'.format(top_df[["amount"]].sum().amount)
+    cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(bot_df[["amount"]].sum().amount)
     
-    cashflow_data["top"]["income"] = top_df.loc[top_df["transaction_type"] == "debit"][["amount"]].sum().amount
-    cashflow_data["bot"]["income"] = bot_df.loc[bot_df["transaction_type"] == "debit"][["amount"]].sum().amount
+    cashflow_data["sum"]["income"] = '${:0,.2f}'.format(cashflow_df.loc[cashflow_df["transaction_type"] == "debit"][["amount"]].sum().amount)
+    cashflow_data["top"]["income"] = '${:0,.2f}'.format(top_df.loc[top_df["transaction_type"] == "debit"][["amount"]].sum().amount)
+    cashflow_data["bot"]["income"] = '${:0,.2f}'.format(bot_df.loc[bot_df["transaction_type"] == "debit"][["amount"]].sum().amount)
     
-    cashflow_data["top"]["expens"] = top_df.loc[top_df["transaction_type"] == "credit"][["amount"]].sum().amount
-    cashflow_data["bot"]["expens"] = bot_df.loc[bot_df["transaction_type"] == "credit"][["amount"]].sum().amount
+    cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(cashflow_df.loc[cashflow_df["transaction_type"] == "credit"][["amount"]].sum().amount)
+    cashflow_data["top"]["expens"] = '${:0,.2f}'.format(top_df.loc[top_df["transaction_type"] == "credit"][["amount"]].sum().amount)
+    cashflow_data["bot"]["expens"] = '${:0,.2f}'.format(bot_df.loc[bot_df["transaction_type"] == "credit"][["amount"]].sum().amount)
     
     cashflow_data["top"]["accounts"] = top_df.loc[top_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
     cashflow_data["bot"]["accounts"] = bot_df.loc[bot_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
