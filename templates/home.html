@@ -7,16 +7,16 @@
 <div class="content-section">
     <h1>Cashflow for {{ month }}</h1>
     <div>
-        Monthly Summary <br />
-        Remaining: ${{ cashflow["top"]["remain"] + cashflow["bot"]["remain"] }}<br />
-        Income: ${{ cashflow["top"]["income"] + cashflow["bot"]["income"] }} <br />
-        Expenses: ${{ cashflow["top"]["expens"] + cashflow["bot"]["expens"] }}
+        <h2>Monthly Summary</h2>
+        Remaining: {{ cashflow["sum"]["remain"] }}<br />
+        Income: {{ cashflow["sum"]["income"] }} <br />
+        Expenses: {{ cashflow["sum"]["expens"] }}
     </div>
     <div>
         <h2>First Half</h2>
-        Remaining: ${{ cashflow["top"]["remain"] }}<br />
-        Income: ${{ cashflow["top"]["income"] }} <br />
-        Expenses: ${{ cashflow["top"]["expens"] }}
+        Remaining: {{ cashflow["top"]["remain"] }}<br />
+        Income: {{ cashflow["top"]["income"] }} <br />
+        Expenses: {{ cashflow["top"]["expens"] }}
         <h4>Credit Card Balances</h4>
         <table>
             <thead>
@@ -29,7 +29,7 @@
                 {% for acct_name, account in cashflow["top"]["accounts"].iterrows() %}
                 <tr>
                     <td>{{ acct_name }}</td>
-                    <td>${{ account['amount'] }}</td>
+                    <td>{{ str('$' + account['amount']) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -37,10 +37,10 @@
     </div>
     <div>
         <h2>Second Half</h2>
-        Remaining: ${{ cashflow["bot"]["remain"] }}
+        Remaining: {{ cashflow["bot"]["remain"] }}
         <br>
-        Income: ${{ cashflow["bot"]["income"] }} <br />
-        Expenses: ${{ cashflow["bot"]["expens"] }}
+        Income: {{ cashflow["bot"]["income"] }} <br />
+        Expenses: {{ cashflow["bot"]["expens"] }}
         <h4>Credit Card Balances</h4>
         <table>
             <thead>
