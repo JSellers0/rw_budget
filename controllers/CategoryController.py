@@ -61,7 +61,7 @@ def get_all_categories() -> CategoryResponse:
         )
 
 def get_categories_for_listbox() -> list[tuple[int, str]]:
-    categories = Category.query.all()
+    categories = Category.query.order_by(Category.category_name).all()
     category_dump = [category.to_tuple() for category in categories]
     
     return category_dump
