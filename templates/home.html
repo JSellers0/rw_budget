@@ -29,7 +29,7 @@
                 {% for acct_name, account in cashflow["top"]["accounts"].iterrows() %}
                 <tr>
                     <td>{{ acct_name }}</td>
-                    <td>{{ '$' + str(account['amount']) }}</td>
+                    <td>${{ account['amount'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -53,7 +53,7 @@
                 {% for acct_name, account in cashflow["bot"]["accounts"].iterrows() %}
                 <tr>
                     <td>{{ acct_name }}</td>
-                    <td>${{ '$' + str(account['amount']) }}</td>
+                    <td>${{ account['amount'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
