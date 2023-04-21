@@ -29,7 +29,7 @@ def get_account_by_id(accountid: int) -> AccountResponse:
         )
 
 def get_account_by_name(account_name: str) -> AccountResponse:
-    account: Account = Account.query.filter(Account.account_name.lower() == account_name.lower()).one_or_none()
+    account: Account = Account.query.filter(str(Account.account_name).lower() == account_name.lower()).one_or_none()
     
     if account == None:
         return AccountResponse(
