@@ -351,20 +351,20 @@ def get_cashflow_df(year:int, month:int) -> pd.DataFrame:
 def get_cashflow(year:int, month:int) -> dict:   
     cashflow_data = {
         "sum": {
-            "remain": 0,
-            "income": 0,
-            "expens": 0,
+            "remain": '$0.00',
+            "income": '$0.00',
+            "expens": '$0.00',
         },
         "top": {
-            "remain": 0,
-            "income": 0,
-            "expens": 0,
+            "remain": '$0.00',
+            "income": '$0.00',
+            "expens": '$0.00',
             "accounts": pd.DataFrame(),
         },
         "bot": {
-            "remain": 0,
-            "income": 0,
-            "expens": 0,
+            "remain": '$0.00',
+            "income": '$0.00',
+            "expens": '$0.00',
             "accounts": pd.DataFrame(),
         }
     }
