@@ -14,7 +14,7 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        <fieldset class="form-row">
+        <fieldset class="row">
             <div class="col">
                 {{form.transaction_date.label(class="form-control-label")}}
                 {{form.transaction_date(class="form-control")}}
@@ -25,11 +25,17 @@
             </div>
             <div class="col">
                 {{form.merchant_name.label(class="form-control-label")}}
-                {{form.merchant_name(class="form-control", placeholder="Merchant Name")}}
-                {# ToDo: Datalist for account names when doing card payment or transfer #}
+                {{form.merchant_name(class="form-control", placeholder="Merchant Name", list="merchant-data-list")}}
+                {# ToDo: Change to dropdown when transaction type is Transfer or Card Pmnt #}
+                {# datalist is not ideal for this because it can't be hidden, options show up at the end #}
+                <datalist id="merchant-data-list">
+                    {% for entry in ['datalist1','datalist2','datalist3'] %}
+                    <option value="{{ entry }}"></option>
+                    {% endfor %}
+                </datalist>
             </div>
         </fieldset>
-        <fieldset class="form-row">
+        <fieldset class="row">
             <div class="col">
                 {{form.amount.label(class="form-control-label")}}
                 {{form.amount(class="form-control")}}
@@ -55,62 +61,85 @@
     </form>
 </div>
 <div class="content-section">
-    <h2>Pending transactions</h2>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Merchant</th>
-                <th scope="col">Category</th>
-                <th scope="col">Amount</th>
-                <th scope="col">Account</th>
-                <th scope="col">Type</th>
-                <th scope="col">Note</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for transaction in pending_transactions if not transaction == None %}
-            <tr>
-                <th scope="row">{{transaction.transaction.transaction_date}}</th>
-                <td>{{transaction.transaction.merchant_name}}</td>
-                <td>{{transaction.category.category_name}}</td>
-                <td>${{transaction.transaction.amount}}</td>
-                <td>{{transaction.account.account_name}}</td>
-                <td>{{transaction.transaction.transaction_type}}</td>
-                <td>{{transaction.transaction.note}}</td>
-                <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
-            </tr>
-        {% endfor %}
-        </tbody>
-        </table>
-    <h2>Posted transactions</h2>
-    <table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Merchant</th>
-            <th scope="col">Category</th>
-            <th scope="col">Amount</th>
-            <th scope="col">Account</th>
-            <th scope="col">Type</th>
-            <th scope="col">Note</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for transaction in current_transactions if not transaction == None %}
-        <tr>
-            <th scope="row">{{transaction.transaction.transaction_date}}</th>
-            <td>{{transaction.transaction.merchant_name}}</td>
-            <td>{{transaction.category.category_name}}</td>
-            <td>${{transaction.transaction.amount}}</td>
-            <td>{{transaction.account.account_name}}</td>
-            <td>{{transaction.transaction.transaction_type}}</td>
-            <td>{{transaction.transaction.note}}</td>
-            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
-        </tr>
-    {% endfor %}
-    </tbody>
-    </table>
+    <div class="accordion" id="transaction-accordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="pending-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pending-transactions" aria-expanded="false" aria-controls="pending-transactions">
+                    Pending transactions
+                </button>
+            </h2>
+            <div id="pending-transactions" class="accordion-collapse collapse" aria-labelledby="pending-header" data-bs-parent="transaction-accordion">
+                <div class="accordion-body">
+                    <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Merchant</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for transaction in pending_transactions if not transaction == None %}
+                        <tr>
+                            <th scope="row">{{transaction.transaction.transaction_date}}</th>
+                            <td>{{transaction.transaction.merchant_name}}</td>
+                            <td>{{transaction.category.category_name}}</td>
+                            <td>${{transaction.transaction.amount}}</td>
+                            <td>{{transaction.account.account_name}}</td>
+                            <td>{{transaction.transaction.transaction_type}}</td>
+                            <td>{{transaction.transaction.note}}</td>
+                            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="posted-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#posted-transactions" aria-expanded="true" aria-controls="posted-transactions">
+                    Posted transactions
+                </button>
+            </h2>
+            <div id="posted-transactions" class="accordion-collapse collapse show" aria-labelledby="posted-header" data-bs-parent="transaction-accordion">
+                <div class="accordion-body">
+                    <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Merchant</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for transaction in current_transactions if not transaction == None %}
+                        <tr>
+                            <th scope="row">{{transaction.transaction.transaction_date}}</th>
+                            <td>{{transaction.transaction.merchant_name}}</td>
+                            <td>{{transaction.category.category_name}}</td>
+                            <td>${{transaction.transaction.amount}}</td>
+                            <td>{{transaction.account.account_name}}</td>
+                            <td>{{transaction.transaction.transaction_type}}</td>
+                            <td>{{transaction.transaction.note}}</td>
+                            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="content-section">
@@ -122,4 +151,8 @@
         <li>#ToDo: Paginate by Month and Year</li>
     </ul>
 </div>
+{% endblock %}
+
+{% block javascript %}
+ <!--<script type="text/javascript" src={{ url_for("static", filename="js/transactions.js") }}></script> -->
 {% endblock %}
