@@ -5,7 +5,13 @@
 
 {% block body %}
 <div class="content-section">
-    <h1>Cashflow for {{ month }}</h1>
+    <div id="summary-header">
+        <a class="btn btn-outline-info" href={{ url_for("summary", year=last_month['year'], month=last_month['month']) }}>
+            {{ last_month['disp'] }}</a>
+        <h1>Cashflow for {{ month }}</h1>
+        <a class="btn btn-outline-info" href={{ url_for("summary", year=next_month['year'], month=next_month['month']) }}>
+            {{ next_month['disp'] }}</a>
+    </div>
     <div>
         <h2>Monthly Summary</h2>
         Remaining: {{ cashflow["sum"]["remain"] }}<br />

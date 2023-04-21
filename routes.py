@@ -18,13 +18,47 @@ from app import app
 
 @app.route("/", methods=["GET"])
 def home():
-    cashflow_data = TC.get_cashflow()
+    year = date.today().year
+    month = date.today().month
+    
+    return redirect(url_for("summary", year=year, month=month))
+    
+@app.route("/<int:year>/<int:month>", methods=["GET"])
+def summary(year:int, month:int):
+    prior_year = year
+    prior_month = month - 1
+    if prior_month == 0:
+        prior_month = 12
+        prior_year -= 1
+        
+    next_year = year
+    next_month = month + 1
+    if next_month == 13:
+        next_month = 1
+        next_year += 1
+        
+    last_month = {
+        "year": prior_year,
+        "month": prior_month,
+        "disp": date(prior_year, prior_month, 1).strftime("%B")
+    }
+    
+    next_month = {
+        "year": next_year,
+        "month": next_month,
+        "disp": date(next_year, next_month, 1).strftime("%B")
+    }
+    
+    cashflow_data = TC.get_cashflow(year, month)
     
     return render_template(
         "home.html",
         cashflow=cashflow_data,
-        month=date.today().strftime("%B")
+        month=date(year=year, month=month, day=1).strftime("%B"),
+        last_month = last_month,
+        next_month = next_month
         )
+    
 
 @app.route("/transaction", methods=["GET","POST"])
 def transactions():

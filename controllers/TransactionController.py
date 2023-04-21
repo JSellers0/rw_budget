@@ -27,7 +27,7 @@ def get_all_transactions(is_pending:int) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message="No transactions found",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -43,7 +43,7 @@ def get_transaction_by_id(transactionid: int) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message="No transactions found",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -59,7 +59,7 @@ def get_transactions_by_date(date: str) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found on {date}",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -74,7 +74,7 @@ def get_transactions_by_date_range(start: str, end: str) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found between {start} and {end}",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -89,7 +89,7 @@ def get_transactions_by_category(categoryid: int) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found for category {categoryid}",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -104,7 +104,7 @@ def get_twenty_recent_transactions() -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found.",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -153,25 +153,25 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message=f"Transaction { transaction_data.get('transactionid')} not found.",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     if transaction_data.get('transaction_date') != transaction.transaction_date:
-        transaction.transaction_date = transaction_data.get('transaction_date', '')
+        transaction.transaction_date = transaction_data.get('transaction_date', '') # type: ignore
     if transaction_data.get('merchant_name') != transaction.merchant_name:
-        transaction.merchant_name = transaction_data.get('merchant_name', '')
+        transaction.merchant_name = transaction_data.get('merchant_name', '') # type: ignore
     if transaction_data.get('category') != transaction.categoryid:
-        transaction.categoryid = transaction_data.get('category', 1)
+        transaction.categoryid = transaction_data.get('category', 1) # type: ignore
     if transaction_data.get('amount') != transaction.amount:
-        transaction.amount = transaction_data.get('amount', 0)
+        transaction.amount = transaction_data.get('amount', 0) # type: ignore
     if transaction_data.get('account') != transaction.accountid:
-        transaction.accountid = transaction_data.get('account', 0)
+        transaction.accountid = transaction_data.get('account', 0) # type: ignore
     if transaction_data.get('transaction_type') != transaction.transaction_type:
-        transaction.transaction_type = transaction_data.get('transaction_type', '')
+        transaction.transaction_type = transaction_data.get('transaction_type', '') # type: ignore
     if transaction_data.get('is_pending') != transaction.is_pending:
-        transaction.is_pending = transaction_data.get('is_pending', 1)
+        transaction.is_pending = transaction_data.get('is_pending', 1) # type: ignore
     if transaction_data.get('note') != transaction.note:
-        transaction.note = transaction_data.get('note', '')
+        transaction.note = transaction_data.get('note', '') # type: ignore
     
     db.session.commit()
     
@@ -211,7 +211,7 @@ def get_rtran_by_id(rtranid: int) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message="No transactions found",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
     
     return TransactionResponse(
@@ -255,25 +255,25 @@ def update_recurring_transaction(transaction_data: dict) -> TransactionResponse:
         return TransactionResponse(
             response_code=404,
             message=f"Transaction { transaction_data.get('rtranid')} not found.",
-            transactions=[None]
+            transactions=[None] # type: ignore
         )
             
     if transaction_data.get('expected_day') != transaction.expected_day:
-        transaction.expected_day = transaction_data.get('expected_day', '')
+        transaction.expected_day = transaction_data.get('expected_day', '') # type: ignore
     if transaction_data.get('merchant_name') != transaction.merchant_name:
-        transaction.merchant_name = transaction_data.get('merchant_name', '')
+        transaction.merchant_name = transaction_data.get('merchant_name', '') # type: ignore
     if transaction_data.get('category') != transaction.categoryid:
-        transaction.categoryid = transaction_data.get('category', 1)
+        transaction.categoryid = transaction_data.get('category', 1) # type: ignore
     if transaction_data.get('amount') != transaction.amount:
-        transaction.amount = transaction_data.get('amount', 0)
+        transaction.amount = transaction_data.get('amount', 0) # type: ignore
     if transaction_data.get('account') != transaction.accountid:
-        transaction.accountid = transaction_data.get('account', 0)
+        transaction.accountid = transaction_data.get('account', 0) # type: ignore
     if transaction_data.get('transaction_type') != transaction.transaction_type:
-        transaction.transaction_type = transaction_data.get('transaction_type', '')
+        transaction.transaction_type = transaction_data.get('transaction_type', '') # type: ignore
     if transaction_data.get('is_monthly') != transaction.is_monthly:
-        transaction.is_monthly = transaction_data.get('is_monthly', True)
+        transaction.is_monthly = transaction_data.get('is_monthly', True) # type: ignore
     if transaction_data.get('note') != transaction.note:
-        transaction.note = transaction_data.get('note', '')
+        transaction.note = transaction_data.get('note', '') # type: ignore
     
     db.session.commit()
     
@@ -309,18 +309,18 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
         transactions=transactions
     )
     
-def get_month_end(month: int) -> date:
+def get_month_end(year:int, month: int) -> date:
     if month == 12:
         next_month = 1
-        year = date.today().year + 1
+        year = year + 1
     else:
         next_month = month + 1
-        year = date.today().year
+        year = year
     return date(year, next_month, 1) - timedelta(days=1)
     
-def get_cashflow_df() -> pd.DataFrame:
-    start = date(date.today().year, date.today().month, 1).strftime("%Y-%m-%d")
-    end = get_month_end(date.today().month).strftime("%Y-%m-%d")
+def get_cashflow_df(year:int, month:int) -> pd.DataFrame:
+    start = date(year, month, 1).strftime("%Y-%m-%d")
+    end = get_month_end(year, month).strftime("%Y-%m-%d")
     get_response = get_transactions_by_date_range(start=start, end=end)
     
     if get_response["response_code"] == 404:
@@ -329,15 +329,15 @@ def get_cashflow_df() -> pd.DataFrame:
     cashflow_transactions = []
     for transaction in get_response['transactions']:
         cashflow_transactions.append({
-            "transactionid": transaction.transaction.transactionid, # type: ignore
-            "transaction_date": transaction.transaction.transaction_date, # type: ignore
-            "merchant_name": transaction.transaction.merchant_name, # type: ignore
-            "category": transaction.category.category_name, # type: ignore
-            "amount": transaction.transaction.amount, # type: ignore
-            "account": transaction.account.account_name, # type: ignore
-            "account_type": transaction.account.account_type, # type: ignore
-            "transaction_type": transaction.transaction.transaction_type, # type: ignore
-            "is_pending": transaction.transaction.is_pending, # type: ignore
+            "transactionid": transaction.transaction.transactionid,
+            "transaction_date": transaction.transaction.transaction_date,
+            "merchant_name": transaction.transaction.merchant_name,
+            "category": transaction.category.category_name,
+            "amount": transaction.transaction.amount,
+            "account": transaction.account.account_name,
+            "account_type": transaction.account.account_type,
+            "transaction_type": transaction.transaction.transaction_type,
+            "is_pending": transaction.transaction.is_pending,
         })
         
     cashflow_df = pd.DataFrame.from_records(
@@ -348,7 +348,7 @@ def get_cashflow_df() -> pd.DataFrame:
     
     return cashflow_df
     
-def get_cashflow() -> dict:   
+def get_cashflow(year:int, month:int) -> dict:   
     cashflow_data = {
         "sum": {
             "remain": 0,
@@ -369,13 +369,13 @@ def get_cashflow() -> dict:
         }
     }
     
-    cashflow_df = get_cashflow_df()
+    cashflow_df = get_cashflow_df(year=year, month=month)
     
     if len(cashflow_df) == 0:
         return cashflow_data
      
-    top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(date.today().year, date.today().month, 15)]
-    bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(date.today().year, date.today().month, 14)]
+    top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(year, month, 15)]
+    bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(year, month, 14)]
     
     cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(cashflow_df[["amount"]].sum().amount)
     cashflow_data["top"]["remain"] = '${:0,.2f}'.format(top_df[["amount"]].sum().amount)

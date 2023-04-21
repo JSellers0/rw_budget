@@ -146,3 +146,12 @@ tr {
 .rpt_hours {
   text-align: right;
 }
+
+.hidden {
+    display: none;
+}
+
+#summary-header{
+    display: flex;
+    justify-content: space-around;
+}
