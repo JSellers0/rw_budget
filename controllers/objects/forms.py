@@ -104,9 +104,9 @@ class AccountForm(FlaskForm):
     accountid: HiddenField = HiddenField("AccountID")
     account_name: StringField = StringField("Account Name", validators=[DataRequired(), Length(max=200)])
     account_type: StringField = StringField("Account Type", validators=[DataRequired(), Length(max=100)])
-    payment_day: StringField = StringField("Payment Due Date", validators=[DataRequired(), Length(max=50)])
-    statement_day: StringField = StringField("Statement Date", validators=[DataRequired(), Length(max=50)])
-    rewards_features: StringField = StringField("Rewards Features", validators=[DataRequired(), Length(max=300)])
+    payment_day: StringField = StringField("Payment Due Date", validators=[Length(max=50)])
+    statement_day: StringField = StringField("Statement Date", validators=[Length(max=50)])
+    rewards_features: StringField = StringField("Rewards Features", validators=[Length(max=300)])
     submit: SubmitField = SubmitField("Submit")
     
     def to_json(self) -> dict[str, Any]:
