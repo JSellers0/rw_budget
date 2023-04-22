@@ -139,6 +139,11 @@ tr {
   border-width: 1px;
 }
 
+.td-inputcontrol {
+    display: flex;
+    justify-content: right;
+}
+
 .cell_name {
   width: 30%;
 }
