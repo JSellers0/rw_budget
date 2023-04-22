@@ -79,9 +79,9 @@ def transactions():
         form=form
         )
     
-@app.route("/transaction/<int:transaction_id>", methods=['GET','POST'])
-def update_transaction(transaction_id:int):
-    response: TC.TransactionResponse = TC.get_transaction_by_id(transactionid=transaction_id)
+@app.route("/transaction/<int:transactionid>", methods=['GET','POST'])
+def update_transaction(transactionid:int):
+    response: TC.TransactionResponse = TC.get_transaction_by_id(transactionid=transactionid)
     
     target_transaction: TransactionInterface = response["transactions"][0]#type: ignore # ToDo: Figure out how to handle multiple return types
     form:TransactionForm = TransactionForm(
@@ -122,6 +122,12 @@ def recurring_transactions():
         form=form,
         transactions=get_response["transactions"]
     )
+    
+@app.route("/transaction/delete/<int:transactionid>", methods=["GET"])
+def delete_transaction(transactionid):
+    delete_response = TC.delete_transaction(transactionid=transactionid)
+    # ToDo: Check Response and flash appropriate message
+    return redirect(url_for("transactions"))
     
 @app.route("/transaction/recurring/new", methods=["GET","POST"])
 def new_recurring_transaction():
