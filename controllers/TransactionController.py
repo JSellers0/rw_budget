@@ -187,13 +187,15 @@ def delete_transaction(transactionid: int)-> TransactionResponse:
     if transaction == None:
         raise ValueError(f"{transactionid} is not a valid transaction id.")
     
+    transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+    
     db.session.delete(transaction)
     db.session.commit()
     
     return TransactionResponse(
             response_code=200,
             message=f"Transaction {transactionid} deleted successfully.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+            transactions=transactions
     )
     
 def get_all_recurring_transactions() -> TransactionResponse:

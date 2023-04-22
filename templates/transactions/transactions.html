@@ -92,7 +92,10 @@
                             <td>{{transaction.account.account_name}}</td>
                             <td>{{transaction.transaction.transaction_type}}</td>
                             <td>{{transaction.transaction.note}}</td>
-                            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
+                            <td class="td-inputcontrol">
+                                <a class="btn btn-outline-info" href={{url_for("update_transaction", transactionid=transaction['transaction'].transactionid)}}>Update</a>
+                                <a class="btn btn-outline-info" href={{url_for("delete_transaction", transactionid=transaction['transaction'].transactionid)}}>Delete</a>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -131,7 +134,10 @@
                             <td>{{transaction.account.account_name}}</td>
                             <td>{{transaction.transaction.transaction_type}}</td>
                             <td>{{transaction.transaction.note}}</td>
-                            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].transactionid)}}>Update</a>
+                            <td class="td-inputcontrol">
+                                <a class="btn btn-outline-info" href={{url_for("update_transaction", transactionid=transaction['transaction'].transactionid)}}>Update</a>
+                                <a class="btn btn-outline-info" href={{url_for("delete_transaction", transactionid=transaction['transaction'].transactionid)}}>Delete</a>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -149,6 +155,7 @@
         <li>#ToDo: Import Transactions</li>
         <li>#ToDo: Export Transactions</li>
         <li>#ToDo: Paginate by Month and Year</li>
+        <li>#ToDo: Confirm transaction delete</li>
     </ul>
 </div>
 {% endblock %}
