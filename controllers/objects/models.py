@@ -17,8 +17,8 @@ class Category(db.Model):
     category_name: Column = Column(String(200), nullable=False)
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user()) # type: ignore
     transactions = db.relationship('Transaction', backref='category')
     recur_transactions = db.relationship('RecurringTransaction', backref='category')
     budgets = db.relationship('Budget', backref='category')
@@ -46,8 +46,8 @@ class Budget(db.Model):
     budget_amount: Column = Column(DECIMAL(7,2))
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user()) # type: ignore
     
     def __repr__(self) -> str:
         return "Budget({},{},{})".format(self.budgetid, self.budget_name, self.budget_amount)
@@ -87,6 +87,9 @@ class Account(db.Model):
         
     def to_tuple(self) -> tuple[Column, Column]:
         return (self.accountid, self.account_name)
+    
+# ToDo: Account Balance - accountid, first day of month, starting balance, current_balance, projected_balance
+# DECISION: Account balance table or add balance to transaction
 
 class Transaction(db.Model):
     __tablename__ = 'transaction'
@@ -101,8 +104,8 @@ class Transaction(db.Model):
     is_pending: Column = Column(Boolean())
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user()) # type: ignore
     
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
@@ -121,8 +124,8 @@ class RecurringTransaction(db.Model):
     is_monthly: Column = Column(Boolean)
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
-    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate())
-    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user()) # type: ignore
     
 @dataclass
 class TransactionInterface:
