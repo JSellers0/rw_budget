@@ -19,7 +19,7 @@ def get_account_by_id(accountid: int) -> AccountResponse:
         return AccountResponse(
             response_code=404,
             message=f"Account not found with Account ID {accountid}.",
-            accounts=[None]
+            accounts=[None] # type: ignore
         )
     
     return AccountResponse(
@@ -35,7 +35,7 @@ def get_account_by_name(account_name: str) -> AccountResponse:
         return AccountResponse(
             response_code=404,
             message=f"{account_name} does not exist.",
-            accounts=[None]
+            accounts=[None] # type: ignore
         )
     
     return AccountResponse(
@@ -51,7 +51,7 @@ def get_all_accounts() -> AccountResponse:
         return AccountResponse(
             response_code=404,
             message=f"No Accounts found.",
-            accounts=[None]
+            accounts=[None] # type: ignore
         )
     
     return AccountResponse(
@@ -101,7 +101,7 @@ def update_account(account_data: dict) -> AccountResponse:
         return AccountResponse(
             response_code=404,
             message=f"No Account for Account ID {account_data.get('accountid')}.",
-            accounts=[None]
+            accounts=[None] # type: ignore
         )
     
     # If the user is trying to change the account name and it already exists, then let them know an account with
@@ -134,7 +134,7 @@ def delete_account(accountid: int) -> AccountResponse:
         return AccountResponse(
             response_code=404,
             message=f"No Account for Account ID {accountid}.",
-            accounts=[None]
+            accounts=[None] # type: ignore
         )
     
     db.session.delete(account)

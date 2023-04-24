@@ -296,7 +296,11 @@ def update_account(accountid: int):
     if form.validate_on_submit():
         account_data = {
             "accountid": accountid,
-            "account_name": form.account_name.data
+            "account_name": form.account_name.data,
+            "account_type": form.account_type.data,
+            "payment_day": form.payment_day.data,
+            "statement_day": form.statement_day.data,
+            "rewards_features": form.rewards_features.data
         }
         response: AC.AccountResponse = AC.update_account(account_data)
         return redirect(url_for("accounts"))
