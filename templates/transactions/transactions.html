@@ -33,6 +33,8 @@
                     <option value="{{ entry }}"></option>
                     {% endfor %}
                 </datalist>
+                {{ form.transfer_account.label(class="form-control-label hidden") }}
+                {{ form.transfer_account(class="form-control hidden") }}
             </div>
         </fieldset>
         <fieldset class="row">
@@ -161,5 +163,5 @@
 {% endblock %}
 
 {% block javascript %}
- <!--<script type="text/javascript" src={{ url_for("static", filename="js/transactions.js") }}></script> -->
+ <script type="text/javascript" src={{ url_for("static", filename="js/transactions.js") }}></script>
 {% endblock %}

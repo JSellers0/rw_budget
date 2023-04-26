@@ -12,11 +12,12 @@ class TransactionForm(FlaskForm):
     ]
     transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])
+    transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
+    transfer_account: SelectField = SelectField("Transfer To", choices=['placeholder'])
     category: SelectField = SelectField("Category", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
     account: SelectField = SelectField("Account", validators=[DataRequired()])
-    transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
     is_pending: BooleanField = BooleanField("Pending")
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
@@ -26,6 +27,7 @@ class TransactionForm(FlaskForm):
             "transactionid": self.transactionid.data,
             "transaction_date": self.transaction_date.data,
             "merchant_name": self.merchant_name.data,
+            "transfer_account": self.transfer_account.data,
             "category": self.category.data,
             "amount": self.amount.data,
             "account": self.account.data,

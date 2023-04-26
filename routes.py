@@ -66,10 +66,44 @@ def transactions():
     curr_response: TC.TransactionResponse = TC.get_all_transactions(is_pending=0)
     pend_response: TC.TransactionResponse = TC.get_all_transactions(is_pending=1)
     form:TransactionForm = TransactionForm()
+    account_choices = AC.get_accounts_for_listbox()
     form.category.choices = CC.get_categories_for_listbox()
-    form.account.choices = AC.get_accounts_for_listbox()
+    form.account.choices = account_choices
+    form.transfer_account.choices = account_choices
+    
     if form.validate_on_submit():
-        insert_response: TC.TransactionResponse = TC.insert_transaction(transaction_data=form.to_json())
+        if form.transaction_type.data in ('trfr', 'ccp'):
+            # Get Account and Category information
+            transfer_account = [account for account in form.account.choices if account[0] == int(form.transfer_account.data)][0] # type: ignore
+            source_account = [account for account in form.account.choices if account[0] == int(form.account.data)][0] # type: ignore
+            
+            if form.transaction_type.data == 'trfr':
+                new_category = [category for category in form.category.choices if category[1] == 'Transfer'][0]
+            else:
+                new_category = [category for category in form.category.choices if category[1] == 'Card Payment'][0]
+                        
+            
+            # Set up transfer data
+            credit_data:dict = form.to_json()
+            credit_data['transaction_type'] = 'credit'
+            credit_data['merchant_name'] = transfer_account[1]
+            credit_data['category'] = new_category[0]
+            
+            
+            debit_data = form.to_json()
+            debit_data['transaction_type'] = 'debit'
+            debit_data['merchant_name'] = source_account[1]
+            debit_data['account'] = transfer_account[0]
+            debit_data['category'] = new_category[0]
+            
+            # Insert transfer transactions
+            # ToDo: Check Responses.  Should probably have a way to roll back credit if debit fails.
+            credit_insert_response = TC.insert_transaction(transaction_data=credit_data)
+            debit_insert_response = TC.insert_transaction(transaction_data=debit_data)            
+            
+        else:
+            # ToDo: Check Response
+            insert_response: TC.TransactionResponse = TC.insert_transaction(transaction_data=form.to_json())
         return redirect(url_for("transactions"))
         
     return render_template(
@@ -93,7 +127,8 @@ def update_transaction(transactionid:int):
         account=target_transaction.account.accountid,
         transaction_type=target_transaction.transaction.transaction_type,
         is_pending=target_transaction.transaction.is_pending,
-        note=target_transaction.transaction.note
+        note=target_transaction.transaction.note,
+        transfer_account=1
     )
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
