@@ -367,7 +367,6 @@ def get_cashflow(year:int, month:int) -> dict:
     }
     
     cashflow_df = get_cashflow_df(year=year, month=month)
-    cashflow_df["category"] == cashflow_df["category"].apply(lambda x: x.lower()) # type: ignore
     
     if len(cashflow_df) == 0:
         return cashflow_data
@@ -399,5 +398,4 @@ def get_cashflow(year:int, month:int) -> dict:
     cashflow_data["top"]["accounts"] = top_df.loc[top_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
     cashflow_data["bot"]["accounts"] = bot_df.loc[bot_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
        
-
     return cashflow_data
