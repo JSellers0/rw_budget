@@ -383,16 +383,16 @@ def get_cashflow(year:int, month:int) -> dict:
     cashflow_data["bot"]["income"] = '${:0,.2f}'.format(bot_df.loc[bot_df["category"] == "Income"][["amount"]].sum().amount)
     
     cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(cashflow_df.loc[
-        (cashflow_df["transaction_type"] == "Credit") &
-        (~top_df["category"].isin(["Transfer","Card Payment"]))
+        (cashflow_df["transaction_type"] == "credit") &
+        (~cashflow_df["category"].isin(["Transfer","Card Payment"]))
         ][["amount"]].sum().amount)
     cashflow_data["top"]["expens"] = '${:0,.2f}'.format(top_df.loc[
-        (top_df["transaction_type"] == "Credit") &
+        (top_df["transaction_type"] == "credit") &
         (~top_df["category"].isin(["Transfer","Card Payment"]))
         ][["amount"]].sum().amount)
     cashflow_data["bot"]["expens"] = '${:0,.2f}'.format(bot_df.loc[
-        (bot_df["transaction_type"] == "Credit") &
-        (~top_df["category"].isin(["Transfer","Card Payment"]))
+        (bot_df["transaction_type"] == "credit") &
+        (~bot_df["category"].isin(["Transfer","Card Payment"]))
         ][["amount"]].sum().amount)
     
     cashflow_data["top"]["accounts"] = top_df.loc[top_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
