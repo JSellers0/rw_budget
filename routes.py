@@ -49,6 +49,7 @@ def summary(year:int, month:int):
         "disp": date(next_year, next_month, 1).strftime("%B")
     }
     
+    cfdf = TC.get_cashflow_df(year, month)
     cashflow_data = TC.get_cashflow(year, month)
     
     return render_template(
@@ -56,7 +57,8 @@ def summary(year:int, month:int):
         cashflow=cashflow_data,
         month=date(year=year, month=month, day=1).strftime("%B"),
         last_month = last_month,
-        next_month = next_month
+        next_month = next_month,
+        cfdf = cfdf
         )
     
 
