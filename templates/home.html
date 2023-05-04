@@ -28,14 +28,20 @@
             <thead>
             <tr>
                 <th>Account</th>
-                <th>Balance</th>
+                <th>Charges</th>
+                <th>Pending Balance</th>
+                <th>Payments</th>
+                <th>Current Balance</th>
             </tr>
             </thead>
             <tbody>
-                {% for acct_name, account in cashflow["top"]["accounts"].iterrows() %}
+                {% for card_index, card in cashflow["top"]["accounts"].iterrows() %}
                 <tr>
-                    <td>{{ acct_name }}</td>
-                    <td>${{ account['amount'] }}</td>
+                    <td> {{ card['account'] }}</td>
+                    <td>${{ card['chg_bal'] }}</td>
+                    <td>${{ card['pnd_bal'] }}</td>
+                    <td>${{ card['pmt_bal'] }}</td>
+                    <td>${{ card['cur_bal'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -52,14 +58,19 @@
             <thead>
             <tr>
                 <th>Account</th>
-                <th>Balance</th>
+                <th>Current Balance</th>
+                <th>Pending Balance</th>
+                <th>Payments</th>
             </tr>
             </thead>
             <tbody>
-                {% for acct_name, account in cashflow["bot"]["accounts"].iterrows() %}
+                {% for card_index, card in cashflow["bot"]["accounts"].iterrows() %}
                 <tr>
-                    <td>{{ acct_name }}</td>
-                    <td>${{ account['amount'] }}</td>
+                    <td> {{ card['account'] }}</td>
+                    <td>${{ card['chg_bal'] }}</td>
+                    <td>${{ card['pnd_bal'] }}</td>
+                    <td>${{ card['pmt_bal'] }}</td>
+                    <td>${{ card['cur_bal'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

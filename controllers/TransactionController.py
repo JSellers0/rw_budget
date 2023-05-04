@@ -395,7 +395,133 @@ def get_cashflow(year:int, month:int) -> dict:
         (~bot_df["category"].isin(["Transfer","Card Payment"]))
         ][["amount"]].sum().amount)
     
-    cashflow_data["top"]["accounts"] = top_df.loc[top_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
-    cashflow_data["bot"]["accounts"] = bot_df.loc[bot_df.account_type == "Credit Card"][["account", "amount"]].groupby("account").sum()
+    top_accounts = top_df.loc[top_df.account_type == "Credit Card"]
+    bot_accounts = bot_df.loc[bot_df.account_type == "Credit Card"]
+    
+    cashflow_data["top"]["accounts"] = top_accounts[["account"]].drop_duplicates()
+    cashflow_data["bot"]["accounts"] = bot_accounts[["account"]].drop_duplicates()
+    
+    print("=================top accounts======================")
+    print(top_accounts)
+    print(cashflow_data["top"]["accounts"])
+    
+    # Current Charges
+    top_acct_chg_bal = top_accounts.loc[
+        (top_accounts["is_pending"] == 0) & (top_accounts["transaction_type"] == 'credit')
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(top_acct_chg_bal):
+        cashflow_data["top"]["accounts"] = pd.merge(
+            cashflow_data["top"]["accounts"],
+            top_acct_chg_bal,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "chg_bal"})
+    else:
+        cashflow_data["top"]["accounts"]["chg_bal"] = 0
+    
+    bot_acct_chg_bal = bot_accounts.loc[
+        (bot_accounts["is_pending"] == 0) & (bot_accounts["transaction_type"] == 'credit')
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(bot_acct_chg_bal):
+        cashflow_data["bot"]["accounts"] = pd.merge(
+            cashflow_data["bot"]["accounts"],
+            bot_acct_chg_bal,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "chg_bal"})
+    else:
+        cashflow_data["bot"]["accounts"]["chg_bal"] = 0
+    
+    # Pending Balance
+    top_acct_pnd_bal = top_accounts.loc[
+        (top_accounts["transaction_type"] == 'credit')
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(top_acct_pnd_bal):
+        cashflow_data["top"]["accounts"] = pd.merge(
+            cashflow_data["top"]["accounts"],
+            top_acct_pnd_bal,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "pnd_bal"})
+    else:
+        cashflow_data["top"]["accounts"]["pnd_bal"] = 0
+        
+    bot_acct_pnd_bal = bot_accounts.loc[
+        (bot_accounts["is_pending"] == 0) & (bot_accounts["transaction_type"] == 'credit')
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(bot_acct_pnd_bal):
+        cashflow_data["bot"]["accounts"] = pd.merge(
+            bot_accounts[["account"]].drop_duplicates(inplace=True),
+            bot_acct_pnd_bal,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "pnd_bal"})
+    else:
+        cashflow_data["bot"]["accounts"]["pnd_bal"] = 0
+    
+    # Payments
+    top_acct_payments = top_accounts.loc[
+        (top_accounts["transaction_type"] == 'debit')
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(top_acct_payments):
+        cashflow_data["top"]["accounts"] = pd.merge(
+            cashflow_data["top"]["accounts"],
+            top_acct_payments,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "pmt_bal"})
+    else:
+        cashflow_data["top"]["accounts"]["pmt_bal"] = 0
+        
+    bot_acct_payments = bot_accounts.loc[
+        (bot_accounts["transaction_type"] == 'debit')
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(bot_acct_payments):
+        cashflow_data["bot"]["accounts"] = pd.merge(
+            bot_accounts[["account"]].drop_duplicates(inplace=True),
+            bot_acct_payments,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "pmt_bal"})
+    else:
+        cashflow_data["bot"]["accounts"]["pmt_bal"] = 0
+        
+    # Current Balance
+    top_acct_cur_bal = top_accounts.loc[
+        (top_accounts["is_pending"] == 0)
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(top_acct_cur_bal):
+        cashflow_data["top"]["accounts"] = pd.merge(
+            cashflow_data["top"]["accounts"],
+            top_acct_cur_bal,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "cur_bal"})
+    else:
+        cashflow_data["top"]["accounts"]["cur_bal"] = 0
+    
+    bot_acct_cur_bal = bot_accounts.loc[
+        (bot_accounts["is_pending"] == 0)
+        ][["account", "amount"]].groupby("account").sum().reset_index()
+    
+    if len(bot_acct_cur_bal):
+        cashflow_data["bot"]["accounts"] = pd.merge(
+            cashflow_data["bot"]["accounts"],
+            bot_acct_cur_bal,
+            on="account",
+            how="left"
+        ).rename(columns={"amount": "cur_bal"})
+    else:
+        cashflow_data["bot"]["accounts"]["cur_bal"] = 0
+    
+    print(cashflow_data["top"]["accounts"])
+    print(cashflow_data["bot"]["accounts"])
        
     return cashflow_data
