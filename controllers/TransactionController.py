@@ -521,7 +521,8 @@ def get_cashflow(year:int, month:int) -> dict:
     else:
         cashflow_data["bot"]["accounts"]["cur_bal"] = 0
     
-    print(cashflow_data["top"]["accounts"])
-    print(cashflow_data["bot"]["accounts"])
+    # Fill NAs
+    cashflow_data["top"]["accounts"].fillna(0, inplace=True)
+    cashflow_data["bot"]["accounts"].fillna(0, inplace=True)
        
     return cashflow_data
