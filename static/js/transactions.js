@@ -1,5 +1,4 @@
 document.getElementById("transaction_type").addEventListener("blur", (event) => {
-    console.log("Blur MFer")
     let merchant_name = document.getElementById("merchant_name")
     let transfer_account = document.getElementById("transfer_account")
     if (['trfr', 'ccp'].includes(event.target.value)) {
@@ -19,5 +18,4 @@ document.getElementById("transaction_type").addEventListener("blur", (event) => 
         merchant_name.labels[0].classList.remove("hidden")
         merchant_name.value = ''
     }
-    
 })
