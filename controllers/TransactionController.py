@@ -455,7 +455,7 @@ def get_cashflow(year:int, month:int) -> dict:
     
     if len(bot_acct_pnd_bal):
         cashflow_data["bot"]["accounts"] = pd.merge(
-            bot_accounts[["account"]].drop_duplicates(inplace=True),
+            cashflow_data["bot"]["accounts"],
             bot_acct_pnd_bal,
             on="account",
             how="left"
@@ -484,7 +484,7 @@ def get_cashflow(year:int, month:int) -> dict:
     
     if len(bot_acct_payments):
         cashflow_data["bot"]["accounts"] = pd.merge(
-            bot_accounts[["account"]].drop_duplicates(inplace=True),
+            cashflow_data["bot"]["accounts"],
             bot_acct_payments,
             on="account",
             how="left"
