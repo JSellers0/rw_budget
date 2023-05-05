@@ -27,7 +27,7 @@
             <td>{{transaction.transaction.amount}}</td>
             <td>{{transaction.category.category_name}}</td>
             <td>{{transaction.account.account_name}}</td>
-            <td><a class="btn btn-outline-info" href={{url_for("update_transaction", transaction_id=transaction['transaction'].rtranid)}}>Update</a>
+            <td><a class="btn btn-outline-info" href={{url_for("update_recurring_transaction", rtranid=transaction['transaction'].rtranid)}}>Update</a>
         </tr>
     {% endfor %}
     </tbody>
