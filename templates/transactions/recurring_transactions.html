@@ -11,10 +11,10 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        <fieldset class="form-row">
+        <fieldset class="row">
             <div class="col">
                 {{form.expected_day.label(class="form-control-label")}}
-                {{form.expected_day(class="form-control")}}
+                {{form.expected_day(class="form-control", autofocus=true)}}
             </div>
             <div class="col">
                 {{form.merchant_name.label(class="form-control-label")}}
@@ -25,7 +25,7 @@
                 {{form.category(class="form-control")}}
             </div>
         </fieldset>
-        <fieldset class="form-row">
+        <fieldset class="row">
             <div class="col">
                 {{form.amount.label(class="form-control-label")}}
                 {{form.amount(class="form-control")}}
@@ -82,7 +82,7 @@
             {% endif %}
             <td class="td-inputcontrol">
                 <a class="btn btn-outline-info" href={{url_for("update_recurring_transaction", rtranid=transaction['transaction'].rtranid)}}>Update</a>
-                <a class="btn btn-outline-info" href="#">Delete</a>
+                <a class="btn btn-outline-info" href={{url_for("delete_recurring_transaction", rtranid=transaction['transaction'].rtranid)}}>Delete</a>
             </td>
         </tr>
     {% endfor %}
@@ -94,6 +94,7 @@
     <ul>
         <li>#ToDo: Card Payments as recurring transactions with dynamic amounts</li>
         <li>#ToDo: Apply recurring transactions - Checkboxes next to transactions. Pick the ones to pull.</li>
+        <li>#ToDo: Apply single recurring transactions - Button next to Update.</li>
     </ul>
 </div>
 {% endblock %}
