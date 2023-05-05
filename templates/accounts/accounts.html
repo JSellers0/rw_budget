@@ -7,24 +7,27 @@
 <div class="content-section">
     <form method="POST", action="">
         {{ form.hidden_tag() }}
-        <fieldset>
-            <legend>Add a new account</legend>
-            <div class="form-group">
+        <legend>Add a new account</legend>
+        <fieldset class="row">
+            <div class="col">
                 {{form.account_name.label(class="form-control-label")}}
-                {{form.account_name(class="form-control")}}
-            <div class="form-group">
+                {{form.account_name(class="form-control", autofocus=true)}}
+            </div>
+            <div class="col">
                 {{form.account_type.label(class="form-control-label")}}
                 {{form.account_type(class="form-control")}}
             </div>
-            <div class="form-group">
+        </fieldset>
+        <fieldset class="row">
+            <div class="col">
                 {{form.payment_day.label(class="form-control-label")}}
                 {{form.payment_day(class="form-control")}}
             </div>
-            <div class="form-group">
+            <div class="col">
                 {{form.statement_day.label(class="form-control-label")}}
                 {{form.statement_day(class="form-control")}}
             </div>
-            <div class="form-group">
+            <div class="col">
                 {{form.rewards_features.label(class="form-control-label")}}
                 {{form.rewards_features(class="form-control")}}
             </div>
