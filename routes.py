@@ -75,6 +75,8 @@ def transactions():
     
     if form.validate_on_submit():
         if form.transaction_type.data in ('trfr', 'ccp'):
+            # Doing the transfer here instead of in Transaction Controller because of access to Account and Category Data.
+            # DECISION: Should I just pass that into insert transaction?
             # Get Account and Category information
             transfer_account = [account for account in form.account.choices if account[0] == int(form.transfer_account.data)][0] # type: ignore
             source_account = [account for account in form.account.choices if account[0] == int(form.account.data)][0] # type: ignore
@@ -84,7 +86,6 @@ def transactions():
             else:
                 new_category = [category for category in form.category.choices if category[1] == 'Card Payment'][0]
                         
-            
             # Set up transfer data
             credit_data:dict = form.to_json()
             credit_data['transaction_type'] = 'credit'
@@ -92,7 +93,7 @@ def transactions():
             credit_data['category'] = new_category[0]
             
             
-            debit_data = form.to_json()
+            debit_data:dict = form.to_json()
             debit_data['transaction_type'] = 'debit'
             debit_data['merchant_name'] = source_account[1]
             debit_data['account'] = transfer_account[0]
@@ -145,6 +146,12 @@ def update_transaction(transactionid:int):
         form=form
     )
     
+@app.route("/transaction/delete/<int:transactionid>", methods=["GET"])
+def delete_transaction(transactionid):
+    delete_response = TC.delete_transaction(transactionid=transactionid)
+    # ToDo: Check Response and flash appropriate message
+    return redirect(url_for("transactions"))
+    
 @app.route("/transaction/recurring", methods=["GET","POST"])
 def recurring_transactions():
     get_response = TC.get_all_recurring_transactions()
@@ -159,13 +166,7 @@ def recurring_transactions():
         form=form,
         transactions=get_response["transactions"]
     )
-    
-@app.route("/transaction/delete/<int:transactionid>", methods=["GET"])
-def delete_transaction(transactionid):
-    delete_response = TC.delete_transaction(transactionid=transactionid)
-    # ToDo: Check Response and flash appropriate message
-    return redirect(url_for("transactions"))
-    
+
 @app.route("/transaction/recurring/new", methods=["GET","POST"])
 def new_recurring_transaction():
     form = RecurringTransactionForm()
@@ -206,6 +207,12 @@ def update_recurring_transaction(rtranid):
         "transactions/recurring_transactions_update.html",
         form=form
     )
+    
+@app.route("/transaction/recurring/delete/<int:rtranid>", methods=["GET"])
+def delete_recurring_transaction(rtranid):
+    delete_response = TC.delete_recurring_transaction(rtranid=rtranid)
+    # ToDo: Check Response and flash appropriate message
+    return redirect(url_for("recurring_transactions"))
     
 @app.route("/transaction/recurring/apply", methods=["GET","POST"])
 def apply_recurring_transactions():
