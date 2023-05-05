@@ -10,7 +10,7 @@
         <fieldset >
             <div class="form-group">
                 {{form.category_name.label(class="form-control-label")}}
-                {{form.category_name(class="form-control", list="category-list")}}
+                {{form.category_name(class="form-control", list="category-list", autofocus=true)}}
                 <datalist id="category-list">
                     {% for category in categories %}
                         <option value="{{ category['category_name'] }}"></option>
