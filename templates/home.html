@@ -14,24 +14,24 @@
     </div>
     <div>
         <h2>Monthly Summary</h2>
-        Remaining: {{ cashflow["sum"]["remain"] }}<br />
-        Income: {{ cashflow["sum"]["income"] }} <br />
-        Expenses: {{ cashflow["sum"]["expens"] }}
+        Cash Remaining: {{ cashflow["sum"]["remain"] }}<br />
+        Cash In: {{ cashflow["sum"]["income"] }} <br />
+        Cash Out: {{ cashflow["sum"]["expens"] }}
     </div>
     <div>
         <h2>First Half</h2>
-        Remaining: {{ cashflow["top"]["remain"] }}<br />
-        Income: {{ cashflow["top"]["income"] }} <br />
-        Expenses: {{ cashflow["top"]["expens"] }}
+        Cash Remaining: {{ cashflow["top"]["remain"] }}<br />
+        Cash In: {{ cashflow["top"]["income"] }} <br />
+        Cash Out: {{ cashflow["top"]["expens"] }}
         <h4>Credit Card Balances</h4>
         <table>
             <thead>
             <tr>
                 <th>Account</th>
                 <th>Charges</th>
-                <th>Pending Balance</th>
                 <th>Payments</th>
                 <th>Current Balance</th>
+                <th>Pending Balance</th>
             </tr>
             </thead>
             <tbody>
@@ -39,9 +39,9 @@
                 <tr>
                     <td> {{ card['account'] }}</td>
                     <td>${{ card['chg_bal'] }}</td>
-                    <td>${{ card['pnd_bal'] }}</td>
                     <td>${{ card['pmt_bal'] }}</td>
                     <td>${{ card['cur_bal'] }}</td>
+                    <td>${{ card['pnd_bal'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -49,19 +49,19 @@
     </div>
     <div>
         <h2>Second Half</h2>
-        Remaining: {{ cashflow["bot"]["remain"] }}
+        Cash Remaining: {{ cashflow["bot"]["remain"] }}
         <br>
-        Income: {{ cashflow["bot"]["income"] }} <br />
-        Expenses: {{ cashflow["bot"]["expens"] }}
+        Cash In: {{ cashflow["bot"]["income"] }} <br />
+        Cash Out: {{ cashflow["bot"]["expens"] }}
         <h4>Credit Card Balances</h4>
         <table>
             <thead>
             <tr>
                 <th>Account</th>
                 <th>Charges</th>
-                <th>Pending Balance</th>
                 <th>Payments</th>
                 <th>Current Balance</th>
+                <th>Pending Balance</th>
             </tr>
             </thead>
             <tbody>
@@ -69,9 +69,9 @@
                 <tr>
                     <td> {{ card['account'] }}</td>
                     <td>${{ card['chg_bal'] }}</td>
-                    <td>${{ card['pnd_bal'] }}</td>
                     <td>${{ card['pmt_bal'] }}</td>
                     <td>${{ card['cur_bal'] }}</td>
+                    <td>${{ card['pnd_bal'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
