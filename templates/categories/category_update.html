@@ -10,7 +10,7 @@
             {{ form.hidden_tag() }}
             <fieldset >
                 <div class="form-group">{{form.category_name.label(class="form-control")}}</div>
-                <div class="form-group">{{form.category_name(class="form-control", list="category-list", value=category.category_name)}}</div>
+                <div class="form-group">{{form.category_name(class="form-control", list="category-list", value=category.category_name, autofocus=true)}}</div>
             </fieldset>
             <div class="form-group">
                 {{form.submit(class="btn btn-outline-info")}}

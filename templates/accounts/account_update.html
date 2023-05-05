@@ -11,7 +11,7 @@
             <legend>Update account information</legend>
             <div class="form-group">
                 {{form.account_name.label(class="form-control-label")}}
-                {{form.account_name(class="form-control", value=account.account_name)}}
+                {{form.account_name(class="form-control", value=account.account_name, autofocus=true)}}
             <div class="form-group">
                 {{form.account_type.label(class="form-control-label")}}
                 {{form.account_type(class="form-control", value=account.account_type)}}
