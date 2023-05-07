@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from sqlalchemy import Boolean, Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, DECIMAL, Date, DateTime, ForeignKey, Index
 from sqlalchemy.sql import func
 from app import app, db
 import sys
@@ -10,6 +10,8 @@ import sys
 # ToDo: Parent Categories
 # DECISION: Do I need parent budgets if I'm going to have parent categories?  I think views are realistically the only way to do this.
 # ToDo: User table
+
+INDEX_BUILD_LIST = []
 
 class Category(db.Model):
     __tablename__ = 'category'
@@ -71,6 +73,7 @@ class Account(db.Model):
     statement_day: Column = Column(String(50))
     transactions = db.relationship('Transaction', backref='account')
     recur_transactions = db.relationship('RecurringTransaction', backref='account')
+    balance = db.relationship('AccountBalance', backref='account')
     
     def __repr__(self) -> str:
         return "account({},{})".format(self.accountid, self.account_name)
@@ -91,10 +94,44 @@ class Account(db.Model):
 # ToDo: Account Balance - accountid, first day of month, starting balance, current_balance, projected_balance
 # DECISION: Account balance table or add balance to transaction
 
+class AccountBalance(db.Model):
+    __tablename__ = 'accountbalance'
+    accountbalanceid: Column = Column(Integer, primary_key=True)
+    accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
+    balance: Column = Column(DECIMAL(7,2), nullable=False)
+    is_current: Column = Column(Boolean())
+    agg_period: Column = Column(String(100), nullable=False)
+    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
+    insert_by: Column = Column(String(100), server_default=func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user()) # type: ignore
+    
+    def __repr__(self) -> str:
+        return "Account Balance({},{}, {}, {})".format(
+            self.accountid, 
+            self.balance, 
+            self.is_current,
+            self.agg_period
+            )
+    
+    def to_json(self) -> dict[str, Column]:
+        return {
+            "accountid": self.accountid,
+            "account_name": self.account_name,
+            "account_type": self.account_type,
+            "rewards_features": self.rewards_features,
+            "payment_day": self.payment_day,
+            "statement_day": self.statement_day
+        }
+        
+    def to_tuple(self) -> tuple[Column, Column]:
+        return (self.accountid, self.account_name)
+    
+
 class Transaction(db.Model):
     __tablename__ = 'transaction'
     transactionid: Column = Column(Integer, primary_key=True)
-    transaction_date: Column = Column(Date(), nullable=False)
+    transaction_date: Column = Column(Date(), nullable=False, index=True)
     merchant_name: Column = Column(String(200), nullable=False)
     categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
     amount: Column = Column(DECIMAL(7,2), nullable=False)
@@ -109,6 +146,8 @@ class Transaction(db.Model):
     
     def __repr__(self) -> str:
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
+    
+INDEX_BUILD_LIST.append(Index('transaction_date_idx', Transaction.transaction_date))
     
 class RecurringTransaction(db.Model):
     __tablename__ = 'recurring_transaction'
@@ -195,6 +234,14 @@ if __name__ == '__main__':
             db.drop_all()
             db.create_all()
             db.session.commit()
-            
         build_accounts()
+    elif '-build_index' in sys.argv:
+        with app.app_context():
+            for index in INDEX_BUILD_LIST:
+                index.create(bind=db.engine)
+            db.session.commit()          
+    elif '-build_new' in sys.argv:
+        with app.app_context():
+            db.create_all()
+            db.session.commit()
             
