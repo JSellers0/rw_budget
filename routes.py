@@ -48,8 +48,6 @@ def summary(year:int, month:int):
         "month": next_month,
         "disp": date(next_year, next_month, 1).strftime("%B")
     }
-    
-    cfdf = TC.get_cashflow_df(year, month)
     cashflow_data = TC.get_cashflow(year, month)
     
     return render_template(
@@ -57,8 +55,7 @@ def summary(year:int, month:int):
         cashflow=cashflow_data,
         month=date(year=year, month=month, day=1).strftime("%B"),
         last_month = last_month,
-        next_month = next_month,
-        cfdf = cfdf
+        next_month = next_month
         )
     
 
@@ -74,7 +71,7 @@ def transactions():
     form.transfer_account.choices = account_choices
     
     if form.validate_on_submit():
-        if form.transaction_type.data in ('trfr', 'ccp'):
+        if form.transaction_type.data in ('trfr', 'ccp', 'finpay'):
             # Doing the transfer here instead of in Transaction Controller because of access to Account and Category Data.
             # DECISION: Should I just pass that into insert transaction?
             # Get Account and Category information
@@ -83,8 +80,12 @@ def transactions():
             
             if form.transaction_type.data == 'trfr':
                 new_category = [category for category in form.category.choices if category[1] == 'Transfer'][0]
-            else:
+            elif form.transaction_type.data == 'ccp':
                 new_category = [category for category in form.category.choices if category[1] == 'Card Payment'][0]
+            elif form.transaction_type.data == 'finpay':
+                new_category = [category for category in form.category.choices if category[1] == 'Finance Payment'][0]
+            else:
+                new_category = [1]
                         
             # Set up transfer data
             credit_data:dict = form.to_json()
