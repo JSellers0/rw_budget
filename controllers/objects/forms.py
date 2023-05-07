@@ -3,16 +3,19 @@ from typing import Any
 from wtforms import StringField, BooleanField, DecimalField, SubmitField, DateField, SelectField, HiddenField, IntegerField
 from wtforms.validators import (DataRequired, Length)
 
-class TransactionForm(FlaskForm):
-    tran_types = [
+TRAN_TYPES = [
         ('credit','Credit'),
         ('debit','Debit'),
         ('ccp','Card Pmnt'),
         ('trfr', 'Transfer'),
+        ('fin', 'Finance Purchase'),
+        ('finpay', 'Finance Payment')
     ]
+
+class TransactionForm(FlaskForm):
     transactionid: HiddenField = HiddenField("Transactionid")
     transaction_date:DateField = DateField("Date", validators=[DataRequired()])
-    transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
+    transaction_type: SelectField = SelectField("Transaction Type", choices=TRAN_TYPES, validators=[DataRequired()])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     transfer_account: SelectField = SelectField("Transfer To", choices=['placeholder'])
     category: SelectField = SelectField("Category", validators=[DataRequired()])
@@ -37,19 +40,13 @@ class TransactionForm(FlaskForm):
         }
     
 class RecurringTransactionForm(FlaskForm):
-    tran_types = [
-        ('credit','Credit'),
-        ('debit','Debit'),
-        ('ccp','Card Pmnt'),
-        ('trfr', 'Transfer'),
-    ]
     rtranid: HiddenField = HiddenField("RecuringTransactionID")
     expected_day: StringField = StringField("Expected Day of Transaction", validators=[DataRequired(), Length(max=200)])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     category: SelectField = SelectField("Category", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
     account: SelectField = SelectField("Account", validators=[DataRequired()])
-    transaction_type: SelectField = SelectField("Transaction Type", choices=tran_types, validators=[DataRequired()])
+    transaction_type: SelectField = SelectField("Transaction Type", choices=TRAN_TYPES, validators=[DataRequired()])
     note: StringField = StringField("Notes")
     is_monthly: BooleanField = BooleanField("Monthly Transaction")
     submit: SubmitField = SubmitField("Insert")
