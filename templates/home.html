@@ -23,29 +23,6 @@
         Cash Remaining: {{ cashflow["top"]["remain"] }}<br />
         Cash In: {{ cashflow["top"]["income"] }} <br />
         Cash Out: {{ cashflow["top"]["expens"] }}
-        <h4>Credit Card Balances</h4>
-        <table>
-            <thead>
-            <tr>
-                <th>Account</th>
-                <th>Charges</th>
-                <th>Payments</th>
-                <th>Current Balance</th>
-                <th>Pending Balance</th>
-            </tr>
-            </thead>
-            <tbody>
-                {% for card_index, card in cashflow["top"]["accounts"].iterrows() %}
-                <tr>
-                    <td> {{ card['account'] }}</td>
-                    <td>${{ card['chg_bal'] }}</td>
-                    <td>${{ card['pmt_bal'] }}</td>
-                    <td>${{ card['cur_bal'] }}</td>
-                    <td>${{ card['pnd_bal'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
     <div>
         <h2>Second Half</h2>
@@ -53,6 +30,8 @@
         <br>
         Cash In: {{ cashflow["bot"]["income"] }} <br />
         Cash Out: {{ cashflow["bot"]["expens"] }}
+    </div>
+    <div>
         <h4>Credit Card Balances</h4>
         <table>
             <thead>
@@ -65,9 +44,9 @@
             </tr>
             </thead>
             <tbody>
-                {% for card_index, card in cashflow["bot"]["accounts"].iterrows() %}
+                {% for card_index, card in cashflow["accounts"].iterrows() %}
                 <tr>
-                    <td> {{ card['account'] }}</td>
+                    <td> {{ card['account_name'] }}</td>
                     <td>${{ card['chg_bal'] }}</td>
                     <td>${{ card['pmt_bal'] }}</td>
                     <td>${{ card['cur_bal'] }}</td>
