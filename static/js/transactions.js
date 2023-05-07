@@ -1,7 +1,7 @@
 document.getElementById("transaction_type").addEventListener("blur", (event) => {
     let merchant_name = document.getElementById("merchant_name")
     let transfer_account = document.getElementById("transfer_account")
-    if (['trfr', 'ccp'].includes(event.target.value)) {
+    if (['trfr', 'ccp', 'finpay'].includes(event.target.value)) {
         // DECISION: hide or disable category selector?
         transfer_account.classList.remove("hidden")
         transfer_account.labels[0].classList.remove("hidden")
