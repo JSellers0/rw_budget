@@ -398,7 +398,7 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
     ) bal
         INNER JOIN account a ON a.accountid = bal.accountid
         LEFT JOIN accountbalance ab ON ab.accountid = bal.accountid
-            AND ab.is_current = 1
+            AND ab.agg_start = Date_Add('{start}', INTERVAL -1 MONTH)
     WHERE a.account_type = 'Credit Card'
     """
     

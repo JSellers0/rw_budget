@@ -99,8 +99,8 @@ class AccountBalance(db.Model):
     accountbalanceid: Column = Column(Integer, primary_key=True)
     accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
     balance: Column = Column(DECIMAL(7,2), nullable=False)
-    is_current: Column = Column(Boolean())
-    agg_period: Column = Column(String(100), nullable=False)
+    agg_start: Column = Column(Date(), nullable=False, index=True)
+    agg_end: Column = Column(Date(), nullable=False, index=True)
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
