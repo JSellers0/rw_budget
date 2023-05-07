@@ -1,7 +1,7 @@
 from app import db
 from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
-from controllers.objects.forms import TransactionForm
 from datetime import date, timedelta
+from sqlalchemy import text
 from typing import TypedDict
 import pandas as pd
 
@@ -115,7 +115,7 @@ def get_twenty_recent_transactions() -> TransactionResponse:
     
 def insert_transaction(transaction_data: dict) -> TransactionResponse:
     # Make sure credit values are negative
-    if transaction_data.get('transaction_type','') == 'credit':
+    if transaction_data.get('transaction_type','') in ('credit', 'fin'):
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
             
@@ -150,6 +150,11 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
             message=f"Transaction { transaction_data.get('transactionid')} not found.",
             transactions=[None] # type: ignore
         )
+        
+    # Make sure credit values are negative
+    if transaction_data.get('transaction_type','') in ('credit', 'fin'):
+        if transaction_data.get('amount', 0) > 0:
+            transaction_data['amount'] = transaction_data['amount'] * -1
     
     if transaction_data.get('transaction_date') != transaction.transaction_date:
         transaction.transaction_date = transaction_data.get('transaction_date', '') # type: ignore
@@ -254,6 +259,11 @@ def update_recurring_transaction(transaction_data: dict) -> TransactionResponse:
             message=f"Transaction { transaction_data.get('rtranid')} not found.",
             transactions=[None] # type: ignore
         )
+        
+    # Make sure credit values are negative
+    if transaction_data.get('transaction_type','') == 'credit':
+        if transaction_data.get('amount', 0) > 0:
+            transaction_data['amount'] = transaction_data['amount'] * -1
             
     if transaction_data.get('expected_day') != transaction.expected_day:
         transaction.expected_day = transaction_data.get('expected_day', '') # type: ignore
@@ -332,9 +342,7 @@ def get_month_end(year:int, month: int) -> date:
         year = year
     return date(year, next_month, 1) - timedelta(days=1)
     
-def get_cashflow_df(year:int, month:int) -> pd.DataFrame:
-    start = date(year, month, 1).strftime("%Y-%m-%d")
-    end = get_month_end(year, month).strftime("%Y-%m-%d")
+def get_cashflow_df(start:str, end:str) -> pd.DataFrame:
     get_response = get_transactions_by_date_range(start=start, end=end)
     
     if get_response["response_code"] == 404:
@@ -362,71 +370,67 @@ def get_cashflow_df(year:int, month:int) -> pd.DataFrame:
     
     return cashflow_df
 
-def get_credit_card_data(transaction_data:pd.DataFrame) -> pd.DataFrame:
-    # Get Accounts
-    card_data = transaction_data[["account"]].drop_duplicates()
+def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
+    # Direct SQL for now.  Need to learn stored procedures in MariaDB
+    # or at least put this in a file instead of in the code.
     
-    # Charges
-    chg_bal = transaction_data.loc[
-        (transaction_data["is_pending"] == 0) & (transaction_data["transaction_type"] == 'credit')
-        ][["account", "amount"]].groupby("account").sum().reset_index()
-    # Payments
-    pmt_bal = transaction_data.loc[
-        (transaction_data["is_pending"] == 0) & (transaction_data["transaction_type"] == 'debit')
-        ][["account", "amount"]].groupby("account").sum().reset_index()
-    # Current Balance
-    cur_bal = transaction_data.loc[
-        (transaction_data["is_pending"] == 0)
-        ][["account", "amount"]].groupby("account").sum().reset_index()
-    # Pending Balance
-    pnd_bal = transaction_data[["account", "amount"]].groupby("account").sum().reset_index()
-    # Merges
-    if len(chg_bal):
-        card_data = pd.merge(
-            card_data,
-            chg_bal,
-            on="account",
-            how="left"
-        ).rename(columns={"amount": "chg_bal"})
-    else:
-        card_data["chg_bal"] = 0
+    card_data_sql = f"""
+    SELECT
+        bal.accountid, a.account_name, bal.chg_bal, bal.pmt_bal
+        , bal.cur_bal + IfNull(ab.balance, 0) AS cur_bal
+        , bal.pnd_bal + IfNull(ab.balance, 0) AS pnd_bal
+    FROM (
+        SELECT
+            accountid
+            , Sum(CASE 
+                WHEN is_pending = 0 AND transaction_type = 'credit'
+                    THEN amount ELSE 0 END) AS chg_bal
+            , Sum(CASE
+                WHEN is_pending = 0 AND transaction_type = 'debit'
+                    THEN amount ELSE 0 END) AS pmt_bal
+            , Sum(CASE
+                WHEN is_pending = 0 THEN amount
+                ELSE 0 END) AS cur_bal
+            , Sum(amount) AS pnd_bal
+        FROM transaction
+        WHERE transaction_date BETWEEN '{start}' AND '{end}'
+        GROUP BY accountid
+    ) bal
+        INNER JOIN account a ON a.accountid = bal.accountid
+        LEFT JOIN accountbalance ab ON ab.accountid = bal.accountid
+            AND ab.is_current = 1
+    WHERE a.account_type = 'Credit Card'
+    """
     
-    if len(pnd_bal):
-        card_data = pd.merge(
-            card_data,
-            pnd_bal,
-            on="account",
-            how="left"
-        ).rename(columns={"amount": "pnd_bal"})
-    else:
-        card_data["pnd_bal"] = 0
-        
-    if len(pmt_bal):
-        card_data = pd.merge(
-            card_data,
-            pmt_bal,
-            on="account",
-            how="left"
-        ).rename(columns={"amount": "pmt_bal"})
-    else:
-        card_data["pmt_bal"] = 0
-        
-    if len(cur_bal):
-        card_data = pd.merge(
-            card_data,
-            cur_bal,
-            on="account",
-            how="left"
-        ).rename(columns={"amount": "cur_bal"})
-    else:
-        card_data["cur_bal"] = 0
-        
-    # Fill NAs
-    card_data.fillna(0, inplace=True)
+    results = db.session.execute(text(card_data_sql))
+
+    card_data = []
+    for card in results:
+        card_data.append(
+            {
+                "accountid": card[0],
+                "account_name": card[1],
+                "chg_bal": card[2],
+                "pmt_bal": card[3],
+                "cur_bal": card[4],
+                "pnd_bal": card[5],
+            }    
+        )
     
-    return card_data
+    card_data_df = pd.DataFrame.from_records(
+        card_data,
+        index='accountid',
+        columns=card_data[0].keys()
+    )
     
-def get_cashflow(year:int, month:int) -> dict:   
+    return card_data_df
+    
+def get_cashflow(year:int, month:int) -> dict:
+    month_start = date(year, month, 1).strftime("%Y-%m-%d")
+    month_end = get_month_end(year, month).strftime("%Y-%m-%d")
+    
+    cashflow_df = get_cashflow_df(start=month_start, end=month_end)
+    
     cashflow_data = {
         "sum": {
             "remain": '$0.00',
@@ -437,17 +441,14 @@ def get_cashflow(year:int, month:int) -> dict:
             "remain": '$0.00',
             "income": '$0.00',
             "expens": '$0.00',
-            "accounts": pd.DataFrame(),
         },
         "bot": {
             "remain": '$0.00',
             "income": '$0.00',
             "expens": '$0.00',
-            "accounts": pd.DataFrame(),
-        }
+        },
+        "accounts": pd.DataFrame()
     }
-    
-    cashflow_df = get_cashflow_df(year=year, month=month)
     
     if len(cashflow_df) == 0:
         return cashflow_data
@@ -455,9 +456,15 @@ def get_cashflow(year:int, month:int) -> dict:
     top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(year, month, 15)]
     bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(year, month, 14)]
     
-    cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(cashflow_df[["amount"]].sum().amount)
-    cashflow_data["top"]["remain"] = '${:0,.2f}'.format(top_df[["amount"]].sum().amount)
-    cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(bot_df[["amount"]].sum().amount)
+    cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(cashflow_df.loc[
+        (cashflow_df["transaction_type"] != 'fin')
+        ][["amount"]].sum().amount)
+    cashflow_data["top"]["remain"] = '${:0,.2f}'.format(top_df.loc[
+        (top_df["transaction_type"] != 'fin')
+        ][["amount"]].sum().amount)
+    cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(bot_df.loc[
+        (bot_df["transaction_type"] != 'fin')
+        ][["amount"]].sum().amount)
     
     cashflow_data["sum"]["income"] = '${:0,.2f}'.format(cashflow_df.loc[
         (cashflow_df["account_type"] == "Checking") & 
@@ -474,20 +481,22 @@ def get_cashflow(year:int, month:int) -> dict:
     
     cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(cashflow_df.loc[
         (cashflow_df["transaction_type"] == "credit") &
-        (~cashflow_df["category"].isin(["Transfer","Card Payment"]))
+        (cashflow_df["account_type"].isin(["Checking", "Credit Card"])) &
+        (~cashflow_df["category"].isin(["Card Payment"]))
         ][["amount"]].sum().amount)
     cashflow_data["top"]["expens"] = '${:0,.2f}'.format(top_df.loc[
         (top_df["transaction_type"] == "credit") &
-        (~top_df["category"].isin(["Transfer","Card Payment"]))
+        (top_df["account_type"].isin(["Checking", "Credit Card"])) &
+        (~top_df["category"].isin(["Card Payment"]))
         ][["amount"]].sum().amount)
     cashflow_data["bot"]["expens"] = '${:0,.2f}'.format(bot_df.loc[
         (bot_df["transaction_type"] == "credit") &
-        (~bot_df["category"].isin(["Transfer","Card Payment"]))
+        (bot_df["account_type"].isin(["Checking", "Credit Card"])) &
+        (~bot_df["category"].isin(["Card Payment"]))
         ][["amount"]].sum().amount)
     
     # Get Credit Card account info
-    cashflow_data["top"]["accounts"] = get_credit_card_data(top_df.loc[top_df.account_type == "Credit Card"])
-    cashflow_data["bot"]["accounts"] = get_credit_card_data( bot_df.loc[bot_df.account_type == "Credit Card"])
+    cashflow_data["accounts"] = get_credit_card_data(start=month_start, end=month_end)
     
     # Get Bank Account info
        
