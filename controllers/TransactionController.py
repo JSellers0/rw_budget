@@ -376,10 +376,12 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
     
     card_data_sql = f"""
     SELECT
-        bal.accountid, a.account_name, bal.chg_bal, bal.pmt_bal
-        , bal.cur_bal + IfNull(ab.balance, 0) AS cur_bal
-        , bal.pnd_bal + IfNull(ab.balance, 0) AS pnd_bal
-    FROM (
+        bal.accountid, a.account_name
+        , IfNull(bal.chg_bal, 0) AS chg_bal, IfNull(bal.pmt_bal, 0) AS pmt_bal
+        , IfNull(bal.cur_bal, 0) + IfNull(ab.balance, 0) AS cur_bal
+        , IfNull(bal.pnd_bal, 0) + IfNull(ab.balance, 0) AS pnd_bal
+    FROM account a
+        LEFT JOIN (
         SELECT
             accountid
             , Sum(CASE 
@@ -396,10 +398,11 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
         WHERE transaction_date BETWEEN '{start}' AND '{end}'
         GROUP BY accountid
     ) bal
-        INNER JOIN account a ON a.accountid = bal.accountid
+        ON a.accountid = bal.accountid
         LEFT JOIN accountbalance ab ON ab.accountid = bal.accountid
             AND ab.agg_start = Date_Add('{start}', INTERVAL -1 MONTH)
     WHERE a.account_type = 'Credit Card'
+    ;
     """
     
     results = db.session.execute(text(card_data_sql))
