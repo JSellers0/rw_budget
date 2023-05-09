@@ -130,4 +130,8 @@ dmypy.json
 
 # WSGI env hack
 myfb.py
-.vscode/settings.json
+.vscode/
+
+#DBeaver
+.dbeaver/
+.project
