@@ -459,16 +459,7 @@ def get_cashflow(year:int, month:int) -> dict:
     top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(year, month, 15)]
     bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(year, month, 14)]
     
-    cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(cashflow_df.loc[
-        (cashflow_df["transaction_type"] != 'fin')
-        ][["amount"]].sum().amount)
-    cashflow_data["top"]["remain"] = '${:0,.2f}'.format(top_df.loc[
-        (top_df["transaction_type"] != 'fin')
-        ][["amount"]].sum().amount)
-    cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(bot_df.loc[
-        (bot_df["transaction_type"] != 'fin')
-        ][["amount"]].sum().amount)
-    
+    # Cash In
     cashflow_data["sum"]["income"] = '${:0,.2f}'.format(cashflow_df.loc[
         (cashflow_df["account_type"] == "Checking") & 
         (cashflow_df["transaction_type"] == 'debit')
@@ -482,6 +473,7 @@ def get_cashflow(year:int, month:int) -> dict:
         (bot_df["transaction_type"] == 'debit')
         ][["amount"]].sum().amount)
     
+    # Cash Out
     cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(cashflow_df.loc[
         (cashflow_df["transaction_type"] == "credit") &
         (cashflow_df["account_type"].isin(["Checking", "Credit Card"])) &
@@ -497,6 +489,17 @@ def get_cashflow(year:int, month:int) -> dict:
         (bot_df["account_type"].isin(["Checking", "Credit Card"])) &
         (~bot_df["category"].isin(["Card Payment"]))
         ][["amount"]].sum().amount)
+    
+    # Remaining Cash
+    cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(
+        float(cashflow_data["sum"]["income"][1:]) - float(cashflow_data["sum"]["expens"][1:])
+    )
+    cashflow_data["top"]["remain"] = '${:0,.2f}'.format(
+        float(cashflow_data["top"]["income"][1:]) - float(cashflow_data["top"]["expens"][1:])
+    )
+    cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(
+        float(cashflow_data["bot"]["income"][1:]) - float(cashflow_data["bot"]["expens"][1:])
+    )
     
     # Get Credit Card account info
     cashflow_data["accounts"] = get_credit_card_data(start=month_start, end=month_end)
