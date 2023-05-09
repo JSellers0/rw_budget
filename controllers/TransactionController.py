@@ -459,46 +459,45 @@ def get_cashflow(year:int, month:int) -> dict:
     top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(year, month, 15)]
     bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(year, month, 14)]
     
-    # Cash In
-    cashflow_data["sum"]["income"] = '${:0,.2f}'.format(cashflow_df.loc[
-        (cashflow_df["account_type"] == "Checking") & 
-        (cashflow_df["transaction_type"] == 'debit')
-        ][["amount"]].sum().amount)
-    cashflow_data["top"]["income"] = '${:0,.2f}'.format(top_df.loc[
+    top_income = top_df.loc[
         (top_df["account_type"] == "Checking") & 
         (top_df["transaction_type"] == 'debit')
-        ][["amount"]].sum().amount)
-    cashflow_data["bot"]["income"] = '${:0,.2f}'.format(bot_df.loc[
+        ][["amount"]].sum().amount
+    bot_income = bot_df.loc[
         (bot_df["account_type"] == "Checking") & 
         (bot_df["transaction_type"] == 'debit')
-        ][["amount"]].sum().amount)
+        ][["amount"]].sum().amount
     
-    # Cash Out
-    cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(cashflow_df.loc[
-        (cashflow_df["transaction_type"] == "credit") &
-        (cashflow_df["account_type"].isin(["Checking", "Credit Card"])) &
-        (~cashflow_df["category"].isin(["Card Payment"]))
-        ][["amount"]].sum().amount)
-    cashflow_data["top"]["expens"] = '${:0,.2f}'.format(top_df.loc[
+    top_expens = top_df.loc[
         (top_df["transaction_type"] == "credit") &
         (top_df["account_type"].isin(["Checking", "Credit Card"])) &
         (~top_df["category"].isin(["Card Payment"]))
-        ][["amount"]].sum().amount)
-    cashflow_data["bot"]["expens"] = '${:0,.2f}'.format(bot_df.loc[
+        ][["amount"]].sum().amount
+    bot_expens = bot_df.loc[
         (bot_df["transaction_type"] == "credit") &
         (bot_df["account_type"].isin(["Checking", "Credit Card"])) &
         (~bot_df["category"].isin(["Card Payment"]))
-        ][["amount"]].sum().amount)
+        ][["amount"]].sum().amount
+    
+    # Cash In
+    cashflow_data["sum"]["income"] = '${:0,.2f}'.format(top_income + bot_income)
+    cashflow_data["top"]["income"] = '${:0,.2f}'.format(top_income)
+    cashflow_data["bot"]["income"] = '${:0,.2f}'.format(bot_income)
+    
+    # Cash Out
+    cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(top_expens + bot_expens)
+    cashflow_data["top"]["expens"] = '${:0,.2f}'.format(top_expens)
+    cashflow_data["bot"]["expens"] = '${:0,.2f}'.format(bot_expens)
     
     # Remaining Cash
     cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(
-        float(cashflow_data["sum"]["income"][1:]) - float(cashflow_data["sum"]["expens"][1:])
+        top_income + bot_income + top_expens + bot_expens
     )
     cashflow_data["top"]["remain"] = '${:0,.2f}'.format(
-        float(cashflow_data["top"]["income"][1:]) - float(cashflow_data["top"]["expens"][1:])
+        top_income + top_expens
     )
     cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(
-        float(cashflow_data["bot"]["income"][1:]) - float(cashflow_data["bot"]["expens"][1:])
+        bot_income + bot_expens
     )
     
     # Get Credit Card account info
