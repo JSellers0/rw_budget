@@ -152,7 +152,7 @@ INDEX_BUILD_LIST.append(Index('transaction_date_idx', Transaction.transaction_da
 class RecurringTransaction(db.Model):
     __tablename__ = 'recurring_transaction'
     rtranid: Column = Column(Integer, primary_key=True)
-    last_transactionid: Column = Column(Integer, ForeignKey('transaction.transactionid'))
+    last_transactionid: Column = Column(Integer, ForeignKey('transactions.transactionid'))
     expected_day: Column = Column(Integer, nullable=False)
     merchant_name: Column = Column(String(200), nullable=False)
     categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
