@@ -160,3 +160,18 @@ tr {
     display: flex;
     justify-content: space-around;
 }
+
+.flex-center{
+    display: flex;
+    justify-content: center;
+}
+
+.gap20{
+    gap: 20px;
+}
+
+#cashflow-summary{
+    display:flex;
+    justify-content: space-evenly;
+    margin-top: 30px;
+}

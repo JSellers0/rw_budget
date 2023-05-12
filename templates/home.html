@@ -12,24 +12,49 @@
         <a class="btn btn-outline-info" href={{ url_for("summary", year=next_month['year'], month=next_month['month']) }}>
             {{ next_month['disp'] }}</a>
     </div>
-    <div>
-        <h2>Monthly Summary</h2>
-        Cash Remaining: {{ cashflow["sum"]["remain"] }}<br />
-        Cash In: {{ cashflow["sum"]["income"] }} <br />
-        Cash Out: {{ cashflow["sum"]["expens"] }}
-    </div>
-    <div>
-        <h2>First Half</h2>
-        Cash Remaining: {{ cashflow["top"]["remain"] }}<br />
-        Cash In: {{ cashflow["top"]["income"] }} <br />
-        Cash Out: {{ cashflow["top"]["expens"] }}
-    </div>
-    <div>
-        <h2>Second Half</h2>
-        Cash Remaining: {{ cashflow["bot"]["remain"] }}
-        <br>
-        Cash In: {{ cashflow["bot"]["income"] }} <br />
-        Cash Out: {{ cashflow["bot"]["expens"] }}
+    <div id="cashflow-summary">
+        <div id="month-summary">
+            <div id="month-header" class="flex-center">
+                <h2>Monthly Summary</h2>
+            </div>
+            <div id="month-values">
+                <div id="month-remain" class="flex-center">
+                    <p>Cash Remaining: {{ cashflow["sum"]["remain"] }}</p>
+                </div>
+                <div id="month-in-out" class="flex-center gap20">
+                    <p>Cash In: {{ cashflow["sum"]["income"] }}</p>
+                    <p>Cash Out: {{ cashflow["sum"]["expens"] }}</p>
+                </div>
+            </div>
+        </div>
+        <div id="paycheck-1">
+            <div id="paycheck-1-header" class="flex-center">
+                <h2>First Half</h2>
+            </div>
+            <div id="paycheck-1-values">
+                <div id="paycheck-1-remain" class="flex-center">
+                    <p>Cash Remaining: {{ cashflow["top"]["remain"] }}</p>
+                </div>
+                <div id="paycheck-1-in-out" class="flex-center gap20">
+                    <p>Cash In: {{ cashflow["top"]["income"] }}</p>
+                    <p>Cash Out: {{ cashflow["top"]["expens"] }}</p>
+                </div>
+            </div>
+        </div>
+        <div id="paycheck-2">
+            <div id="paycheck-2-header" class="flex-center">
+                <h2>Second Half</h2>
+            </div>
+            <div id="paycheck-2-values">
+                <div id="paycheck-2-remain" class="flex-center">
+                    <p>Cash Remaining: {{ cashflow["bot"]["remain"] }}</p>
+                </div>
+                <div id="paycheck-2-in-out" class="flex-center gap20">
+                    <p>Cash In: {{ cashflow["bot"]["income"] }}</p>
+                    <p>Cash Out: {{ cashflow["bot"]["expens"] }}</p>
+                </div>
+            </div>
+        </div>
     </div>
     <div>
         <h4>Credit Card Balances</h4>
