@@ -129,7 +129,7 @@ class AccountBalance(db.Model):
     
 
 class Transaction(db.Model):
-    __tablename__ = 'transaction'
+    __tablename__ = 'transactions'
     transactionid: Column = Column(Integer, primary_key=True)
     transaction_date: Column = Column(Date(), nullable=False, index=True)
     merchant_name: Column = Column(String(200), nullable=False)
