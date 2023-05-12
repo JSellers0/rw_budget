@@ -1,6 +1,7 @@
 from app import db
 from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
 from datetime import date, timedelta
+from decimal import Decimal
 from sqlalchemy import text
 from typing import TypedDict
 import pandas as pd
@@ -196,6 +197,13 @@ def delete_transaction(transactionid: int)-> TransactionResponse:
             response_code=200,
             message=f"Transaction {transactionid} deleted successfully.",
             transactions=transactions
+    )
+    
+def upload_transactions(filename: str) -> TransactionResponse:
+    return TransactionResponse(
+            response_code=200,
+            message=f"count Transactions uploaded successfully.",
+            transactions=[]
     )
     
 def get_all_recurring_transactions() -> TransactionResponse:
@@ -394,7 +402,7 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
                 WHEN is_pending = 0 THEN amount
                 ELSE 0 END) AS cur_bal
             , Sum(amount) AS pnd_bal
-        FROM transaction
+        FROM transactions
         WHERE transaction_date BETWEEN '{start}' AND '{end}'
         GROUP BY accountid
     ) bal
@@ -459,6 +467,7 @@ def get_cashflow(year:int, month:int) -> dict:
     top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(year, month, 15)]
     bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(year, month, 14)]
     
+    # BUG: If bot doesn't have transactions, get a Decimal can't be added to Float error.
     top_income = top_df.loc[
         (top_df["account_type"] == "Checking") & 
         (top_df["transaction_type"] == 'debit')
