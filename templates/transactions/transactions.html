@@ -56,8 +56,6 @@
             </div>
         </fieldset>
         <div class="form-group">
-            {{ form.is_pending.label(class="form-control-label")}}
-            {{ form.is_pending()}}
             {{form.submit(class="btn btn-outline-info")}}
         </div>
     </form>
@@ -128,6 +126,48 @@
                     </thead>
                     <tbody>
                     {% for transaction in current_transactions if not transaction == None %}
+                        <tr>
+                            <th scope="row">{{transaction.transaction.transaction_date}}</th>
+                            <td>{{transaction.transaction.merchant_name}}</td>
+                            <td>{{transaction.category.category_name}}</td>
+                            <td>${{transaction.transaction.amount}}</td>
+                            <td>{{transaction.account.account_name}}</td>
+                            <td>{{transaction.transaction.transaction_type}}</td>
+                            <td>{{transaction.transaction.note}}</td>
+                            <td class="td-inputcontrol">
+                                <a class="btn btn-outline-info" href={{url_for("update_transaction", transactionid=transaction['transaction'].transactionid)}}>Update</a>
+                                <a class="btn btn-outline-info" href={{url_for("delete_transaction", transactionid=transaction['transaction'].transactionid)}}>Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="past-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#past-transactions" aria-expanded="false" aria-controls="past-transactions">
+                    Past transactions
+                </button>
+            </h2>
+            <div id="past-transactions" class="accordion-collapse collapse" aria-labelledby="past-header" data-bs-parent="transaction-accordion">
+                <div class="accordion-body">
+                    <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Merchant</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Account</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for transaction in past_transactions if not transaction == None %}
                         <tr>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
                             <td>{{transaction.transaction.merchant_name}}</td>

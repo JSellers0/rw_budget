@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from typing import Any
 from wtforms import StringField, BooleanField, DecimalField, SubmitField, DateField, SelectField, HiddenField, IntegerField
 from wtforms.validators import (DataRequired, Length)
@@ -21,7 +22,6 @@ class TransactionForm(FlaskForm):
     category: SelectField = SelectField("Category", validators=[DataRequired()])
     amount: DecimalField = DecimalField("Amount", validators=[DataRequired()])
     account: SelectField = SelectField("Account", validators=[DataRequired()])
-    is_pending: BooleanField = BooleanField("Pending")
     note: StringField = StringField("Notes")
     submit: SubmitField = SubmitField("Insert")
     
@@ -35,7 +35,6 @@ class TransactionForm(FlaskForm):
             "amount": self.amount.data,
             "account": self.account.data,
             "transaction_type": self.transaction_type.data,
-            "is_pending": self.is_pending.data,
             "note": self.note.data,
         }
     
@@ -118,4 +117,6 @@ class AccountForm(FlaskForm):
             "rewards_features": self.rewards_features.data
         }
     
-    
+class UploadTransactionsForm(FlaskForm):
+    file = FileField()
+    submit: SubmitField = SubmitField("Upload")

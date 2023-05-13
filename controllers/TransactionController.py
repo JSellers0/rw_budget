@@ -21,8 +21,8 @@ class TransactionResponse(TypedDict):
     message: str
     transactions: list[TransactionInterface]
 
-def get_all_transactions(is_pending:int) -> TransactionResponse:
-    transactions = Transaction.query.filter(Transaction.is_pending == is_pending).order_by(Transaction.transaction_date.desc()).all()
+def get_all_transactions() -> TransactionResponse:
+    transactions = Transaction.query.order_by(Transaction.transaction_date.desc()).all()
     
     if len(transactions) == 0:
         return TransactionResponse(
@@ -69,8 +69,12 @@ def get_transactions_by_date(date: str) -> TransactionResponse:
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
         )
 
-def get_transactions_by_date_range(start: str, end: str) -> TransactionResponse:
-    transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(Transaction.transaction_date >= start).all()
+def get_transactions_by_date_range(start: str, end:str='') -> TransactionResponse:
+    transactions = []
+    if end:
+        transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(Transaction.transaction_date >= start).all()
+    else:
+         transactions = Transaction.query.filter(Transaction.transaction_date >= start).all()
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
@@ -129,8 +133,7 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
         amount=transaction_data.get('amount', 0),
         accountid=transaction_data.get('account', 1),
         transaction_type=transaction_data.get('transaction_type', ''),
-        note=transaction_data.get('note', ''),
-        is_pending=transaction_data.get('is_pending', 0)
+        note=transaction_data.get('note', '')
     )
 
     db.session.add(transaction)    
@@ -169,8 +172,6 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
         transaction.accountid = transaction_data.get('account', 0) # type: ignore
     if transaction_data.get('transaction_type') != transaction.transaction_type:
         transaction.transaction_type = transaction_data.get('transaction_type', '') # type: ignore
-    if transaction_data.get('is_pending') != transaction.is_pending:
-        transaction.is_pending = transaction_data.get('is_pending', 1) # type: ignore
     if transaction_data.get('note') != transaction.note:
         transaction.note = transaction_data.get('note', '') # type: ignore
     
@@ -329,7 +330,6 @@ def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
             "account": rtran.transaction.accountid, # type: ignore
             "transaction_type": rtran.transaction.transaction_type, # type: ignore
             "note": rtran.transaction.note, # type: ignore
-            "is_pending": 1
         }
         # ToDo: Check Response
         tran_insert_response = insert_transaction(transaction_data=tran_data)
@@ -366,8 +366,7 @@ def get_cashflow_df(start:str, end:str) -> pd.DataFrame:
             "amount": transaction.transaction.amount,
             "account": transaction.account.account_name,
             "account_type": transaction.account.account_type,
-            "transaction_type": transaction.transaction.transaction_type,
-            "is_pending": transaction.transaction.is_pending,
+            "transaction_type": transaction.transaction.transaction_type
         })
         
     cashflow_df = pd.DataFrame.from_records(
@@ -393,13 +392,13 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
         SELECT
             accountid
             , Sum(CASE 
-                WHEN is_pending = 0 AND transaction_type = 'credit'
+                WHEN transaction_date <= CurDate() AND transaction_type = 'credit'
                     THEN amount ELSE 0 END) AS chg_bal
             , Sum(CASE
-                WHEN is_pending = 0 AND transaction_type = 'debit'
+                WHEN transaction_date <= CurDate() AND transaction_type = 'debit'
                     THEN amount ELSE 0 END) AS pmt_bal
             , Sum(CASE
-                WHEN is_pending = 0 THEN amount
+                WHEN transaction_date <= CurDate() THEN amount
                 ELSE 0 END) AS cur_bal
             , Sum(amount) AS pnd_bal
         FROM transactions

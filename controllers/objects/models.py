@@ -138,7 +138,6 @@ class Transaction(db.Model):
     accountid: Column = Column(Integer, ForeignKey('account.accountid'), default=1)
     transaction_type: Column = Column(String(200), nullable=False)
     note: Column = Column(String(1000))
-    is_pending: Column = Column(Boolean())
     insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
     insert_by: Column = Column(String(100), server_default=func.current_user())
     update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
