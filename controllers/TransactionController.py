@@ -356,13 +356,13 @@ def get_cashflow_df(start:str, end:str) -> dict:
         SELECT
             Sum(DISTINCT Coalesce(ab.balance, 0)) AS chk_balance
             , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) < 15 
-                THEN amount END) AS chk_in_top
+                THEN amount ELSE 0 END) AS chk_in_top
             , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) < 15 
-                THEN amount END) AS chk_out_top
+                THEN amount ELSE 0 END) AS chk_out_top
             , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) > 14 
-                THEN amount END) AS chk_in_bot
+                THEN amount ELSE 0 END) AS chk_in_bot
             , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) > 14 
-                THEN amount END) AS chk_out_bot
+                THEN amount ELSE 0 END) AS chk_out_bot
         FROM transactions t
             LEFT JOIN accountbalance ab ON ab.accountid = t.accountid
             AND ab.agg_start = Date_Add('{start}', INTERVAL - 1 MONTH)
@@ -379,13 +379,13 @@ def get_cashflow_df(start:str, end:str) -> dict:
         SELECT
             Sum(DISTINCT Coalesce(ab.balance, 0)) AS card_balance
             , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) < 15 
-                THEN amount END) AS card_in_top
+                THEN amount ELSE 0 END) AS card_in_top
             , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) < 15 
-                THEN amount END) AS card_out_top
+                THEN amount ELSE 0 END) AS card_out_top
             , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) > 14 
-                THEN amount END) AS card_in_bot
+                THEN amount ELSE 0 END) AS card_in_bot
             , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) > 14 
-                THEN amount END) AS card_out_bot
+                THEN amount ELSE 0 END) AS card_out_bot
         FROM transactions t
             LEFT JOIN accountbalance ab ON ab.accountid = t.accountid
             AND ab.agg_start = Date_Add('{start}', INTERVAL - 1 MONTH)
@@ -423,9 +423,29 @@ def get_cashflow_df(start:str, end:str) -> dict:
         ;"""
     
     results = db.session.execute(text(cashflow_sql))
+    
+    
         
     cashflow_data = []
     for data in results:
+        if data[0] == None:
+            return {
+                "sum": {
+                    "remain": '$0.00',
+                    "income": '$0.00',
+                    "expens": '$0.00',
+                },
+                "top": {
+                    "remain": '$0.00',
+                    "income": '$0.00',
+                    "expens": '$0.00',
+                },
+                "bot": {
+                    "remain": '$0.00',
+                    "income": '$0.00',
+                    "expens": '$0.00',
+                }
+            }
         cashflow_data.append({
             "sum": {
                 "remain": '${:0,.2f}'.format(data[0]),
