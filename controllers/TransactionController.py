@@ -72,9 +72,9 @@ def get_transactions_by_date(date: str) -> TransactionResponse:
 def get_transactions_by_date_range(start: str, end:str='') -> TransactionResponse:
     transactions = []
     if end:
-        transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(Transaction.transaction_date >= start).all()
+        transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(Transaction.transaction_date >= start).order_by(Transaction.transaction_date.desc()).all()
     else:
-         transactions = Transaction.query.filter(Transaction.transaction_date >= start).all()
+         transactions = Transaction.query.filter(Transaction.transaction_date >= start).order_by(Transaction.transaction_date.desc()).all()
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
