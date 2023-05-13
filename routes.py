@@ -4,12 +4,14 @@ from controllers import (
 )
 from controllers.objects.forms import (
     AccountForm, ApplyRecurringTransactions, BudgetForm, 
-    CategoryForm, RecurringTransactionForm, TransactionForm
+    CategoryForm, RecurringTransactionForm, TransactionForm,
+    UploadTransactionsForm
 )
 from controllers.objects.models import TransactionInterface
-from datetime import date
+from datetime import date, timedelta
 from flask import render_template, redirect, request, url_for
 from app import app
+from werkzeug.utils import secure_filename
 
 # ToDo: Implement flash message system
 # ToDo: Error Handling
@@ -62,8 +64,17 @@ def summary(year:int, month:int):
 @app.route("/transaction", methods=["GET","POST"])
 def transactions():
     # ToDo: Default form transaction_date to today
-    curr_response: TC.TransactionResponse = TC.get_all_transactions(is_pending=0)
-    pend_response: TC.TransactionResponse = TC.get_all_transactions(is_pending=1)
+    month_start = date(date.today().year, date.today().month, 1).strftime("%Y-%m-%d")
+    today = date.today().strftime("%Y-%m-%d")
+    tomorrow = (date.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+    last_month_start = date(date.today().year, date.today().month - 1, 1).strftime("%Y-%m-%d")
+    last_month_end = (date(date.today().year, date.today().month, 1) - timedelta(days=1)).strftime("%Y-%m-%d")
+    
+    
+    curr_response: TC.TransactionResponse = TC.get_transactions_by_date_range(start=month_start, end=today)
+    pend_response: TC.TransactionResponse = TC.get_transactions_by_date_range(start=tomorrow)
+    past_response: TC.TransactionResponse = TC.get_transactions_by_date_range(start=last_month_start, end=last_month_end)
+    
     form:TransactionForm = TransactionForm()
     account_choices = AC.get_accounts_for_listbox()
     form.category.choices = CC.get_categories_for_listbox()
@@ -114,6 +125,7 @@ def transactions():
         "transactions/transactions.html", 
         current_transactions=curr_response["transactions"],
         pending_transactions=pend_response["transactions"],
+        past_transactions=past_response["transactions"],
         form=form
         )
     
@@ -152,6 +164,17 @@ def delete_transaction(transactionid):
     delete_response = TC.delete_transaction(transactionid=transactionid)
     # ToDo: Check Response and flash appropriate message
     return redirect(url_for("transactions"))
+
+@app.route("/transaction/upload", methods=['GET','POST'])
+def upload_transaction():
+    form = UploadTransactionsForm()
+    
+    if form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename) # type: ignore
+        form.file.data.save(f'uploads/{filename}')
+        # Process the upload with TC
+        return redirect(url_for("transactions"))
+    return render_template("transactions/upload_transactions.html")
     
 @app.route("/transaction/recurring", methods=["GET","POST"])
 def recurring_transactions():
