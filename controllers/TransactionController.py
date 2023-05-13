@@ -350,32 +350,103 @@ def get_month_end(year:int, month: int) -> date:
         year = year
     return date(year, next_month, 1) - timedelta(days=1)
     
-def get_cashflow_df(start:str, end:str) -> pd.DataFrame:
-    get_response = get_transactions_by_date_range(start=start, end=end)
+def get_cashflow_df(start:str, end:str) -> dict:
+    cashflow_sql = f"""
+    WITH chk AS (
+        SELECT
+            Sum(DISTINCT Coalesce(ab.balance, 0)) AS chk_balance
+            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) < 15 
+                THEN amount END) AS chk_in_top
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) < 15 
+                THEN amount END) AS chk_out_top
+            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) > 14 
+                THEN amount END) AS chk_in_bot
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) > 14 
+                THEN amount END) AS chk_out_bot
+        FROM transactions t
+            LEFT JOIN accountbalance ab ON ab.accountid = t.accountid
+            AND ab.agg_start = Date_Add('{start}', INTERVAL - 1 MONTH)
+        WHERE transaction_date BETWEEN '{start}' AND '{end}'
+            AND t.accountid IN (
+            SELECT accountid FROM account
+            WHERE account_type = 'Checking'
+            )
+            AND t.categoryid NOT IN (
+            SELECT categoryid FROM category
+            WHERE category_name = 'Card Payment'
+            )
+        ), card AS (
+        SELECT
+            Sum(DISTINCT Coalesce(ab.balance, 0)) AS card_balance
+            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) < 15 
+                THEN amount END) AS card_in_top
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) < 15 
+                THEN amount END) AS card_out_top
+            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM transaction_date) > 14 
+                THEN amount END) AS card_in_bot
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM transaction_date) > 14 
+                THEN amount END) AS card_out_bot
+        FROM transactions t
+            LEFT JOIN accountbalance ab ON ab.accountid = t.accountid
+            AND ab.agg_start = Date_Add('{start}', INTERVAL - 1 MONTH)
+        WHERE transaction_date BETWEEN '{start}' AND '{end}'
+            AND t.accountid IN (
+            SELECT accountid FROM account
+            WHERE account_type = 'Credit Card'
+            )
+        ), summary AS (
+        SELECT
+            chk_balance + chk_in_top + chk_in_bot AS cash_in_sum
+            , card_balance + chk_out_top + chk_out_bot + card_out_top + card_out_bot AS cash_out_sum
+            , (chk_balance + chk_in_top + chk_in_bot) + (card_balance + chk_out_top + chk_out_bot + card_out_top + card_out_bot) AS cash_remain_sum
+        FROM chk, card
+        ), top AS (
+        SELECT
+            chk_balance + chk_in_top AS cash_in_top
+            , card_balance + chk_out_top + card_out_top AS cash_out_top
+            , chk_balance + chk_in_top + card_balance + chk_out_top + card_out_top AS cash_remain_top
+            , card_balance + card_in_top + card_out_top AS card_top_balance
+        FROM chk, card
+        ), top_bot AS (
+        SELECT
+            top.*
+            , cash_remain_top + chk.chk_in_bot AS cash_in_bot
+            , top.card_top_balance + card.card_out_bot + chk.chk_out_bot AS cash_out_bot
+            , (cash_remain_top + chk.chk_in_bot) + (top.card_top_balance + card.card_out_bot + chk.chk_out_bot) AS cash_remain_bot
+        FROM top, chk, card
+        )
+        SELECT 
+            cash_remain_sum, cash_in_sum, cash_out_sum
+            , cash_remain_top, cash_in_top, cash_out_top
+            , cash_remain_bot, cash_in_bot, cash_out_bot
+        FROM summary, top_bot
+        ;"""
     
-    if get_response["response_code"] == 404:
-        return pd.DataFrame()
-    
-    cashflow_transactions = []
-    for transaction in get_response['transactions']:
-        cashflow_transactions.append({
-            "transactionid": transaction.transaction.transactionid,
-            "transaction_date": transaction.transaction.transaction_date,
-            "merchant_name": transaction.transaction.merchant_name,
-            "category": transaction.category.category_name,
-            "amount": transaction.transaction.amount,
-            "account": transaction.account.account_name,
-            "account_type": transaction.account.account_type,
-            "transaction_type": transaction.transaction.transaction_type
+    results = db.session.execute(text(cashflow_sql))
+        
+    cashflow_data = []
+    for data in results:
+        cashflow_data.append({
+            "sum": {
+                "remain": '${:0,.2f}'.format(data[0]),
+                "income": '${:0,.2f}'.format(data[1]),
+                "expens": '${:0,.2f}'.format(data[2])
+            },
+            "top": {
+                "remain": '${:0,.2f}'.format(data[3]),
+                "income": '${:0,.2f}'.format(data[4]),
+                "expens": '${:0,.2f}'.format(data[5])
+            },
+            "bot": {
+                "remain": '${:0,.2f}'.format(data[6]),
+                "income": '${:0,.2f}'.format(data[7]),
+                "expens": '${:0,.2f}'.format(data[8])
+            }
         })
         
-    cashflow_df = pd.DataFrame.from_records(
-        cashflow_transactions,
-        index="transactionid",
-        columns=cashflow_transactions[0].keys()
-    )
+    cashflow_data = cashflow_data[0]
     
-    return cashflow_df
+    return cashflow_data
 
 def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
     # Direct SQL for now.  Need to learn stored procedures in MariaDB
@@ -439,74 +510,7 @@ def get_cashflow(year:int, month:int) -> dict:
     month_start = date(year, month, 1).strftime("%Y-%m-%d")
     month_end = get_month_end(year, month).strftime("%Y-%m-%d")
     
-    cashflow_df = get_cashflow_df(start=month_start, end=month_end)
-    
-    cashflow_data = {
-        "sum": {
-            "remain": '$0.00',
-            "income": '$0.00',
-            "expens": '$0.00',
-        },
-        "top": {
-            "remain": '$0.00',
-            "income": '$0.00',
-            "expens": '$0.00',
-        },
-        "bot": {
-            "remain": '$0.00',
-            "income": '$0.00',
-            "expens": '$0.00',
-        },
-        "accounts": pd.DataFrame()
-    }
-    
-    if len(cashflow_df) == 0:
-        return cashflow_data
-     
-    top_df = cashflow_df.loc[cashflow_df["transaction_date"] < date(year, month, 15)]
-    bot_df = cashflow_df.loc[cashflow_df["transaction_date"] > date(year, month, 14)]
-    
-    # BUG: If bot doesn't have transactions, get a Decimal can't be added to Float error.
-    top_income = top_df.loc[
-        (top_df["account_type"] == "Checking") & 
-        (top_df["transaction_type"] == 'debit')
-        ][["amount"]].sum().amount
-    bot_income = bot_df.loc[
-        (bot_df["account_type"] == "Checking") & 
-        (bot_df["transaction_type"] == 'debit')
-        ][["amount"]].sum().amount
-    
-    top_expens = top_df.loc[
-        (top_df["transaction_type"] == "credit") &
-        (top_df["account_type"].isin(["Checking", "Credit Card"])) &
-        (~top_df["category"].isin(["Card Payment"]))
-        ][["amount"]].sum().amount
-    bot_expens = bot_df.loc[
-        (bot_df["transaction_type"] == "credit") &
-        (bot_df["account_type"].isin(["Checking", "Credit Card"])) &
-        (~bot_df["category"].isin(["Card Payment"]))
-        ][["amount"]].sum().amount
-    
-    # Cash In
-    cashflow_data["sum"]["income"] = '${:0,.2f}'.format(top_income + bot_income)
-    cashflow_data["top"]["income"] = '${:0,.2f}'.format(top_income)
-    cashflow_data["bot"]["income"] = '${:0,.2f}'.format(bot_income)
-    
-    # Cash Out
-    cashflow_data["sum"]["expens"] = '${:0,.2f}'.format(top_expens + bot_expens)
-    cashflow_data["top"]["expens"] = '${:0,.2f}'.format(top_expens)
-    cashflow_data["bot"]["expens"] = '${:0,.2f}'.format(bot_expens)
-    
-    # Remaining Cash
-    cashflow_data["sum"]["remain"] = '${:0,.2f}'.format(
-        top_income + bot_income + top_expens + bot_expens
-    )
-    cashflow_data["top"]["remain"] = '${:0,.2f}'.format(
-        top_income + top_expens
-    )
-    cashflow_data["bot"]["remain"] = '${:0,.2f}'.format(
-        bot_income + bot_expens
-    )
+    cashflow_data = get_cashflow_df(start=month_start, end=month_end)
     
     # Get Credit Card account info
     cashflow_data["accounts"] = get_credit_card_data(start=month_start, end=month_end)
