@@ -165,15 +165,18 @@ def delete_transaction(transactionid):
     return redirect(url_for("transactions"))
 
 @app.route("/transaction/upload", methods=['GET','POST'])
-def upload_transaction():
+def upload_transactions():
     form = UploadTransactionsForm()
     
     if form.validate_on_submit():
         filename = secure_filename(form.file.data.filename) # type: ignore
-        form.file.data.save(f'uploads/{filename}')
-        # Process the upload with TC
-        return redirect(url_for("transactions"))
-    return render_template("transactions/upload_transactions.html")
+        form.file.data.save(f'uploads/transactions/{filename}')
+        upload_response = TC.upload_transactions(filename=filename)
+        #return redirect(url_for("transactions"))
+    return render_template(
+        "transactions/upload_transactions.html",
+        form=form
+    )
     
 @app.route("/transaction/recurring", methods=["GET","POST"])
 def recurring_transactions():

@@ -1,0 +1,26 @@
+{% extends "parent.html" %}
+{% block head %}
+{% endblock %}
+{% block page_name %}Rock Willow Transactions{% endblock %}
+
+{% block body %}
+<div class="content-section">
+    <form method="POST", action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <legend>Select a file to upload transactions</legend>
+        <fieldset class="form-group">
+            <div class="form-group">
+                {{form.file.label(class="form-control-label")}}
+                {{form.file(class="form-control", autofocus=true)}}
+            </div>
+        </fieldset><br>
+        <div class="form-group">
+            <a href="{{ url_for("transactions") }}" class="btn btn-outline-info">Back</a>
+            {{form.submit(class="btn btn-outline-info", value="Update")}}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{% endblock %}

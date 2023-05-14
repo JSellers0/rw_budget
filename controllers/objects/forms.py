@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from typing import Any
 from wtforms import StringField, BooleanField, DecimalField, SubmitField, DateField, SelectField, HiddenField, IntegerField
 from wtforms.validators import (DataRequired, Length)
@@ -116,7 +116,11 @@ class AccountForm(FlaskForm):
             "statement_day": self.statement_day.data,
             "rewards_features": self.rewards_features.data
         }
-    
+
 class UploadTransactionsForm(FlaskForm):
-    file = FileField()
+    allowed_filetypes = ['csv','json']
+    file = FileField(f"Upload your {','.join(allowed_filetypes)} transaction file", validators=[
+        FileRequired(),
+        FileAllowed(allowed_filetypes, "CSV or JSON Only!")
+    ])
     submit: SubmitField = SubmitField("Upload")

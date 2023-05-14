@@ -2,9 +2,11 @@ from app import db
 from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
 from datetime import date, timedelta
 from decimal import Decimal
+import pandas as pd
+from pathlib import Path
 from sqlalchemy import text
 from typing import TypedDict
-import pandas as pd
+
 
 # ToDo: Get all transactions by accountid
 # DECISION: Return all account transactions and let web layer filter by dates?  Or get by account and date function?
@@ -201,6 +203,14 @@ def delete_transaction(transactionid: int)-> TransactionResponse:
     )
     
 def upload_transactions(filename: str) -> TransactionResponse:
+    file_path = Path(f"../uploads/transactions/{filename}")
+    print(file_path)
+    print(f"=================File {filename} Exists: {file_path.exists()}======================")
+    if file_path.exists:
+        if file_path.suffix == 'csv':
+            pass
+        elif file_path.suffix == 'json':
+            pass
     return TransactionResponse(
             response_code=200,
             message=f"count Transactions uploaded successfully.",
