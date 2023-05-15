@@ -128,6 +128,7 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
                 
     transaction: Transaction = Transaction(
         transaction_date=transaction_data.get('transaction_date', date.today()),
+        cashflow_date=transaction_data.get('cashflow_date', date.today()),
         merchant_name=transaction_data.get('merchant_name', ''),
         categoryid=transaction_data.get('category', 1),
         amount=transaction_data.get('amount', 0),
@@ -162,6 +163,8 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
     
     if transaction_data.get('transaction_date') != transaction.transaction_date:
         transaction.transaction_date = transaction_data.get('transaction_date', '') # type: ignore
+    if transaction_data.get('cashflow_date') != transaction.cashflow_date:
+        transaction.cashflow_date = transaction_data.get('cashflow_date', '') # type: ignore
     if transaction_data.get('merchant_name') != transaction.merchant_name:
         transaction.merchant_name = transaction_data.get('merchant_name', '') # type: ignore
     if transaction_data.get('category') != transaction.categoryid:

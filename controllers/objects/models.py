@@ -132,6 +132,7 @@ class Transaction(db.Model):
     __tablename__ = 'transactions'
     transactionid: Column = Column(Integer, primary_key=True)
     transaction_date: Column = Column(Date(), nullable=False, index=True)
+    cashflow_date: Column = Column(Date(), nullable=False, index=True)
     merchant_name: Column = Column(String(200), nullable=False)
     categoryid: Column = Column(Integer, ForeignKey('category.categoryid'), default=1)
     amount: Column = Column(DECIMAL(7,2), nullable=False)

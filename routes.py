@@ -197,6 +197,7 @@ def update_transaction(transactionid:int):
     form:TransactionForm = TransactionForm(
         transactionid=target_transaction.transaction.transactionid,
         transaction_date = target_transaction.transaction.transaction_date,
+        cashflow_date = target_transaction.transaction.cashflow_date,
         merchant_name=target_transaction.transaction.merchant_name,
         category=target_transaction.category.categoryid,
         amount=target_transaction.transaction.amount,

@@ -15,7 +15,8 @@ TRAN_TYPES = [
 
 class TransactionForm(FlaskForm):
     transactionid: HiddenField = HiddenField("Transactionid")
-    transaction_date:DateField = DateField("Date", validators=[DataRequired()])
+    transaction_date:DateField = DateField("Transaction Date", validators=[DataRequired()])
+    cashflow_date:DateField = DateField("Cashflow Date", validators=[DataRequired()])
     transaction_type: SelectField = SelectField("Transaction Type", choices=TRAN_TYPES, validators=[DataRequired()])
     merchant_name: StringField = StringField("Merchant", validators=[DataRequired(), Length(max=200)])
     transfer_account: SelectField = SelectField("Transfer To", choices=['placeholder'])
@@ -29,6 +30,7 @@ class TransactionForm(FlaskForm):
         return {
             "transactionid": self.transactionid.data,
             "transaction_date": self.transaction_date.data,
+            "cashflow_date": self.cashflow_date.data,
             "merchant_name": self.merchant_name.data,
             "transfer_account": self.transfer_account.data,
             "category": self.category.data,

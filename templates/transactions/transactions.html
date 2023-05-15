@@ -20,14 +20,16 @@
                 {{form.transaction_date(class="form-control", autofocus=true)}}
             </div>
             <div class="col">
+                {{form.cashflow_date.label(class="form-control-label")}}
+                {{form.cashflow_date(class="form-control", autofocus=true)}}
+            </div>
+            <div class="col">
                 {{form.transaction_type.label(class="form-control-label")}}
                 {{form.transaction_type(class="form-control")}}
             </div>
             <div class="col">
                 {{form.merchant_name.label(class="form-control-label")}}
                 {{form.merchant_name(class="form-control", placeholder="Merchant Name", list="merchant-data-list")}}
-                {# ToDo: Change to dropdown when transaction type is Transfer or Card Pmnt #}
-                {# datalist is not ideal for this because it can't be hidden, options show up at the end #}
                 <datalist id="merchant-data-list">
                     {% for entry in ['datalist1','datalist2','datalist3'] %}
                     <option value="{{ entry }}"></option>
@@ -76,7 +78,8 @@
                     <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th scope="col">Date</th>
+                            <th scope="col">Trans Date</th>
+                            <th scope="col">Cash Date</th>
                             <th scope="col">Merchant</th>
                             <th scope="col">Category</th>
                             <th scope="col">Amount</th>
@@ -89,6 +92,7 @@
                     {% for transaction in pending_transactions if not transaction == None %}
                         <tr>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
+                            <td>{{transaction.transaction.cashflow_date}}</td>
                             <td>{{transaction.transaction.merchant_name}}</td>
                             <td>{{transaction.category.category_name}}</td>
                             <td>${{transaction.transaction.amount}}</td>
@@ -118,7 +122,8 @@
                     <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th scope="col">Date</th>
+                            <th scope="col">Trans Date</th>
+                            <th scope="col">Cash Date</th>
                             <th scope="col">Merchant</th>
                             <th scope="col">Category</th>
                             <th scope="col">Amount</th>
@@ -131,6 +136,7 @@
                     {% for transaction in current_transactions if not transaction == None %}
                         <tr>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
+                            <td>{{transaction.transaction.cashflow_date}}</td>
                             <td>{{transaction.transaction.merchant_name}}</td>
                             <td>{{transaction.category.category_name}}</td>
                             <td>${{transaction.transaction.amount}}</td>
@@ -160,7 +166,8 @@
                     <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th scope="col">Date</th>
+                            <th scope="col">Trans Date</th>
+                            <th scope="col">Cash Date</th>
                             <th scope="col">Merchant</th>
                             <th scope="col">Category</th>
                             <th scope="col">Amount</th>
@@ -173,6 +180,7 @@
                     {% for transaction in past_transactions if not transaction == None %}
                         <tr>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
+                            <td>{{transaction.transaction.cashflow_date}}</td>
                             <td>{{transaction.transaction.merchant_name}}</td>
                             <td>{{transaction.category.category_name}}</td>
                             <td>${{transaction.transaction.amount}}</td>
