@@ -378,11 +378,11 @@ def get_cashflow_df(start:str, end:str) -> dict:
         ), card AS (
         SELECT
             Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15 
-                THEN amount END) AS card_in_top
+                THEN amount ELSE 0 END) AS card_in_top
             , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15 
                 THEN amount END) AS card_out_top
             , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14 
-                THEN amount END) AS card_in_bot
+                THEN amount ELSE 0 END) AS card_in_bot
             , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14 
                 THEN amount END) AS card_out_bot
         FROM transactions t
@@ -391,10 +391,15 @@ def get_cashflow_df(start:str, end:str) -> dict:
             SELECT accountid FROM account
             WHERE account_type = 'Credit Card'
             )
+            AND t.categoryid NOT IN (
+            SELECT categoryid FROM category
+            WHERE category_name = 'Card Payment'
+            )
         ), summary AS (
         SELECT
             # Summary
-            (chk_in_top + chk_in_bot) + (chk_out_top + chk_out_bot + card_out_top + card_out_bot) AS cash_remain_sum
+            (chk_in_top + chk_in_bot + card_in_top + card_in_bot) + 
+              (chk_out_top + chk_out_bot + card_out_top + card_out_bot) AS cash_remain_sum
             , chk_in_top + chk_in_bot AS cash_in_sum
             , chk_out_top + chk_out_bot + card_out_top + card_out_bot AS cash_out_sum
             # Top
