@@ -403,12 +403,12 @@ def get_cashflow_df(start:str, end:str) -> dict:
             , chk_in_top + chk_in_bot AS cash_in_sum
             , chk_out_top + chk_out_bot + card_out_top + card_out_bot AS cash_out_sum
             # Top
-            , chk_in_top + chk_out_top + card_out_top AS cash_remain_top
-            , chk_in_top AS cash_in_top
+            , chk_in_top + card_in_top + chk_out_top + card_out_top AS cash_remain_top
+            , chk_in_top + card_in_top AS cash_in_top
             , chk_out_top + card_out_top AS cash_out_top
             # Bot
-            , chk_in_bot + chk_out_bot + card_out_bot AS cash_remain_bot
-            , chk_in_bot AS cash_in_bot
+            , chk_in_bot + card_in_bot + chk_out_bot + card_out_bot AS cash_remain_bot
+            , chk_in_bot + card_in_bot AS cash_in_bot
             , chk_out_bot + card_out_bot AS cash_out_bot
         FROM chk, card
         )
