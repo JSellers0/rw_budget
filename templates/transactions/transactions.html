@@ -62,8 +62,32 @@
         </div>
     </form>
 </div>
-<div class="content-section">
+<div class="content-section" style="display: flex; gap:20px;">
     <a href="{{url_for("all_transactions")}}" class="btn btn-outline-info">Load All Transactions</a>
+    <div id="transaction-filters">
+        <div id="account-filters" style="display:flex; gap:20px;">
+            <div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pnc-spend-filter" checked>
+                    <label class="form-check-label" for="pnc-spend-filter">PNC Spend</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pnc-rewards-filter" checked>
+                    <label class="form-check-label" for="pnc-rewards-filter">PNC Rewards</label>
+                </div>
+            </div>
+            <div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="venture-filter" checked>
+                    <label class="form-check-label" for="venture-filter">Venture</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="quicksilver-filter" checked>
+                    <label class="form-check-label" for="quicksilver-filter">Quicksilver</label>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="content-section">
     <div class="accordion" id="transaction-accordion">
@@ -90,7 +114,7 @@
                     </thead>
                     <tbody>
                     {% for transaction in pending_transactions if not transaction == None %}
-                        <tr>
+                        <tr account={{transaction.account.account_name.lower().replace(' ','-')}}>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
                             <td>{{transaction.transaction.cashflow_date}}</td>
                             <td>{{transaction.transaction.merchant_name}}</td>
@@ -134,7 +158,7 @@
                     </thead>
                     <tbody>
                     {% for transaction in current_transactions if not transaction == None %}
-                        <tr>
+                        <tr account={{transaction.account.account_name.lower().replace(' ','-')}}>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
                             <td>{{transaction.transaction.cashflow_date}}</td>
                             <td>{{transaction.transaction.merchant_name}}</td>
@@ -178,7 +202,7 @@
                     </thead>
                     <tbody>
                     {% for transaction in past_transactions if not transaction == None %}
-                        <tr>
+                        <tr account={{transaction.account.account_name.lower().replace(' ','-')}}>
                             <th scope="row">{{transaction.transaction.transaction_date}}</th>
                             <td>{{transaction.transaction.cashflow_date}}</td>
                             <td>{{transaction.transaction.merchant_name}}</td>

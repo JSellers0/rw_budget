@@ -19,3 +19,18 @@ document.getElementById("transaction_type").addEventListener("blur", (event) => 
         merchant_name.value = ''
     }
 })
+
+function toggle_account_rows(event) {
+    let account = event.target.id.replace('-filter','')
+    let account_rows = document.querySelectorAll(`[account="${account}"]`)
+    account_rows.forEach((row) => {
+        if (event.target.checked) 
+            row.classList.remove("hidden")
+        else row.classList.add("hidden")
+    })
+}
+
+document.getElementById("pnc-spend-filter").addEventListener("click", toggle_account_rows)
+document.getElementById("pnc-rewards-filter").addEventListener("click", toggle_account_rows)
+document.getElementById("venture-filter").addEventListener("click", toggle_account_rows)
+document.getElementById("quicksilver-filter").addEventListener("click", toggle_account_rows)
