@@ -1,7 +1,6 @@
 from app import db
 from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
 from datetime import date, timedelta
-from decimal import Decimal
 from sqlalchemy import text
 from typing import TypedDict
 import pandas as pd
@@ -319,14 +318,15 @@ def delete_recurring_transaction(rtranid:int) -> TransactionResponse:
             transactions=transactions
     )
 
-def apply_recurring_transactions(rtrans_data) -> TransactionResponse:
+def apply_recurring_transactions(rtrans_data:dict[str,str]) -> TransactionResponse:
     transactions = []
-    for rtranid in rtrans_data.get("RTranIDs").split(","):
+    for rtranid in rtrans_data.get("RTranIDs","").split(","):
         # ToDo: Check Response
         get_rtran_response = get_rtran_by_id(int(rtranid))
         rtran = get_rtran_response['transactions'][0]
         tran_data = {
             "transaction_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
+            "cashflow_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
             "merchant_name": rtran.transaction.merchant_name, # type: ignore
             "category": rtran.transaction.categoryid, # type: ignore
             "amount": rtran.transaction.amount, # type: ignore
