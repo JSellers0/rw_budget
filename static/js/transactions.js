@@ -30,7 +30,38 @@ function toggle_account_rows(event) {
     })
 }
 
+function clear_account_filters() {
+    let account_filter_array = document.querySelectorAll(".account-filter")
+    
+    account_filter_array.forEach((filter) => {
+        if (filter.checked === false) {
+            filter.click()
+        }
+    })
+}
+
+// Add account filter click events
 document.getElementById("pnc-spend-filter").addEventListener("click", toggle_account_rows)
 document.getElementById("pnc-rewards-filter").addEventListener("click", toggle_account_rows)
 document.getElementById("venture-filter").addEventListener("click", toggle_account_rows)
 document.getElementById("quicksilver-filter").addEventListener("click", toggle_account_rows)
+document.getElementById("cap-bills-filter").addEventListener("click", toggle_account_rows)
+document.getElementById("pnc-bills-filter").addEventListener("click", toggle_account_rows)
+
+document.getElementById("clear-account-filters").addEventListener("click", clear_account_filters)
+
+// Filter Accordion
+const choiceArray = document.querySelectorAll(".choice")
+
+choiceArray.forEach((card) => {
+    card.addEventListener("click", (event) => {
+        if (event.target.id.includes("filter")) {
+            choiceArray.forEach((element) => {
+                element.classList.remove("expand", "unset")
+                element.classList.add('unset')
+            })
+            card.classList.remove("unset")
+            card.classList.add('expand')
+        }
+    });
+});

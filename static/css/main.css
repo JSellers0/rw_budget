@@ -173,3 +173,37 @@ tr {
     justify-content: space-evenly;
     margin-top: 30px;
 }
+
+/* Transactions filters horizontal accordion */
+.choice{
+    height: 180px;
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+    float: left;
+    align-items: center;
+    transition: width 0.2s;
+    border-radius:3px;
+}
+.expand{
+    width: 45%;
+}
+.unset{
+    width: 16%;
+    color: black !important;
+    background-color: #ddd !important;
+}
+.small{
+    width: 5%;
+    background-color: #ddd !important;
+}
+.small>div{
+    opacity: 0;
+}
+.unset > .card-body {
+    display: none;
+}
+.expand > div {
+    transition-delay: 200ms;
+    opacity: 1;
+}

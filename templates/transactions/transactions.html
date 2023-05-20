@@ -64,26 +64,65 @@
 </div>
 <div class="content-section" style="display: flex; gap:20px;">
     <a href="{{url_for("all_transactions")}}" class="btn btn-outline-info">Load All Transactions</a>
-    <div id="transaction-filters">
-        <div id="account-filters" style="display:flex; gap:20px;">
-            <div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pnc-spend-filter" checked>
-                    <label class="form-check-label" for="pnc-spend-filter">PNC Spend</label>
+    <div id="transaction-filters" class="container horizontal-accordion">
+        <div id="account-filters" class="card choice unset">
+            <div id="card-header" class="row", style="width: 100%;">
+                <h2 class="card-title col">Account Filters</h2>
+                <button id='clear-account-filters' class="col">Clear</button>
+            </div>
+            <div class="card-body">
+                <div id="account-filters-set-1" class="row">
+                    <div class="form-check form-switch col">
+                        <input class="form-check-input account-filter" type="checkbox" id="pnc-rewards-filter" checked>
+                        <label class="form-check-label" for="pnc-rewards-filter">PNC Rewards</label>
+                    </div>
+                    <div class="form-check form-switch col">
+                        <input class="form-check-input account-filter" type="checkbox" id="venture-filter" checked>
+                        <label class="form-check-label" for="venture-filter">Venture</label>
+                    </div>
+                    <div class="form-check form-switch col">
+                        <input class="form-check-input account-filter" type="checkbox" id="quicksilver-filter" checked>
+                        <label class="form-check-label" for="quicksilver-filter">Quicksilver</label>
+                    </div>
                 </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pnc-rewards-filter" checked>
-                    <label class="form-check-label" for="pnc-rewards-filter">PNC Rewards</label>
+                <div id="account-filters-set-2" class="row">
+                    <div class="form-check form-switch col">
+                        <input class="form-check-input account-filter" type="checkbox" id="pnc-spend-filter" checked>
+                        <label class="form-check-label" for="pnc-spend-filter">PNC Spend</label>
+                    </div>
+                    <div class="form-check form-switch col">
+                        <input class="form-check-input account-filter" type="checkbox" id="cap-bills-filter" checked>
+                        <label class="form-check-label" for="cap-bills-filter">Cap Bills</label>
+                    </div>
+                    <div class="form-check form-switch col">
+                        <input class="form-check-input account-filter" type="checkbox" id="pnc-bills-filter" checked>
+                        <label class="form-check-label" for="pnc-bills-filter">PNC Bills</label>
+                    </div>
                 </div>
             </div>
-            <div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="venture-filter" checked>
-                    <label class="form-check-label" for="venture-filter">Venture</label>
+        </div>
+        <div id="date-filters" class="card choice unset">
+            <h2 class="card-title">Account Filters</h2>
+            <div class="card-body">
+                <div id="account-filters-set-1">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="pnc-spend-filter" checked>
+                        <label class="form-check-label" for="pnc-spend-filter">PNC Spend</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="pnc-rewards-filter" checked>
+                        <label class="form-check-label" for="pnc-rewards-filter">PNC Rewards</label>
+                    </div>
                 </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="quicksilver-filter" checked>
-                    <label class="form-check-label" for="quicksilver-filter">Quicksilver</label>
+                <div id="account-filters-set-2">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="venture-filter" checked>
+                        <label class="form-check-label" for="venture-filter">Venture</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="quicksilver-filter" checked>
+                        <label class="form-check-label" for="quicksilver-filter">Quicksilver</label>
+                    </div>
                 </div>
             </div>
         </div>
