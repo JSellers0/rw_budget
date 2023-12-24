@@ -181,7 +181,7 @@ def update_transaction(transaction_data: dict) -> TransactionResponse:
     
     return TransactionResponse(
             response_code=200,
-            message=f"Transaction insert successful.",
+            message=f"Transaction update successful.",
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
     )
 
@@ -297,7 +297,7 @@ def update_recurring_transaction(transaction_data: dict) -> TransactionResponse:
     
     return TransactionResponse(
             response_code=200,
-            message=f"Transaction insert successful.",
+            message=f"Transaction update successful.",
             transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
     )
     
