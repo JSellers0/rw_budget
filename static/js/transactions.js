@@ -1,6 +1,10 @@
 function init() {
     init_events()
     init_filter_session()
+    let today = new Date()
+    let today_value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}` 
+    document.getElementById('transaction_date').value = today_value
+    document.getElementById('cashflow_date').value = today_value
 }
 
 function toggle_account_rows(event) {
@@ -52,6 +56,7 @@ function init_events() {
             merchant_name.classList.remove("hidden")
             merchant_name.labels[0].classList.remove("hidden")
             merchant_name.value = ''
+            merchant_name.focus()
         }
     })
 
@@ -80,6 +85,10 @@ function init_events() {
             }
         });
     });
+
+    document.getElementById("cashflow_date").addEventListener("focus", (event) => {
+        event.target.value = document.getElementById('transaction_date').value
+    })
 }
 
 function init_filter_session() {
