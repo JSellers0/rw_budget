@@ -15,118 +15,140 @@ import pandas as pd
 # ToDo: ispending flag to all get methods
 # ToDo: set ispending flag on insert/update
 
+
 class TransactionResponse(TypedDict):
     response_code: int
     message: str
     transactions: list[TransactionInterface]
 
+
 def get_all_transactions() -> TransactionResponse:
-    transactions = Transaction.query.order_by(Transaction.transaction_date.desc()).all()
-    
+    transactions = Transaction.query.order_by(
+        Transaction.transaction_date.desc()).all()
+
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
             message="No transactions found",
-            transactions=[None] # type: ignore
-        )
-    
-    return TransactionResponse(
-            response_code=200,
-            message=f"Retrieved {len(transactions)} transactions.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
+            transactions=[None]  # type: ignore
         )
 
+    return TransactionResponse(
+        response_code=200,
+        message=f"Retrieved {len(transactions)} transactions.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account) for transaction in transactions]
+    )
+
+
 def get_transaction_by_id(transactionid: int) -> TransactionResponse:
-    transaction = Transaction.query.filter(Transaction.transactionid == transactionid).one_or_none()
-    
-    if transaction == None:
+    transaction = Transaction.query.filter(
+        Transaction.transactionid == transactionid).one_or_none()
+
+    if transaction is None:
         return TransactionResponse(
             response_code=404,
             message="No transactions found",
-            transactions=[None] # type: ignore
-        )
-    
-    return TransactionResponse(
-            response_code=200,
-            message=f"Successfully retrieved transaction {transactionid}.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+            transactions=[None]  # type: ignore
         )
 
+    return TransactionResponse(
+        response_code=200,
+        message=f"Successfully retrieved transaction {transactionid}.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account)]
+    )
+
+
 def get_transactions_by_date(date: str) -> TransactionResponse:
-    transactions = Transaction.query.filter(Transaction.transaction_date == date).all()
-    
+    transactions = Transaction.query.filter(
+        Transaction.transaction_date == date).all()
+
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found on {date}",
-            transactions=[None] # type: ignore
-        )
-    
-    return TransactionResponse(
-            response_code=200,
-            message=f"Retrieved {len(transactions)} on {date}.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
+            transactions=[None]  # type: ignore
         )
 
-def get_transactions_by_date_range(start: str, end:str='') -> TransactionResponse:
+    return TransactionResponse(
+        response_code=200,
+        message=f"Retrieved {len(transactions)} on {date}.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account) for transaction in transactions]
+    )
+
+
+def get_transactions_by_date_range(start: str, end: str = '') -> TransactionResponse:
     transactions = []
     if end:
-        transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(Transaction.transaction_date >= start).order_by(Transaction.transaction_date.desc()).all()
+        transactions = Transaction.query.filter(Transaction.transaction_date <= end).filter(
+            Transaction.transaction_date >= start).order_by(Transaction.transaction_date.desc()).all()
     else:
-         transactions = Transaction.query.filter(Transaction.transaction_date >= start).order_by(Transaction.transaction_date.desc()).all()
+        transactions = Transaction.query.filter(Transaction.transaction_date >= start).order_by(
+            Transaction.transaction_date.desc()).all()
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found between {start} and {end}",
-            transactions=[None] # type: ignore
+            transactions=[None]  # type: ignore
         )
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Retrieved {len(transactions)} between {start} and {end}.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
+        response_code=200,
+        message=f"Retrieved {len(transactions)} between {start} and {end}.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account) for transaction in transactions]
     )
-    
+
+
 def get_transactions_by_category(categoryid: int) -> TransactionResponse:
-    transactions = Transaction.query.filter(Transaction.categoryid == categoryid).all()
+    transactions = Transaction.query.filter(
+        Transaction.categoryid == categoryid).all()
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
             message=f"No transactions found for category {categoryid}",
-            transactions=[None] # type: ignore
+            transactions=[None]  # type: ignore
         )
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Retrieved {len(transactions)} for category {categoryid}.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
+        response_code=200,
+        message=f"Retrieved {len(transactions)} for category {categoryid}.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account) for transaction in transactions]
     )
 
+
 def get_twenty_recent_transactions() -> TransactionResponse:
-    transactions = Transaction.query.order_by(Transaction.transaction_date.desc()).limit(20)
+    transactions = Transaction.query.order_by(
+        Transaction.transaction_date.desc()).limit(20)
     if len(transactions) == 0:
         return TransactionResponse(
             response_code=404,
-            message=f"No transactions found.",
-            transactions=[None] # type: ignore
+            message="No transactions found.",
+            transactions=[None]  # type: ignore
         )
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Retrieved {len(transactions)}.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account) for transaction in transactions]
+        response_code=200,
+        message=f"Retrieved {len(transactions)}.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account) for transaction in transactions]
     )
-    
+
+
 def insert_transaction(transaction_data: dict) -> TransactionResponse:
     # Make sure credit values are negative
-    if transaction_data.get('transaction_type','') in ('credit', 'fin'):
+    if transaction_data.get('transaction_type', '') in ('credit', 'fin'):
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
-            
-    # ToDo: Check for record with the exact same values? 
-                
+
+    # ToDo: Check for record with the exact same values?
+
     transaction: Transaction = Transaction(
-        transaction_date=transaction_data.get('transaction_date', date.today()),
+        transaction_date=transaction_data.get(
+            'transaction_date', date.today()),
         cashflow_date=transaction_data.get('cashflow_date', date.today()),
         merchant_name=transaction_data.get('merchant_name', ''),
         categoryid=transaction_data.get('category', 1),
@@ -136,111 +158,132 @@ def insert_transaction(transaction_data: dict) -> TransactionResponse:
         note=transaction_data.get('note', '')
     )
 
-    db.session.add(transaction)    
+    db.session.add(transaction)
     db.session.commit()
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Transaction insert successful.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+        response_code=200,
+        message="Transaction insert successful.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account)]
     )
 
+
 def update_transaction(transaction_data: dict) -> TransactionResponse:
-    transaction: Transaction = Transaction.query.filter(Transaction.transactionid == transaction_data.get('transactionid')).one_or_none()
-    
-    if transaction == None:
+    transaction: Transaction = Transaction.query.filter(
+        Transaction.transactionid == transaction_data.get('transactionid')).one_or_none()
+
+    if transaction is None:
         return TransactionResponse(
             response_code=404,
             message=f"Transaction { transaction_data.get('transactionid')} not found.",
-            transactions=[None] # type: ignore
+            transactions=[None]  # type: ignore
         )
-        
+
     # Make sure credit values are negative
-    if transaction_data.get('transaction_type','') in ('credit', 'fin'):
+    if transaction_data.get('transaction_type', '') in ('credit', 'fin'):
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
-    
+
     if transaction_data.get('transaction_date') != transaction.transaction_date:
-        transaction.transaction_date = transaction_data.get('transaction_date', '') # type: ignore
+        transaction.transaction_date = transaction_data.get(
+            'transaction_date', '')  # type: ignore
     if transaction_data.get('cashflow_date') != transaction.cashflow_date:
-        transaction.cashflow_date = transaction_data.get('cashflow_date', '') # type: ignore
+        transaction.cashflow_date = transaction_data.get(
+            'cashflow_date', '')  # type: ignore
     if transaction_data.get('merchant_name') != transaction.merchant_name:
-        transaction.merchant_name = transaction_data.get('merchant_name', '') # type: ignore
+        transaction.merchant_name = transaction_data.get(
+            'merchant_name', '')  # type: ignore
     if transaction_data.get('category') != transaction.categoryid:
-        transaction.categoryid = transaction_data.get('category', 1) # type: ignore
+        transaction.categoryid = transaction_data.get(
+            'category', 1)  # type: ignore
     if transaction_data.get('amount') != transaction.amount:
-        transaction.amount = transaction_data.get('amount', 0) # type: ignore
+        transaction.amount = transaction_data.get('amount', 0)  # type: ignore
     if transaction_data.get('account') != transaction.accountid:
-        transaction.accountid = transaction_data.get('account', 0) # type: ignore
+        transaction.accountid = transaction_data.get(
+            'account', 0)  # type: ignore
     if transaction_data.get('transaction_type') != transaction.transaction_type:
-        transaction.transaction_type = transaction_data.get('transaction_type', '') # type: ignore
+        transaction.transaction_type = transaction_data.get(
+            'transaction_type', '')  # type: ignore
     if transaction_data.get('note') != transaction.note:
-        transaction.note = transaction_data.get('note', '') # type: ignore
-    
+        transaction.note = transaction_data.get('note', '')  # type: ignore
+
     db.session.commit()
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Transaction update successful.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+        response_code=200,
+        message="Transaction update successful.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account)]
     )
 
-def delete_transaction(transactionid: int)-> TransactionResponse:
-    transaction = Transaction.query.filter(Transaction.transactionid == transactionid).one_or_none()
-    
-    if transaction == None:
+
+def delete_transaction(transactionid: int) -> TransactionResponse:
+    transaction = Transaction.query.filter(
+        Transaction.transactionid == transactionid).one_or_none()
+
+    if transaction is None:
         raise ValueError(f"{transactionid} is not a valid transaction id.")
-    
-    transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
-    
+
+    transactions = [TransactionInterface(
+        transaction, transaction.category, transaction.account)]
+
     db.session.delete(transaction)
     db.session.commit()
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Transaction {transactionid} deleted successfully.",
-            transactions=transactions
+        response_code=200,
+        message=f"Transaction {transactionid} deleted successfully.",
+        transactions=transactions
     )
-    
+
+
 def upload_transactions(filename: str) -> TransactionResponse:
     return TransactionResponse(
-            response_code=200,
-            message=f"count Transactions uploaded successfully.",
-            transactions=[]
+        response_code=200,
+        message="count Transactions uploaded successfully.",
+        transactions=[]
     )
-    
+
+
 def get_all_recurring_transactions() -> TransactionResponse:
-    r_trans = RecurringTransaction.query.order_by(RecurringTransaction.expected_day.asc()).all()
+    r_trans = RecurringTransaction.query.order_by(
+        RecurringTransaction.expected_day.asc()).all()
     return TransactionResponse(
-            response_code=200,
-            message=f"Retrieved {len(r_trans)} recurring transactions.",
-            transactions=[TransactionInterface(r_tran, r_tran.category, r_tran.account) for r_tran in r_trans]
-        )
-    
+        response_code=200,
+        message=f"Retrieved {len(r_trans)} recurring transactions.",
+        transactions=[TransactionInterface(
+            r_tran, r_tran.category, r_tran.account) for r_tran in r_trans]
+    )
+
+
 def get_rtran_by_id(rtranid: int) -> TransactionResponse:
-    r_tran = RecurringTransaction.query.filter(RecurringTransaction.rtranid == rtranid).one_or_none()
-    
-    if r_tran == None:
+    r_tran = RecurringTransaction.query.filter(
+        RecurringTransaction.rtranid == rtranid).one_or_none()
+
+    if r_tran is None:
         return TransactionResponse(
             response_code=404,
             message="No transactions found",
-            transactions=[None] # type: ignore
+            transactions=[None]  # type: ignore
         )
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Successfully retrieved transaction {rtranid}.",
-            transactions=[TransactionInterface(r_tran, r_tran.category, r_tran.account)]
-        )
-    
-def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:          
+        response_code=200,
+        message=f"Successfully retrieved transaction {rtranid}.",
+        transactions=[TransactionInterface(
+            r_tran, r_tran.category, r_tran.account)]
+    )
+
+
+def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
     # Make sure credit values are negative
-    if transaction_data.get('transaction_type','') == 'credit':
+    if transaction_data.get('transaction_type', '') == 'credit':
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
-    
+
     # ToDo: Check for record with the exact same values?
-    
+
     transaction: RecurringTransaction = RecurringTransaction(
         expected_day=transaction_data.get('expected_day'),
         merchant_name=transaction_data.get('merchant_name', ''),
@@ -252,99 +295,117 @@ def insert_recurring_transaction(transaction_data: dict) -> TransactionResponse:
         note=transaction_data.get('note', ''),
     )
 
-    db.session.add(transaction)    
+    db.session.add(transaction)
     db.session.commit()
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Transaction insert successful.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
+        response_code=200,
+        message="Transaction insert successful.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account)]
     )
-    
+
+
 def update_recurring_transaction(transaction_data: dict) -> TransactionResponse:
-    transaction: RecurringTransaction = RecurringTransaction.query.filter(RecurringTransaction.rtranid == transaction_data.get('rtranid')).one_or_none()
-    
-    if transaction == None:
+    transaction: RecurringTransaction = RecurringTransaction.query.filter(
+        RecurringTransaction.rtranid == transaction_data.get('rtranid')).one_or_none()
+
+    if transaction is None:
         return TransactionResponse(
             response_code=404,
             message=f"Transaction { transaction_data.get('rtranid')} not found.",
-            transactions=[None] # type: ignore
+            transactions=[None]  # type: ignore
         )
-        
+
     # Make sure credit values are negative
-    if transaction_data.get('transaction_type','') == 'credit':
+    if transaction_data.get('transaction_type', '') == 'credit':
         if transaction_data.get('amount', 0) > 0:
             transaction_data['amount'] = transaction_data['amount'] * -1
-            
+
     if transaction_data.get('expected_day') != transaction.expected_day:
-        transaction.expected_day = transaction_data.get('expected_day', '') # type: ignore
+        transaction.expected_day = transaction_data.get(
+            'expected_day', '')  # type: ignore
     if transaction_data.get('merchant_name') != transaction.merchant_name:
-        transaction.merchant_name = transaction_data.get('merchant_name', '') # type: ignore
+        transaction.merchant_name = transaction_data.get(
+            'merchant_name', '')  # type: ignore
     if transaction_data.get('category') != transaction.categoryid:
-        transaction.categoryid = transaction_data.get('category', 1) # type: ignore
+        transaction.categoryid = transaction_data.get(
+            'category', 1)  # type: ignore
     if transaction_data.get('amount') != transaction.amount:
-        transaction.amount = transaction_data.get('amount', 0) # type: ignore
+        transaction.amount = transaction_data.get('amount', 0)  # type: ignore
     if transaction_data.get('account') != transaction.accountid:
-        transaction.accountid = transaction_data.get('account', 0) # type: ignore
+        transaction.accountid = transaction_data.get(
+            'account', 0)  # type: ignore
     if transaction_data.get('transaction_type') != transaction.transaction_type:
-        transaction.transaction_type = transaction_data.get('transaction_type', '') # type: ignore
+        transaction.transaction_type = transaction_data.get(
+            'transaction_type', '')  # type: ignore
     if transaction_data.get('is_monthly') != transaction.is_monthly:
-        transaction.is_monthly = transaction_data.get('is_monthly', True) # type: ignore
+        transaction.is_monthly = transaction_data.get(
+            'is_monthly', True)  # type: ignore
     if transaction_data.get('note') != transaction.note:
-        transaction.note = transaction_data.get('note', '') # type: ignore
-    
+        transaction.note = transaction_data.get('note', '')  # type: ignore
+
     db.session.commit()
-    
+
     return TransactionResponse(
-            response_code=200,
-            message=f"Transaction update successful.",
-            transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
-    )
-    
-def delete_recurring_transaction(rtranid:int) -> TransactionResponse:
-    transaction: RecurringTransaction = RecurringTransaction.query.filter(RecurringTransaction.rtranid == rtranid).one_or_none()
-    
-    if transaction == None:
-        raise ValueError(f"{rtranid} is not a valid transaction id.")
-    
-    transactions=[TransactionInterface(transaction, transaction.category, transaction.account)]
-    
-    db.session.delete(transaction)
-    db.session.commit()
-    
-    return TransactionResponse(
-            response_code=200,
-            message=f"Transaction {rtranid} deleted successfully.",
-            transactions=transactions
+        response_code=200,
+        message="Transaction update successful.",
+        transactions=[TransactionInterface(
+            transaction, transaction.category, transaction.account)]
     )
 
-def apply_recurring_transactions(rtrans_data:dict[str,str]) -> TransactionResponse:
+
+def delete_recurring_transaction(rtranid: int) -> TransactionResponse:
+    transaction: RecurringTransaction = RecurringTransaction.query.filter(
+        RecurringTransaction.rtranid == rtranid).one_or_none()
+
+    if transaction is None:
+        raise ValueError(f"{rtranid} is not a valid transaction id.")
+
+    transactions = [TransactionInterface(
+        transaction, transaction.category, transaction.account)]
+
+    db.session.delete(transaction)
+    db.session.commit()
+
+    return TransactionResponse(
+        response_code=200,
+        message=f"Transaction {rtranid} deleted successfully.",
+        transactions=transactions
+    )
+
+
+def apply_recurring_transactions(rtrans_data: dict[str, str]) -> TransactionResponse:
     transactions = []
-    for rtranid in rtrans_data.get("RTranIDs","").split(","):
+    for rtranid in rtrans_data.get("RTranIDs", "").split(","):
         # ToDo: Check Response
         get_rtran_response = get_rtran_by_id(int(rtranid))
         rtran = get_rtran_response['transactions'][0]
+        rtran_month = int(rtrans_data.get('month', '1'))
         tran_data = {
-            "transaction_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
-            "cashflow_date": date(year=date.today().year, month=rtrans_data.get('month'), day=rtran.transaction.expected_day), # type: ignore
-            "merchant_name": rtran.transaction.merchant_name, # type: ignore
-            "category": rtran.transaction.categoryid, # type: ignore
-            "amount": rtran.transaction.amount, # type: ignore
-            "account": rtran.transaction.accountid, # type: ignore
-            "transaction_type": rtran.transaction.transaction_type, # type: ignore
-            "note": rtran.transaction.note, # type: ignore
+            # type: ignore
+            "transaction_date": date(year=date.today().year, month=rtran_month, day=rtran.transaction.expected_day),
+            # type: ignore
+            "cashflow_date": date(year=date.today().year, month=rtran_month, day=rtran.transaction.expected_day),
+            "merchant_name": rtran.transaction.merchant_name,  # type: ignore
+            "category": rtran.transaction.categoryid,  # type: ignore
+            "amount": rtran.transaction.amount,  # type: ignore
+            "account": rtran.transaction.accountid,  # type: ignore
+            "transaction_type": rtran.transaction.transaction_type,  # type: ignore
+            "note": rtran.transaction.note,  # type: ignore
         }
         # ToDo: Check Response
         tran_insert_response = insert_transaction(transaction_data=tran_data)
         transactions.append(tran_insert_response['transactions'][0])
-        
+
     return TransactionResponse(
         response_code=200,
         message=f"Successfully inserted {len(transactions)} recurring transactions.",
         transactions=transactions
     )
-    
-def get_month_end(year:int, month: int) -> date:
+
+
+def get_month_end(year: int, month: int) -> date:
     if month == 12:
         next_month = 1
         year = year + 1
@@ -352,18 +413,19 @@ def get_month_end(year:int, month: int) -> date:
         next_month = month + 1
         year = year
     return date(year, next_month, 1) - timedelta(days=1)
-    
-def get_cashflow_df(start:str, end:str) -> dict:
+
+
+def get_cashflow_df(start: str, end: str) -> dict:
     cashflow_sql = f"""
     WITH chk AS (
         SELECT
-            Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15 
+            Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15
                 THEN amount END) AS chk_in_top
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15 
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15
                 THEN amount END) AS chk_out_top
-            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14 
+            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14
                 THEN amount END) AS chk_in_bot
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14 
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14
                 THEN amount END) AS chk_out_bot
         FROM transactions t
         WHERE cashflow_date BETWEEN '{start}' AND '{end}'
@@ -377,13 +439,13 @@ def get_cashflow_df(start:str, end:str) -> dict:
             )
         ), card AS (
         SELECT
-            Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15 
+            Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15
                 THEN amount ELSE 0 END) AS card_in_top
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15 
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15
                 THEN amount END) AS card_out_top
-            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14 
+            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14
                 THEN amount ELSE 0 END) AS card_in_bot
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14 
+            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14
                 THEN amount END) AS card_out_bot
         FROM transactions t
         WHERE cashflow_date BETWEEN '{start}' AND '{end}'
@@ -398,7 +460,7 @@ def get_cashflow_df(start:str, end:str) -> dict:
         ), summary AS (
         SELECT
             # Summary
-            (chk_in_top + chk_in_bot + card_in_top + card_in_bot) + 
+            (chk_in_top + chk_in_bot + card_in_top + card_in_bot) +
               (chk_out_top + chk_out_bot + card_out_top + card_out_bot) AS cash_remain_sum
             , chk_in_top + chk_in_bot AS cash_in_sum
             , chk_out_top + chk_out_bot + card_out_top + card_out_bot AS cash_out_sum
@@ -414,14 +476,12 @@ def get_cashflow_df(start:str, end:str) -> dict:
         )
         SELECT * FROM summary
         ;"""
-    
+
     results = db.session.execute(text(cashflow_sql))
-    
-    
-        
+
     cashflow_data = []
     for data in results:
-        if data[0] == None:
+        if data[0] is None:
             return {
                 "sum": {
                     "remain": '$0.00',
@@ -456,15 +516,16 @@ def get_cashflow_df(start:str, end:str) -> dict:
                 "expens": '${:0,.2f}'.format(data[8])
             }
         })
-        
+
     cashflow_data = cashflow_data[0]
-    
+
     return cashflow_data
 
-def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
+
+def get_credit_card_data(start: str, end: str) -> pd.DataFrame:
     # Direct SQL for now.  Need to learn stored procedures in MariaDB
     # or at least put this in a file instead of in the code.
-    
+
     card_data_sql = f"""
     SELECT
         bal.accountid, a.account_name
@@ -475,7 +536,7 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
         LEFT JOIN (
         SELECT
             accountid
-            , Sum(CASE 
+            , Sum(CASE
                 WHEN transaction_date <= CurDate() AND transaction_type = 'credit'
                     THEN amount ELSE 0 END) AS chg_bal
             , Sum(CASE
@@ -495,7 +556,7 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
     WHERE a.account_type = 'Credit Card'
     ;
     """
-    
+
     results = db.session.execute(text(card_data_sql))
 
     card_data = []
@@ -508,26 +569,36 @@ def get_credit_card_data(start:str, end:str) -> pd.DataFrame:
                 "pmt_bal": card[3],
                 "cur_bal": card[4],
                 "pnd_bal": card[5],
-            }    
+            }
         )
-    
+
     card_data_df = pd.DataFrame.from_records(
         card_data,
         index='accountid',
         columns=card_data[0].keys()
     )
-    
+
     return card_data_df
-    
-def get_cashflow(year:int, month:int) -> dict:
+
+
+def get_cashflow(year: int, month: int) -> dict:
     month_start = date(year, month, 1).strftime("%Y-%m-%d")
     month_end = get_month_end(year, month).strftime("%Y-%m-%d")
-    
+
     cashflow_data = get_cashflow_df(start=month_start, end=month_end)
-    
+
     # Get Credit Card account info
-    cashflow_data["accounts"] = get_credit_card_data(start=month_start, end=month_end)
-    
+    cashflow_data["accounts"] = get_credit_card_data(
+        start=month_start, end=month_end)
+
     # Get Bank Account info
-       
+
     return cashflow_data
+
+
+def get_cashflow_chart(year: int, view_month: int):
+    chart_sql = f"SELECT * FROM vw_cashflow_chart WHERE year = {year} AND month >= {view_month - 6}"
+
+    results = db.session.execute(text(chart_sql))
+
+    return results
