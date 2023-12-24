@@ -7,13 +7,11 @@ function toggle_account_rows(event) {
     let account = event.target.id.replace('-filter','')
     let account_rows = document.querySelectorAll(`[account="${account}"]`)
     if (event.target.checked) {
-        console.log('checked')
         sessionStorage.setItem(event.target.id, true)
         account_rows.forEach((row) => {
             row.classList.remove("hidden")
         })
     } else {
-        console.log('unchecked')
         sessionStorage.setItem(event.target.id, false)
         account_rows.forEach((row) => {
             row.classList.add("hidden")
@@ -88,9 +86,7 @@ function init_filter_session() {
     const filterArray = document.querySelectorAll(".account-filter")
     filterArray.forEach((filter) => {
         let filter_id = filter.id;
-        console.log(filter_id)
         filter_state = sessionStorage.getItem(filter_id)
-        console.log(filter_state)
         if (filter_state === null) {
             sessionStorage.setItem(filter_id, true)
             document.getElementById(filter_id).checked = true;
