@@ -1,9 +1,10 @@
 from app import db
 from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
+from dataclasses import dataclass
 from datetime import date, timedelta
-from sqlalchemy import text
-from typing import TypedDict
 import pandas as pd
+from sqlalchemy import text
+
 
 # ToDo: Get all transactions by accountid
 # DECISION: Return all account transactions and let web layer filter by dates?  Or get by account and date function?
@@ -15,8 +16,8 @@ import pandas as pd
 # ToDo: ispending flag to all get methods
 # ToDo: set ispending flag on insert/update
 
-
-class TransactionResponse(TypedDict):
+@dataclass
+class TransactionResponse():
     response_code: int
     message: str
     transactions: list[TransactionInterface]
@@ -380,9 +381,10 @@ def apply_recurring_transactions(rtrans_data: dict[str, str]) -> TransactionResp
     for rtranid in rtrans_data.get("RTranIDs", "").split(","):
         # ToDo: Check Response
         get_rtran_response = get_rtran_by_id(int(rtranid))
-        rtran = get_rtran_response['transactions'][0]
+        rtran = get_rtran_response.transactions[0]
+        
         rtran_year = rtrans_data.get('rtran_year')
-        rtran_month = rtrans_data.get('month')
+        rtran_month = rtrans_data.get('rtran_month')
 
         if rtran_year is None or rtran_month is None:
             return TransactionResponse(
@@ -393,9 +395,9 @@ def apply_recurring_transactions(rtrans_data: dict[str, str]) -> TransactionResp
 
         tran_data = {
             # type: ignore
-            "transaction_date": date(year=date.today().year, month=int(rtran_month), day=rtran.transaction.expected_day),
+            "transaction_date": date(year=int(rtran_year), month=int(rtran_month), day=rtran.transaction.expected_day),
             # type: ignore
-            "cashflow_date": date(year=date.today().year, month=int(rtran_month), day=rtran.transaction.expected_day),
+            "cashflow_date": date(year=int(rtran_year), month=int(rtran_month), day=rtran.transaction.expected_day),
             "merchant_name": rtran.transaction.merchant_name,  # type: ignore
             "category": rtran.transaction.categoryid,  # type: ignore
             "amount": rtran.transaction.amount,  # type: ignore
@@ -405,7 +407,7 @@ def apply_recurring_transactions(rtrans_data: dict[str, str]) -> TransactionResp
         }
         # ToDo: Check Response
         tran_insert_response = insert_transaction(transaction_data=tran_data)
-        transactions.append(tran_insert_response['transactions'][0])
+        transactions.append(tran_insert_response.transactions[0])
 
     return TransactionResponse(
         response_code=200,

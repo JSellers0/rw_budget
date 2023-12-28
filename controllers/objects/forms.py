@@ -87,7 +87,7 @@ class ApplyRecurringTransactions(FlaskForm):
     def to_json(self) -> dict[str, Any]:
         return {
             "RTranIDs": self.RTranIDs.data,
-            "rtran_year": self.rtran_year,
+            "rtran_year": self.rtran_year.data,
             "rtran_month": self.rtran_month.data
         }
 

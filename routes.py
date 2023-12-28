@@ -140,9 +140,9 @@ def transactions():
 
     return render_template(
         "transactions/transactions.html",
-        current_transactions=curr_response["transactions"],
-        pending_transactions=pend_response["transactions"],
-        past_transactions=past_response["transactions"],
+        current_transactions=curr_response.transactions,
+        pending_transactions=pend_response.transactions,
+        past_transactions=past_response.transactions,
         form=form
     )
 
@@ -208,7 +208,7 @@ def all_transactions():
 
     return render_template(
         "transactions/transactions.html",
-        current_transactions=curr_response["transactions"],
+        current_transactions=curr_response.transactions,
         pending_transactions=[],
         past_transactions=[],
         form=form
@@ -221,7 +221,7 @@ def update_transaction(transactionid: int):
         transactionid=transactionid)
 
     # type: ignore # ToDo: Figure out how to handle multiple return types
-    target_transaction: TransactionInterface = response["transactions"][0]
+    target_transaction: TransactionInterface = response.transactions[0]
     form: TransactionForm = TransactionForm(
         transactionid=target_transaction.transaction.transactionid,
         transaction_date=target_transaction.transaction.transaction_date,
@@ -280,7 +280,7 @@ def recurring_transactions():
     return render_template(
         "transactions/recurring_transactions.html",
         form=form,
-        transactions=get_response["transactions"]
+        transactions=get_response.transactions
     )
 
 
@@ -302,7 +302,7 @@ def new_recurring_transaction():
 def update_recurring_transaction(rtranid):
     get_response = TC.get_rtran_by_id(rtranid)
     # ToDo: Check Response
-    rtran = get_response["transactions"][0]
+    rtran = get_response.transactions[0]
     form = RecurringTransactionForm(
         rtranid=rtran.transaction.rtranid,
         expected_day=rtran.transaction.expected_day,
@@ -346,19 +346,21 @@ def apply_recurring_transactions():
     print(next_year, ' - ', next_month)
     get_response = TC.get_all_recurring_transactions()
     monthly_trans = [str(tran.transaction.rtranid)
-                     for tran in get_response["transactions"] if tran.transaction.is_monthly == 1]
+                     for tran in get_response.transactions if tran.transaction.is_monthly == 1]
     form = ApplyRecurringTransactions(
         RTranIDs=",".join(monthly_trans),
         rtran_year=next_year,
         rtran_month=next_month
     )
     if form.validate_on_submit():
-        apply_rtran_response = TC.apply_recurring_transactions(form.to_json())
+        apply_rtran_response: TC.TransactionResponse = TC.apply_recurring_transactions(form.to_json())
+        if apply_rtran_response.response_code == 400:
+            print('================================Bad Request====================================================')
         return redirect(url_for("transactions"))
     return render_template(
         "transactions/apply_recurring_transactions.html",
         form=form,
-        transactions=get_response["transactions"]
+        transactions=get_response.transactions
     )
 
 

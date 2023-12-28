@@ -23,16 +23,16 @@ AS
             )
     ), top_bot AS (
         SELECT
-            tran_year, tran_month, tran_month_name, tran_period
+            tran_year, tran_month, tran_month_name, date_check, tran_period
             , sum(amount) AS amount
         FROM trans
-        GROUP BY  tran_year, tran_month, tran_month_name, tran_period
+        GROUP BY  tran_year, tran_month, tran_month_name, date_check, tran_period
     )
     SELECT
-         tran_year, tran_month, tran_month_name, 'total' AS tran_period
+         tran_year, tran_month, tran_month_name, date_check, 'total' AS tran_period
         , sum(amount) AS amount
     FROM top_bot
-    GROUP BY  tran_year, tran_month, tran_month_name
+    GROUP BY  tran_year, tran_month, tran_month_name, date_check
     UNION
     SELECT * FROM top_bot
     ORDER BY  tran_year, tran_month, tran_period
