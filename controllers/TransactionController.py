@@ -382,7 +382,7 @@ def apply_recurring_transactions(rtrans_data: dict[str, str]) -> TransactionResp
         # ToDo: Check Response
         get_rtran_response = get_rtran_by_id(int(rtranid))
         rtran = get_rtran_response.transactions[0]
-        
+
         rtran_year = rtrans_data.get('rtran_year')
         rtran_month = rtrans_data.get('rtran_month')
 
@@ -612,7 +612,9 @@ def get_cashflow_chart(year: int, view_month: int, month_range: int = 6):
     SELECT
         tran_month_name, tran_period, amount
     FROM vw_cashflow_chart
-    WHERE Date(date_check) >= Date_Sub('{year}-{view_month}-01', INTERVAL {month_range} MONTH)
+    WHERE Date(date_check) BETWEEN
+        Date_Sub(Date('{year}-{view_month}-01'), INTERVAL {month_range} MONTH)
+        AND Date('{year}-{view_month}-15')
     ORDER BY tran_year, tran_month
     ;"""
 
