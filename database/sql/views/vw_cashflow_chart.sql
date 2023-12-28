@@ -4,6 +4,8 @@ AS
         SELECT
             Year(cashflow_date) AS tran_year
             , Month(cashflow_date) AS tran_month
+            , MonthName(cashflow_date) AS tran_month_name
+            , ConCat(Year(cashflow_date), '-', Month(cashflow_date), '-01') AS date_check
             , CASE WHEN Day(cashflow_date) < 15 THEN 'bot' else 'top' 
                 END AS tran_period
             , accountid
@@ -21,16 +23,16 @@ AS
             )
     ), top_bot AS (
         SELECT
-            tran_year, tran_month, tran_period
+            tran_year, tran_month, tran_month_name, tran_period
             , sum(amount) AS amount
         FROM trans
-        GROUP BY  tran_year, tran_month, tran_period
+        GROUP BY  tran_year, tran_month, tran_month_name, tran_period
     )
     SELECT
-         tran_year, tran_month, 'total' AS tran_period
+         tran_year, tran_month, tran_month_name, 'total' AS tran_period
         , sum(amount) AS amount
     FROM top_bot
-    GROUP BY  tran_year, tran_month
+    GROUP BY  tran_year, tran_month, tran_month_name
     UNION
     SELECT * FROM top_bot
     ORDER BY  tran_year, tran_month, tran_period

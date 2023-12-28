@@ -381,12 +381,21 @@ def apply_recurring_transactions(rtrans_data: dict[str, str]) -> TransactionResp
         # ToDo: Check Response
         get_rtran_response = get_rtran_by_id(int(rtranid))
         rtran = get_rtran_response['transactions'][0]
-        rtran_month = int(rtrans_data.get('month', '1'))
+        rtran_year = rtrans_data.get('rtran_year')
+        rtran_month = rtrans_data.get('month')
+
+        if rtran_year is None or rtran_month is None:
+            return TransactionResponse(
+                response_code=400,
+                message="Bad Request: Please submit a year and month for correct processing.",
+                transactions=[]
+            )
+
         tran_data = {
             # type: ignore
-            "transaction_date": date(year=date.today().year, month=rtran_month, day=rtran.transaction.expected_day),
+            "transaction_date": date(year=date.today().year, month=int(rtran_month), day=rtran.transaction.expected_day),
             # type: ignore
-            "cashflow_date": date(year=date.today().year, month=rtran_month, day=rtran.transaction.expected_day),
+            "cashflow_date": date(year=date.today().year, month=int(rtran_month), day=rtran.transaction.expected_day),
             "merchant_name": rtran.transaction.merchant_name,  # type: ignore
             "category": rtran.transaction.categoryid,  # type: ignore
             "amount": rtran.transaction.amount,  # type: ignore
@@ -596,9 +605,33 @@ def get_cashflow(year: int, month: int) -> dict:
     return cashflow_data
 
 
-def get_cashflow_chart(year: int, view_month: int):
-    chart_sql = f"SELECT * FROM vw_cashflow_chart WHERE year = {year} AND month >= {view_month - 6}"
+def get_cashflow_chart(year: int, view_month: int, month_range: int = 6):
+    chart_sql = f"""
+    SELECT
+        tran_month_name, tran_period, amount
+    FROM vw_cashflow_chart
+    WHERE Date(date_check) >= Date_Sub('{year}-{view_month}-01', INTERVAL {month_range} MONTH)
+    ORDER BY tran_year, tran_month
+    ;"""
 
     results = db.session.execute(text(chart_sql))
 
-    return results
+    print("cashflow chart results")
+
+    resp = {
+        'months': [
+        ],
+        'bot': [
+        ],
+        'top': [
+        ],
+        'total': [
+        ]
+    }
+
+    for row in results:
+        if row[0] not in resp['months']:
+            resp['months'].append(row[0])
+        resp[row[1]].append(row[2])
+
+    return resp

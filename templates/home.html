@@ -95,19 +95,35 @@
         const cashflow_chart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['January','February','March', 'April'],
+                labels: [
+                    {% for month in cashflow_chart['months'] %}
+                        "{{month}}",
+                    {% endfor %}
+                ],
                 datasets: [{
                     label: '1-14',
-                    data: [50, 50, -75, 175],
+                    data: [
+                        {% for amount in cashflow_chart['bot'] %}
+                            "{{amount}}",
+                        {% endfor %}
+                    ],
                     stack: 'Stack 0'
                 }, {
                     label: '15-EOM',
-                    data: [50, -100, 25, 125],
+                    data: [
+                        {% for amount in cashflow_chart['top'] %}
+                            "{{amount}}",
+                        {% endfor %}
+                    ],
                     stack: 'Stack 0'
                 }, {
-                    label: 'total',
-                    data: [100, -50, -50, 300],
-                    stack: 'Stack 1'
+                    label: 'Total',
+                    data: [
+                        {% for amount in cashflow_chart['total'] %}
+                            "{{amount}}",
+                        {% endfor %}
+                    ],
+                    type: 'line',
                 }]
             },
             options: {

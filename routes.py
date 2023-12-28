@@ -53,10 +53,13 @@ def summary(year: int, month: int):
         "disp": date(next_year, next_month, 1).strftime("%B")
     }
     cashflow_data = TC.get_cashflow(year, month)
+    cashflow_chart_data = TC.get_cashflow_chart(year=year, view_month=month)
+    print(cashflow_chart_data)
 
     return render_template(
         "home.html",
         cashflow=cashflow_data,
+        cashflow_chart=cashflow_chart_data,
         month=date(year=year, month=month, day=1).strftime("%B"),
         last_month=last_month,
         next_month=next_month
@@ -333,11 +336,21 @@ def delete_recurring_transaction(rtranid):
 
 @app.route("/transaction/recurring/apply", methods=["GET", "POST"])
 def apply_recurring_transactions():
+    # Calculate default year and month for recurring trans application
+    today = date.today()
+    next_year = today.year
+    next_month = today.month + 1
+    if next_month == 13:
+        next_month = 1
+        next_year += 1
+    print(next_year, ' - ', next_month)
     get_response = TC.get_all_recurring_transactions()
     monthly_trans = [str(tran.transaction.rtranid)
                      for tran in get_response["transactions"] if tran.transaction.is_monthly == 1]
     form = ApplyRecurringTransactions(
-        RTranIDs=",".join(monthly_trans)
+        RTranIDs=",".join(monthly_trans),
+        rtran_year=next_year,
+        rtran_month=next_month
     )
     if form.validate_on_submit():
         apply_rtran_response = TC.apply_recurring_transactions(form.to_json())
