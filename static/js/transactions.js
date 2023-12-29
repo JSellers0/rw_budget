@@ -99,8 +99,8 @@ function init_filter_session() {
         if (filter_state === null) {
             sessionStorage.setItem(filter_id, true)
             document.getElementById(filter_id).checked = true;
-        } else {
-            document.getElementById(filter_id).checked = (filter_state === 'true')
+        } else if (filter_state === 'false') {
+            document.getElementById(filter_id).click()
         }
     })
 }
