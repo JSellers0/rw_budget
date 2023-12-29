@@ -97,12 +97,23 @@ function init_filter_session() {
         let filter_id = filter.id;
         filter_state = sessionStorage.getItem(filter_id)
         if (filter_state === null) {
-            sessionStorage.setItem(filter_id, true)
-            document.getElementById(filter_id).checked = true;
-        } else if (filter_state === 'false') {
+            console.log('init')
+            sessionStorage.setItem(filter_id, document.getElementById(filter_id).checked)
+        }
+    })
+}
+
+function apply_filter_session_state(){
+    console.log('apply filters')
+    const filterArray = document.querySelectorAll(".account-filter")
+    filterArray.forEach((filter) => {
+        let filter_id = filter.id;
+        filter_state = sessionStorage.getItem(filter_id)
+        if (filter_state === 'false') {
             document.getElementById(filter_id).click()
         }
     })
 }
 
 init();
+document.onload = apply_filter_session_state();

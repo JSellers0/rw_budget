@@ -73,29 +73,29 @@
             <div class="card-body">
                 <div id="account-filters-set-1" class="row">
                     <div class="form-check form-switch col">
-                        <input class="form-check-input account-filter" type="checkbox" id="pnc-rewards-filter">
+                        <input class="form-check-input account-filter" type="checkbox" id="pnc-rewards-filter" checked>
                         <label class="form-check-label" for="pnc-rewards-filter">PNC Rewards</label>
                     </div>
                     <div class="form-check form-switch col">
-                        <input class="form-check-input account-filter" type="checkbox" id="venture-filter">
+                        <input class="form-check-input account-filter" type="checkbox" id="venture-filter" checked>
                         <label class="form-check-label" for="venture-filter">Venture</label>
                     </div>
                     <div class="form-check form-switch col">
-                        <input class="form-check-input account-filter" type="checkbox" id="quicksilver-filter">
+                        <input class="form-check-input account-filter" type="checkbox" id="quicksilver-filter" checked>
                         <label class="form-check-label" for="quicksilver-filter">Quicksilver</label>
                     </div>
                 </div>
                 <div id="account-filters-set-2" class="row">
                     <div class="form-check form-switch col">
-                        <input class="form-check-input account-filter" type="checkbox" id="pnc-spend-filter">
+                        <input class="form-check-input account-filter" type="checkbox" id="pnc-spend-filter" checked>
                         <label class="form-check-label" for="pnc-spend-filter">PNC Spend</label>
                     </div>
                     <div class="form-check form-switch col">
-                        <input class="form-check-input account-filter" type="checkbox" id="cap-bills-filter">
+                        <input class="form-check-input account-filter" type="checkbox" id="cap-bills-filter" checked>
                         <label class="form-check-label" for="cap-bills-filter">Cap Bills</label>
                     </div>
                     <div class="form-check form-switch col">
-                        <input class="form-check-input account-filter" type="checkbox" id="pnc-bills-filter">
+                        <input class="form-check-input account-filter" type="checkbox" id="pnc-bills-filter" checked>
                         <label class="form-check-label" for="pnc-bills-filter">PNC Bills</label>
                     </div>
                 </div>
@@ -278,4 +278,7 @@
 
 {% block javascript %}
  <script type="text/javascript" src={{ url_for("static", filename="js/transactions.js") }}></script>
+ <script>
+    init_filter_session();
+ </script>
 {% endblock %}
