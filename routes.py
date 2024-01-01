@@ -17,6 +17,7 @@ from werkzeug.utils import secure_filename
 # ToDo: Error Handling
 # ToDo: Dynamic back buttons based on where user just was
 # ToDo: Async db calls
+# ToDo: Utility functions for prior month/year and next month/year.
 
 
 @app.route("/", methods=["GET"])
@@ -73,8 +74,13 @@ def transactions():
                        1).strftime("%Y-%m-%d")
     today = date.today().strftime("%Y-%m-%d")
     tomorrow = (date.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+    prior_year = date.today().year
+    prior_month = date.today().month - 1
+    if prior_month == 0:
+        prior_month = 12
+        prior_year -= 1
     last_month_start = date(
-        date.today().year, date.today().month - 1, 1).strftime("%Y-%m-%d")
+        prior_year, prior_month, 1).strftime("%Y-%m-%d")
     last_month_end = (date(date.today().year, date.today().month,
                       1) - timedelta(days=1)).strftime("%Y-%m-%d")
 
@@ -353,7 +359,8 @@ def apply_recurring_transactions():
         rtran_month=next_month
     )
     if form.validate_on_submit():
-        apply_rtran_response: TC.TransactionResponse = TC.apply_recurring_transactions(form.to_json())
+        apply_rtran_response: TC.TransactionResponse = TC.apply_recurring_transactions(
+            form.to_json())
         if apply_rtran_response.response_code == 400:
             print('================================Bad Request====================================================')
         return redirect(url_for("transactions"))
