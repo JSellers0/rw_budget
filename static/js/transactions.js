@@ -24,9 +24,10 @@ function toggle_account_rows(event) {
 }
 
 function clear_account_filters() {
-    let account_filter_array = document.querySelectorAll(".account-filter")
+    const account_filters = document.getElementById("account-filters")
+    const filterArray = account_filters.querySelectorAll(".account-filter")
     
-    account_filter_array.forEach((filter) => {
+    filterArray.forEach((filter) => {
         if (filter.checked === false) {
             filter.click()
         }
@@ -64,6 +65,7 @@ function init_events() {
     document.getElementById("pnc-spend-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("pnc-rewards-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("venture-filter").addEventListener("click", toggle_account_rows)
+    document.getElementById("barclays-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("quicksilver-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("cap-bills-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("pnc-bills-filter").addEventListener("click", toggle_account_rows)
@@ -92,7 +94,8 @@ function init_events() {
 }
 
 function init_filter_session() {
-    const filterArray = document.querySelectorAll(".account-filter")
+    const account_filters = document.getElementById("account-filters")
+    const filterArray = account_filters.querySelectorAll(".account-filter")
     filterArray.forEach((filter) => {
         let filter_id = filter.id;
         filter_state = sessionStorage.getItem(filter_id)
@@ -105,7 +108,8 @@ function init_filter_session() {
 
 function apply_filter_session_state(){
     console.log('apply filters')
-    const filterArray = document.querySelectorAll(".account-filter")
+    const account_filters = document.getElementById("account-filters")
+    const filterArray = account_filters.querySelectorAll(".account-filter")
     filterArray.forEach((filter) => {
         let filter_id = filter.id;
         filter_state = sessionStorage.getItem(filter_id)
