@@ -9,7 +9,8 @@ function init() {
 
 function toggle_account_rows(event) {
     let account = event.target.id.replace('-filter','')
-    let account_rows = document.querySelectorAll(`[account="${account}"]`)
+    const trans_accordion = document.getElementById("transaction-accordion")
+    const account_rows = trans_accordion.querySelectorAll(`[account="${account}"]`)
     if (event.target.checked) {
         sessionStorage.setItem(event.target.id, true)
         account_rows.forEach((row) => {
@@ -73,7 +74,8 @@ function init_events() {
     document.getElementById("clear-account-filters").addEventListener("click", clear_account_filters)
 
     // Filter Accordion
-    const choiceArray = document.querySelectorAll(".choice")
+    const filter_panel = document.getElementById("transaction-filters")
+    const choiceArray = filter_panel.querySelectorAll(".choice")
 
     choiceArray.forEach((card) => {
         card.addEventListener("click", (event) => {
