@@ -466,7 +466,7 @@ def get_cashflow_df(start: str, end: str) -> dict:
             )
             AND t.categoryid NOT IN (
             SELECT categoryid FROM category
-            WHERE category_name = 'Card Payment'
+            WHERE category_name IN ('Card Payment', 'Finance Payment')
             )
         ), summary AS (
         SELECT
