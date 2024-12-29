@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "rw-budget"
+version = "1.0.0"
+description = "Budgeting tool for Rock Willow"
+authors = ["JSellers0"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.1.0"
+flask-sqlalchemy = "^3.1.1"
+flask-wtf = "^1.2.2"
+pandas = "^2.2.3"
+pymysql = "^1.1.1"
+mariadb = "^1.1.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
