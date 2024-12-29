@@ -9,7 +9,7 @@
     },
     {
       "account_name": "PNC Bills",
-      "account_type": "Checking Account",
+      "account_type": "Checking",
       "rewards_features": "",
       "payment_day": "",
       "statement_day": ""
@@ -23,7 +23,7 @@
     },
     {
       "account_name": "PNC Spend",
-      "account_type": "Checking Account",
+      "account_type": "Checking",
       "rewards_features": "",
       "payment_day": "",
       "statement_day": ""
