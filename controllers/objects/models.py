@@ -39,7 +39,7 @@ class Category(db.Model):
     def to_tuple(self) -> tuple[Column, Column]:
         return (self.categoryid, self.category_name)
 
-# 
+
 class Budget(db.Model):
     __tablename__ = 'budget'
     budgetid: Column = Column(Integer, primary_key=True)
@@ -60,6 +60,7 @@ class Budget(db.Model):
             "budget_name": self.budget_name,
             "budget_amount": self.budget_amount
         }
+
 
 class Account(db.Model):
     # ToDo: credit limit to figure out utilization
@@ -171,56 +172,6 @@ class TransactionInterface:
     transaction: Transaction
     category: Category
     account: Account
-    
-def build_accounts():
-#ToDo: add care credit account
-    barlcays = Account(
-        account_name='Barclays',
-        account_type='Credit Card',
-        rewards_features='Restaurants 3x - Streaming/Phone/Internet 2x - Grocery Stores (except Target and Walmart) 2x',
-        payment_day='3rd',
-        statement_day='6th'
-        )
-    pnc_bills = Account(
-        account_name='PNC Bills',
-        account_type='Checking Account',
-        rewards_features='',
-        payment_day='',
-        statement_day=''
-    )
-    pnc_cash = Account(
-        account_name='PNC Rewards',
-        account_type='Credit Card',
-        rewards_features='Gas 4x - Restaurants 3x - Groceries 2x - 8,000 multiplier cap',
-        payment_day='2nd',
-        statement_day='7th'
-        )
-    pnc_spend = Account(
-        account_name='PNC Spend',
-        account_type='Checking Account',
-        rewards_features='',
-        payment_day='',
-        statement_day=''
-        )
-    quicksilver = Account(
-        account_name='Quicksilver',
-        account_type='Credit Card',
-        rewards_features='1.5x all purchases',
-        payment_day='5th',
-        statement_day='11th'
-        )
-    venture = Account(
-        account_name='Venture',
-        account_type='Credit Card',
-        rewards_features='5x hotels and car rentsl booked through CapOne - 1.25x all purchases',
-        payment_day='10th',
-        statement_day='16th'
-        )
-    
-    
-    with app.app_context():
-        db.session.add_all([venture,pnc_bills,pnc_cash,pnc_spend,quicksilver,barlcays])
-        db.session.commit()
             
 # Merchant
 

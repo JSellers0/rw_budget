@@ -1,0 +1,60 @@
+{
+  "Accounts": [
+    {
+      "account_name": "Barclays",
+      "account_type": "Credit Card",
+      "rewards_features": "Restaurants 3x - Streaming/Phone/Internet 2x - Grocery Stores (except Target and Walmart) 2x",
+      "payment_day": "3rd",
+      "statement_day": "6th"
+    },
+    {
+      "account_name": "PNC Bills",
+      "account_type": "Checking Account",
+      "rewards_features": "",
+      "payment_day": "",
+      "statement_day": ""
+    },
+    {
+      "account_name": "PNC Rewards",
+      "account_type": "Credit Card",
+      "rewards_features": "Gas 4x - Restaurants 3x - Groceries 2x - 8,000 multiplier cap",
+      "payment_day": "2nd",
+      "statement_day": "7th"
+    },
+    {
+      "account_name": "PNC Spend",
+      "account_type": "Checking Account",
+      "rewards_features": "",
+      "payment_day": "",
+      "statement_day": ""
+    },
+    {
+      "account_name": "Quicksilver",
+      "account_type": "Credit Card",
+      "rewards_features": "1.5x all purchases",
+      "payment_day": "5th",
+      "statement_day": "11th"
+    },
+    {
+      "account_name": "Venture",
+      "account_type": "Credit Card",
+      "rewards_features": "5x hotels and car rentsl booked through CapOne - 1.25x all purchases",
+      "payment_day": "10th",
+      "statement_day": "16th"
+    }
+  ],
+  "Categories": [
+    "Auto",
+    "Cash Back",
+    "Dates",
+    "Entertainment",
+    "Fast Food",
+    "Gifts",
+    "Groceries",
+    "Home",
+    "Health",
+    "Income",
+    "Pets",
+    "Uncategorized"
+  ]
+}
