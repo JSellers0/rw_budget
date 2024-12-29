@@ -426,67 +426,14 @@ def get_month_end(year: int, month: int) -> date:
     return date(year, next_month, 1) - timedelta(days=1)
 
 
-def get_cashflow_df(start: str, end: str) -> dict:
-    cashflow_sql = f"""
-    WITH chk AS (
-        SELECT
-            Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15
-                THEN amount END) AS chk_in_top
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15
-                THEN amount END) AS chk_out_top
-            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14
-                THEN amount END) AS chk_in_bot
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14
-                THEN amount END) AS chk_out_bot
-        FROM transactions t
-        WHERE cashflow_date BETWEEN '{start}' AND '{end}'
-            AND t.accountid IN (
-            SELECT accountid FROM account
-            WHERE account_type = 'Checking'
-            )
-            AND t.categoryid NOT IN (
-            SELECT categoryid FROM category
-            WHERE category_name = 'Card Payment'
-            )
-        ), card AS (
-        SELECT
-            Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) < 15
-                THEN amount ELSE 0 END) AS card_in_top
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) < 15
-                THEN amount END) AS card_out_top
-            , Sum(CASE WHEN transaction_type = 'debit' AND Extract(DAY FROM cashflow_date) > 14
-                THEN amount ELSE 0 END) AS card_in_bot
-            , Sum(CASE WHEN transaction_type = 'credit'  AND Extract(DAY FROM cashflow_date) > 14
-                THEN amount END) AS card_out_bot
-        FROM transactions t
-        WHERE cashflow_date BETWEEN '{start}' AND '{end}'
-            AND t.accountid IN (
-            SELECT accountid FROM account
-            WHERE account_type = 'Credit Card'
-            )
-            AND t.categoryid NOT IN (
-            SELECT categoryid FROM category
-            WHERE category_name IN ('Card Payment', 'Finance Payment')
-            )
-        ), summary AS (
-        SELECT
-            # Summary
-            (chk_in_top + chk_in_bot + card_in_top + card_in_bot) +
-              (chk_out_top + chk_out_bot + card_out_top + card_out_bot) AS cash_remain_sum
-            , chk_in_top + chk_in_bot AS cash_in_sum
-            , chk_out_top + chk_out_bot + card_out_top + card_out_bot AS cash_out_sum
-            # Top
-            , chk_in_top + card_in_top + chk_out_top + card_out_top AS cash_remain_top
-            , chk_in_top + card_in_top AS cash_in_top
-            , chk_out_top + card_out_top AS cash_out_top
-            # Bot
-            , chk_in_bot + card_in_bot + chk_out_bot + card_out_bot AS cash_remain_bot
-            , chk_in_bot + card_in_bot AS cash_in_bot
-            , chk_out_bot + card_out_bot AS cash_out_bot
-        FROM chk, card
-        )
-        SELECT * FROM summary
-        ;"""
+def get_cashflow_df(flow_month: str, flow_year: str) -> dict:
+    cashflow_sql = "SELECT\n"
+    cashflow_sql += "\tcash_remain_sum, cash_in_sum, cash_out_sum,\n"
+    cashflow_sql += "\tcash_remain_top, cash_in_top, cash_out_top,\n"
+    cashflow_sql += "\tcash_remain_bot, cash_in_bot, cash_out_bot\n"
+    cashflow_sql += "FROM vw_cashflow\n"
+    cashflow_sql += f"WHERE flow_month = {flow_month}\n"
+    cashflow_sql += f"\tAND flow_year = {flow_year}"
 
     results = db.session.execute(text(cashflow_sql))
 
@@ -596,7 +543,7 @@ def get_cashflow(year: int, month: int) -> dict:
     month_start = date(year, month, 1).strftime("%Y-%m-%d")
     month_end = get_month_end(year, month).strftime("%Y-%m-%d")
 
-    cashflow_data = get_cashflow_df(start=month_start, end=month_end)
+    cashflow_data = get_cashflow_df(flow_month=str(month), flow_year=str(year))
 
     # Get Credit Card account info
     cashflow_data["accounts"] = get_credit_card_data(
