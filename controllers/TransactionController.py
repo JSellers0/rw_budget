@@ -541,12 +541,17 @@ def get_cashflow(year: int, month: int) -> dict:
 
 def get_cashflow_chart(year: int, view_month: int, month_range: int = 6):
     chart_sql = f"""
+        WITH ccc AS (
+            SELECT tran_month_name, cashflow_category, amount
+            FROM vw_cashflow_chart
+            WHERE tran_month_start <= ConCat('{year}-{view_month}-01')
+            ORDER BY tran_month_start DESC 
+            LIMIT {month_range * CASHFLOW_CHART_SEGMENTS}
+        )
         SELECT tran_month_name, cashflow_category, amount
-        FROM vw_cashflow_chart
-        WHERE tran_month_start <= ConCat('{year}-{view_month}-01')
-        ORDER BY tran_month_start DESC 
-        LIMIT {month_range * CASHFLOW_CHART_SEGMENTS}
-    ;"""
+        FROM ccc
+        ORDER BY tran_month_start ASC
+        ;"""
 
     results = db.session.execute(text(chart_sql))
 
