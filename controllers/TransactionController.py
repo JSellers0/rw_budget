@@ -460,7 +460,7 @@ def get_cashflow_df(flow_month: str, flow_year: str) -> dict:
                 }
             }
         cashflow_grp = data[0].split('_')
-        cashflow_data[cashflow_grp[1]][cashflow_grp[0]] = data[1]
+        cashflow_data.setdefault(cashflow_grp[1], {})[cashflow_grp[0]] = data[1]
 
     return cashflow_data
 
