@@ -1,11 +1,4 @@
-from app import db
-from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
-from dataclasses import dataclass
-from datetime import date, timedelta
-import pandas as pd
-from sqlalchemy import text
-
-
+"""
 # ToDo: Get all transactions by accountid
 # DECISION: Return all account transactions and let web layer filter by dates?  Or get by account and date function?
 # ToDo: Standardize response messages
@@ -15,6 +8,18 @@ from sqlalchemy import text
 # ToDo: Recurring transaction CRUD
 # ToDo: ispending flag to all get methods
 # ToDo: set ispending flag on insert/update
+"""
+# IMPORTS
+from app import db
+from controllers.objects.models import Transaction, TransactionInterface, RecurringTransaction
+from dataclasses import dataclass
+from datetime import date, timedelta
+import pandas as pd
+from sqlalchemy import text
+
+
+# CONSTANTS
+CASHFLOW_CHART_SEGMENTS = 3
 
 @dataclass
 class TransactionResponse():
@@ -427,17 +432,14 @@ def get_month_end(year: int, month: int) -> date:
 
 
 def get_cashflow_df(flow_month: str, flow_year: str) -> dict:
-    cashflow_sql = "SELECT\n"
-    cashflow_sql += "\tcash_remain_sum, cash_in_sum, cash_out_sum,\n"
-    cashflow_sql += "\tcash_remain_top, cash_in_top, cash_out_top,\n"
-    cashflow_sql += "\tcash_remain_bot, cash_in_bot, cash_out_bot\n"
-    cashflow_sql += "FROM vw_cashflow\n"
+    cashflow_sql = "SELECT cashflow_grp, amount\n"
+    cashflow_sql += "FROM vw_cashflow_summary\n"
     cashflow_sql += f"WHERE flow_month = {flow_month}\n"
     cashflow_sql += f"\tAND flow_year = {flow_year}"
 
     results = db.session.execute(text(cashflow_sql))
 
-    cashflow_data = []
+    cashflow_data = {}
     for data in results:
         if data[0] is None:
             return {
@@ -457,25 +459,8 @@ def get_cashflow_df(flow_month: str, flow_year: str) -> dict:
                     "expens": '$0.00',
                 }
             }
-        cashflow_data.append({
-            "sum": {
-                "remain": '${:0,.2f}'.format(data[0]),
-                "income": '${:0,.2f}'.format(data[1]),
-                "expens": '${:0,.2f}'.format(data[2])
-            },
-            "top": {
-                "remain": '${:0,.2f}'.format(data[3]),
-                "income": '${:0,.2f}'.format(data[4]),
-                "expens": '${:0,.2f}'.format(data[5])
-            },
-            "bot": {
-                "remain": '${:0,.2f}'.format(data[6]),
-                "income": '${:0,.2f}'.format(data[7]),
-                "expens": '${:0,.2f}'.format(data[8])
-            }
-        })
-
-    cashflow_data = cashflow_data[0]
+        cashflow_grp = data[0].split('_')
+        cashflow_data[cashflow_grp[1]][cashflow_grp[0]] = data[1]
 
     return cashflow_data
 
@@ -556,13 +541,11 @@ def get_cashflow(year: int, month: int) -> dict:
 
 def get_cashflow_chart(year: int, view_month: int, month_range: int = 6):
     chart_sql = f"""
-    SELECT
-        tran_month_name, tran_period, amount
-    FROM vw_cashflow_chart
-    WHERE Date(date_check) BETWEEN
-        Date_Sub(Date('{year}-{view_month}-01'), INTERVAL {month_range} MONTH)
-        AND Date('{year}-{view_month}-15')
-    ORDER BY tran_year, tran_month
+        SELECT tran_month_name, cashflow_category, amount
+        FROM vw_cashflow_chart
+        WHERE tran_month_start <= ConCat('{year}-{view_month}-01')
+        ORDER BY tran_month_start DESC 
+        LIMIT {month_range * CASHFLOW_CHART_SEGMENTS}
     ;"""
 
     results = db.session.execute(text(chart_sql))
