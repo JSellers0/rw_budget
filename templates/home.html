@@ -103,7 +103,7 @@
                 datasets: [{
                     label: '1-14',
                     data: [
-                        {% for amount in cashflow_chart['bot'] %}
+                        {% for amount in cashflow_chart['top'] %}
                             "{{amount}}",
                         {% endfor %}
                     ],
@@ -111,7 +111,7 @@
                 }, {
                     label: '15-EOM',
                     data: [
-                        {% for amount in cashflow_chart['top'] %}
+                        {% for amount in cashflow_chart['bot'] %}
                             "{{amount}}",
                         {% endfor %}
                     ],
