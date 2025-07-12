@@ -1,4 +1,4 @@
-from controllers import TransactionController
+from controllers.transactions import ctrl_transactions
 from app import app
 
 # ToDo: test all transaction controller methods
@@ -51,10 +51,10 @@ def test_pending_insert():
         
 def test_get_transaction():
     with app.app_context():
-        tran_res:TransactionController.TransactionResponse = TransactionController.get_transaction_by_id(1)
+        tran_res: TransactionController.TransactionResponse = TransactionController.get_transaction_by_id(1)
         assert tran_res['transactions'][0].transaction.transactionid == 1 # type: ignore -- need to figure out typing OR situation
         
 def test_get_tran_by_date():
     with app.app_context():
-        tran_res:TransactionController.TransactionResponse = TransactionController.get_transactions_by_date('2023-03-01')
+        tran_res: TransactionController.TransactionResponse = TransactionController.get_transactions_by_date('2023-03-01')
         assert len(tran_res['transactions']) > 0

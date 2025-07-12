@@ -37,7 +37,7 @@ class Category(db.Model):
         }
         
     def to_tuple(self) -> tuple[Column, Column]:
-        return (self.categoryid, self.category_name)
+        return self.categoryid, self.category_name
 
 
 class Budget(db.Model):
@@ -149,6 +149,36 @@ class Transaction(db.Model):
         return "Transaction({},{},{})".format(self.transactionid, self.merchant_name, self.amount)
     
 INDEX_BUILD_LIST.append(Index('transaction_date_idx', Transaction.transaction_date))
+
+class SplitTrans(db.Model):
+    __tablename__ = "transaction_split"
+    transplitid: Column = Column(Integer, primary_key=True)
+    transactionid: Column  = Column(Integer, ForeignKey('transactions.transactionid'))
+    split_name: Column = Column(String(400), nullable=False)
+    split_amount: Column = Column(DECIMAL(7, 2), nullable=False)
+    categoryid: Column = Column(Integer, ForeignKey('category.categoryid'))
+    split_note: Column = Column(String(1000))
+    insert_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate())
+    insert_by: Column = Column(String(100), server_default=func.current_user())
+    update_date: Column = Column(DateTime(timezone=False), server_default=func.sysdate(), server_onupdate=func.sysdate()) # type: ignore
+    update_by: Column = Column(String(100), server_default=func.current_user(), server_onupdate = func.current_user())  # type: ignore
+
+    def __repr__(self) -> str:
+        return "SplitTrans({},{},{})".format(
+            self.transplitid, self.split_name, self.split_amount
+        )
+
+    def to_json(self) -> dict[str, Column]:
+        return {
+            "transplitid": self.transplitid,
+            "transactionid": self.transactionid,
+            "split_name": self.split_name,
+            "split_amount": self.split_amount,
+            "categoryid": self.categoryid,
+            "split_note": self.split_note,
+        }
+
+INDEX_BUILD_LIST.append(Index('splitrans_transid_idx', SplitTrans.transactionid))
     
 class RecurringTransaction(db.Model):
     __tablename__ = 'recurring_transaction'
@@ -185,7 +215,7 @@ if __name__ == '__main__':
             db.drop_all()
             db.create_all()
             db.session.commit()
-        build_accounts()
+        # build_accounts()
     elif '-build_index' in sys.argv:
         with app.app_context():
             for index in INDEX_BUILD_LIST:

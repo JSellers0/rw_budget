@@ -1,7 +1,8 @@
 from controllers import (
-    TransactionController as TC, CategoryController as CC,
+    CategoryController as CC,
     AccountController as AC, BudgetController as BC
 )
+from controllers.transactions import ctrl_transactions as TC
 from controllers.objects.forms import (
     AccountForm, ApplyRecurringTransactions, BudgetForm,
     CategoryForm, RecurringTransactionForm, TransactionForm,
