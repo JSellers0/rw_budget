@@ -10,7 +10,7 @@ from controllers.objects.forms import (
 )
 from controllers.objects.models import TransactionInterface
 from datetime import date, timedelta
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, jsonify
 from app import app
 from werkzeug.utils import secure_filename
 
@@ -20,6 +20,15 @@ from werkzeug.utils import secure_filename
 # ToDo: Async db calls
 # ToDo: Utility functions for prior month/year and next month/year.
 
+
+@app.route('/health')
+def health():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'rw_budget',
+        'version': '1.0.0'
+    }), 200
 
 @app.route("/", methods=["GET"])
 def home():

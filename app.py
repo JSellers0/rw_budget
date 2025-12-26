@@ -11,7 +11,7 @@ app: Flask = Flask(__name__)
 
 app.secret_key = APP_SK
 
-db_uri = f"mysql+pymysql://{DB_U}:{DB_P}@{DB_H}:{DB_Pt}/{DB_N}"
+db_uri = os.environ.get("")
 
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
