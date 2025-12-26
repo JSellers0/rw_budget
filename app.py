@@ -1,15 +1,17 @@
+import os
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
 #from flask_bcrypt import Bcrypt
 #from flask_login import LoginManager
-from myfb import APP_SK, DB_U, DB_P, DB_H, DB_N
-import os
+from myfb import APP_SK, DB_H, DB_N, DB_P, DB_U, DB_Pt
 
 app: Flask = Flask(__name__)
 
 app.secret_key = APP_SK
 
-db_uri = f"mysql+pymysql://{DB_U}:{DB_P}@{DB_H}/{DB_N}"
+db_uri = f"mysql+pymysql://{DB_U}:{DB_P}@{DB_H}:{DB_Pt}/{DB_N}"
 
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
