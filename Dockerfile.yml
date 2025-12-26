@@ -12,19 +12,15 @@ RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    ln -s /root/.cargo/bin/uv /usr/local/bin/uv
+
+# Alternative: Install via pip (simpler)
+RUN pip install uv
+
+# Verify uv is installed
+RUN which uv && uv --version
 
 # Create directories for volumes BEFORE copying code
 RUN mkdir -p /app/{logs,uploads,tmp,cache,static}
-
-# Set permissions for non-root user
-RUN chmod 755 /app && \
-    chmod 755 /app/logs && \
-    chmod 755 /app/uploads && \
-    chmod 755 /app/tmp && \
-    chmod 755 /app/cache
 
 # Copy dependency files first (better caching)
 COPY pyproject.toml uv.lock ./

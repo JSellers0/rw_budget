@@ -10,9 +10,9 @@ from logging_config import setup_logging
 
 app: Flask = Flask(__name__)
 
-app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+app.secret_key = os.environ.get("SECRET_KEY")
 
-db_uri = os.environ.get("FLASK_DATABASE_URL")
+db_uri = os.environ.get("DATABASE_URL")
 
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
