@@ -4,7 +4,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from logging_config import setup_logging
 
-load_dotenv()
+if os.environ.get("FLASK_ENV", "development") == "development":
+    load_dotenv()
 
 app: Flask = Flask(__name__)
 

@@ -300,8 +300,8 @@ def get_credit_card_data(start: str, end: str) -> pd.DataFrame:
     SELECT
         a.accountid, a.account_name
         , IfNull(bal.chg_bal, 0) AS chg_bal, IfNull(bal.pmt_bal, 0) AS pmt_bal
-        , IfNull(bal.cur_bal, 0) + IfNull(ab.balance, 0) AS cur_bal
-        , IfNull(bal.pnd_bal, 0) + IfNull(ab.balance, 0) AS pnd_bal
+        , IfNull(bal.cur_bal, 0) AS cur_bal
+        , IfNull(bal.pnd_bal, 0) AS pnd_bal
     FROM account a
         LEFT JOIN (
         SELECT
@@ -321,8 +321,6 @@ def get_credit_card_data(start: str, end: str) -> pd.DataFrame:
         GROUP BY accountid
     ) bal
         ON a.accountid = bal.accountid
-        LEFT JOIN accountbalance ab ON ab.accountid = a.accountid
-            AND ab.agg_start = Date_Add('{start}', INTERVAL -1 MONTH)
     WHERE a.account_type = 'Credit Card'
     ;
     """
