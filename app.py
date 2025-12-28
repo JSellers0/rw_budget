@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from logging_config import setup_logging
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 if os.environ.get("FLASK_ENV", "development") == "development":
     load_dotenv()
@@ -20,6 +21,8 @@ db: SQLAlchemy = SQLAlchemy(app)
 
 if os.environ.get("FLASK_ENV", "development") == "production":
     setup_logging(app)
-    
-app.logger.info('Application started')
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1, x_port=1
+    )
+    app.logger.info('Application started')
 
