@@ -143,14 +143,14 @@ def transactions():
 
             # Insert transfer transactions
             # ToDo: Check Responses.  Should probably have a way to roll back credit if debit fails.
-            credit_insert_response = TC.insert_transaction(
+            _ = TC.insert_transaction(
                 transaction_data=credit_data)
-            debit_insert_response = TC.insert_transaction(
+            _ = TC.insert_transaction(
                 transaction_data=debit_data)
 
         else:
             # ToDo: Check Response
-            insert_response: TC.TransactionResponse = TC.insert_transaction(
+            _: TC.TransactionResponse = TC.insert_transaction(
                 transaction_data=form.to_json())
         return redirect(url_for("transactions"))
 
@@ -211,14 +211,14 @@ def all_transactions():
 
             # Insert transfer transactions
             # ToDo: Check Responses.  Should probably have a way to roll back credit if debit fails.
-            credit_insert_response = TC.insert_transaction(
+            _ = TC.insert_transaction(
                 transaction_data=credit_data)
-            debit_insert_response = TC.insert_transaction(
+            _ = TC.insert_transaction(
                 transaction_data=debit_data)
 
         else:
             # ToDo: Check Response
-            insert_response: TC.TransactionResponse = TC.insert_transaction(
+            _: TC.TransactionResponse = TC.insert_transaction(
                 transaction_data=form.to_json())
         return redirect(url_for("all_transactions"))
 
@@ -267,7 +267,7 @@ def update_transaction(transactionid: int):
 
 @app.route("/transaction/delete/<int:transactionid>", methods=["GET"])
 def delete_transaction(transactionid):
-    delete_response = TC.delete_transaction(transactionid=transactionid)
+    _ = TC.delete_transaction(transactionid=transactionid)
     # ToDo: Check Response and flash appropriate message
     return redirect(url_for("transactions"))
 
@@ -291,7 +291,7 @@ def recurring_transactions():
     form.category.choices = CC.get_categories_for_listbox()
     form.account.choices = AC.get_accounts_for_listbox()
     if form.validate_on_submit():
-        insert_response = TC.insert_recurring_transaction(form.to_json())
+        _ = TC.insert_recurring_transaction(form.to_json())
         return redirect(url_for("recurring_transactions"))
     return render_template(
         "transactions/recurring_transactions.html",
@@ -306,7 +306,7 @@ def new_recurring_transaction():
     form.account.choices = AC.get_accounts_for_listbox()
     form.category.choices = CC.get_categories_for_listbox()
     if form.validate_on_submit():
-        insert_response = TC.insert_recurring_transaction(form.to_json())
+        _ = TC.insert_recurring_transaction(form.to_json())
         return redirect(url_for("transactions"))
     return render_template(
         "transactions/recurring_transactions_new.html",
@@ -335,7 +335,7 @@ def update_recurring_transaction(rtranid):
     form.category.choices = CC.get_categories_for_listbox()
 
     if form.validate_on_submit():
-        upd_resp = TC.update_recurring_transaction(form.to_json())
+        _ = TC.update_recurring_transaction(form.to_json())
         return redirect(url_for("recurring_transactions"))
     return render_template(
         "transactions/recurring_transactions_update.html",
@@ -345,7 +345,7 @@ def update_recurring_transaction(rtranid):
 
 @app.route("/transaction/recurring/delete/<int:rtranid>", methods=["GET"])
 def delete_recurring_transaction(rtranid):
-    delete_response = TC.delete_recurring_transaction(rtranid=rtranid)
+    _ = TC.delete_recurring_transaction(rtranid=rtranid)
     # ToDo: Check Response and flash appropriate message
     return redirect(url_for("recurring_transactions"))
 
@@ -386,7 +386,7 @@ def categories():
     response: CC.CategoryResponse = CC.get_all_categories()
     form = CategoryForm()
     if form.validate_on_submit():
-        insert_response: CC.CategoryResponse = CC.insert_category(
+        _: CC.CategoryResponse = CC.insert_category(
             form.category_name.data)
         return redirect(url_for("categories"))
     return render_template(
@@ -402,7 +402,7 @@ def new_category():
     response: CC.CategoryResponse = CC.get_all_categories()
     form = CategoryForm()
     if form.validate_on_submit():
-        insert_response: CC.CategoryResponse = CC.insert_category(
+        _: CC.CategoryResponse = CC.insert_category(
             form.category_name.data)
         return redirect(url_for("transactions"))
     return render_template(
@@ -423,7 +423,7 @@ def update_category(categoryid: int):
             "categoryid": categoryid,
             "category_name": form.category_name.data
         }
-        update_response: CC.CategoryResponse = CC.update_category(
+        _: CC.CategoryResponse = CC.update_category(
             category_data)
         return redirect(url_for("categories"))
     return render_template(
