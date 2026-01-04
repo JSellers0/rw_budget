@@ -1,6 +1,8 @@
 from app import db
 from controllers.objects.models import Account
 from controllers.objects.forms import AccountForm
+import os
+import requests
 from typing import Any, TypedDict
 
 # ToDo: Standardize response messages
@@ -10,19 +12,27 @@ from typing import Any, TypedDict
 class AccountResponse(TypedDict):
     response_code: int
     message: str
-    accounts: list[Account]
+    accounts: list[Account | None]
 
-def get_account_by_id(accountid: int) -> AccountResponse:
-    account: Account = Account.query.filter(Account.accountid == accountid).one_or_none()
-    
-    if account == None:
+class AccountController():
+    def __init__():
+        self.api_base_url = os.environ.get("API_BASE_URL")
+        self.api_version = os.environ.get("API_VERSION")
+
+    def get_account_by_id(self, accountid: int) -> AccountResponse:
+        uri = f"{self.api_base_url}/{self.api_version}/accounts/{accountid}"
+        resp = requests.get(uri)
+        
+        if resp.status_code == 404:
+            return AccountResponse(
+                response_code=404,
+                message=f"Account not found with Account ID {accountid}.",
+                accounts=[None]
+            )
+
+        account = resp.json()['accounts']
+
         return AccountResponse(
-            response_code=404,
-            message=f"Account not found with Account ID {accountid}.",
-            accounts=[None] # type: ignore
-        )
-    
-    return AccountResponse(
             response_code=200,
             message=f"Account ID {accountid} retrieved successfully",
             accounts=[account]
