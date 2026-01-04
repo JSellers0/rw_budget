@@ -1,6 +1,7 @@
 from controllers import (
     CategoryController as CC,
-    AccountController as AC, BudgetController as BC
+    BudgetController as BC,
+    AccountController, AccountResponse
 )
 from controllers.transactions import ctrl_transactions as TC
 from controllers.objects.forms import (
@@ -20,6 +21,8 @@ from werkzeug.utils import secure_filename
 # ToDo: Async db calls
 # ToDo: Utility functions for prior month/year and next month/year.
 
+
+AC = AccountController()
 
 @app.route('/health')
 def health():
@@ -468,10 +471,10 @@ def update_budget(budgetid):
 @app.route("/account", methods=["GET", "POST"])
 def accounts():
     # Need all accounts for datalist
-    response: AC.AccountResponse = AC.get_all_accounts()
+    response: AccountResponse = AC.get_all_accounts()
     form = AccountForm()
     if form.validate_on_submit():
-        response: AC.AccountResponse = AC.insert_account(form.to_json())
+        response: AccountResponse = AC.insert_account(form.to_json())
         return redirect(url_for("accounts"))
     return render_template(
         "accounts/accounts.html",
@@ -483,10 +486,10 @@ def accounts():
 @app.route("/account/new", methods=["GET", "POST"])
 def new_account():
     # Need all accounts for datalist
-    response: AC.AccountResponse = AC.get_all_accounts()
+    response: AccountResponse = AC.get_all_accounts()
     form = AccountForm()
     if form.validate_on_submit():
-        response: AC.AccountResponse = AC.insert_account(form.to_json())
+        response: AccountResponse = AC.insert_account(form.to_json())
         return redirect(url_for("transactions"))
     return render_template(
         "accounts/account_new.html",
@@ -498,7 +501,7 @@ def new_account():
 @app.route("/account/<int:accountid>", methods=["GET", "POST"])
 def update_account(accountid: int):
     form = AccountForm()
-    response: AC.AccountResponse = AC.get_account_by_id(accountid)
+    response: AccountResponse = AC.get_account_by_id(accountid)
     if form.validate_on_submit():
         account_data = {
             "accountid": accountid,
@@ -508,7 +511,7 @@ def update_account(accountid: int):
             "statement_day": form.statement_day.data,
             "rewards_features": form.rewards_features.data
         }
-        response: AC.AccountResponse = AC.update_account(account_data)
+        response: AccountResponse = AC.update_account(account_data)
         return redirect(url_for("accounts"))
     return render_template(
         "accounts/account_update.html",
