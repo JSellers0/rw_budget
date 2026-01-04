@@ -17,11 +17,11 @@
             </div>
             <div id="month-values">
                 <div id="month-remain" class="flex-center">
-                    <p>Cash Remaining: {{ cashflow["sum"]["remain"] }}</p>
+                    <p>Cash Remaining: ${{ cashflow["sum"]["remain"] }}</p>
                 </div>
                 <div id="month-in-out" class="flex-center gap20">
-                    <p>Cash In: {{ cashflow["sum"]["income"] }}</p>
-                    <p>Cash Out: {{ cashflow["sum"]["expens"] }}</p>
+                    <p>Cash In: ${{ cashflow["sum"]["income"] }}</p>
+                    <p>Cash Out: ${{ cashflow["sum"]["expens"] }}</p>
                 </div>
             </div>
         </div>
@@ -31,11 +31,11 @@
             </div>
             <div id="paycheck-1-values">
                 <div id="paycheck-1-remain" class="flex-center">
-                    <p>Cash Remaining: {{ cashflow["top"]["remain"] }}</p>
+                    <p>Cash Remaining: ${{ cashflow["top"]["remain"] }}</p>
                 </div>
                 <div id="paycheck-1-in-out" class="flex-center gap20">
-                    <p>Cash In: {{ cashflow["top"]["income"] }}</p>
-                    <p>Cash Out: {{ cashflow["top"]["expens"] }}</p>
+                    <p>Cash In: ${{ cashflow["top"]["income"] }}</p>
+                    <p>Cash Out: ${{ cashflow["top"]["expens"] }}</p>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
             </tr>
             </thead>
             <tbody>
-                {% for card_index, card in cashflow["accounts"].iterrows() %}
+                {% for card_index, card in cashflow_cards.iterrows() %}
                 <tr>
                     <td> {{ card['account_name'] }}</td>
                     <td>${{ card['chg_bal'] }}</td>

@@ -1,7 +1,8 @@
 from controllers import (
     CategoryController as CC,
     BudgetController as BC,
-    AccountController, AccountResponse
+    AccountController, AccountResponse,
+    CashflowController
 )
 from controllers.transactions import ctrl_transactions as TC
 from controllers.objects.forms import (
@@ -23,6 +24,7 @@ from werkzeug.utils import secure_filename
 
 
 AC = AccountController()
+CFC = CashflowController()
 
 @app.route('/health')
 def health():
@@ -66,14 +68,16 @@ def summary(year: int, month: int):
         "month": next_month,
         "disp": date(next_year, next_month, 1).strftime("%B")
     }
-    cashflow_data = TC.get_cashflow(year, month)
+    cashflow_data = CFC.get_cf_summary(year, month)
     cashflow_chart_data = TC.get_cashflow_chart(year=year, view_month=month)
+    card_data = TC.get_cashflow(year, month)["accounts"]
     print(cashflow_chart_data)
 
     return render_template(
         "home.html",
         cashflow=cashflow_data,
         cashflow_chart=cashflow_chart_data,
+        cashflow_cards = card_data,
         month=date(year=year, month=month, day=1).strftime("%B"),
         last_month=last_month,
         next_month=next_month

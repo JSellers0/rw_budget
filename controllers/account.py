@@ -2,7 +2,7 @@ from app import db
 from controllers.objects.models import Account
 import requests
 from typing import Any, TypedDict
-from _base import BaseController
+from ._base import BaseController
 
 # ToDo: Standardize response messages
 # ToDo: Response status checks where appropriate
@@ -15,7 +15,7 @@ class AccountResponse(TypedDict):
 
 class AccountController(BaseController):
     def __init__(self):
-        super.__init__(self)
+        super().__init__()
         self.api_base_url += "accounts"
 
     def get_account_by_id(self, accountid: int) -> AccountResponse:
@@ -29,7 +29,7 @@ class AccountController(BaseController):
                 accounts=[None]
             )
 
-        account = resp.json()["accounts"]
+        account = Account(**resp.json()["accounts"])
 
         return AccountResponse(
             response_code=200,
@@ -38,7 +38,7 @@ class AccountController(BaseController):
         )
 
     def get_account_by_name(self, account_name: str) -> AccountResponse:
-        uri = f"{self.api_base_url}"
+        uri = f"{self.api_base_url}/"
         resp = requests.get(uri, params={"name": account_name})
         
         if resp.status_code != 200:
@@ -48,7 +48,9 @@ class AccountController(BaseController):
                 accounts=[None] # type: ignore
             )
         
-        accounts = resp.json()["accounts"]
+        accounts: list[Account] = []
+        for record in resp.json()["accounts"]:
+            accounts.append(Account(**record))
         
         return AccountResponse(
                 response_code=200,
@@ -57,7 +59,7 @@ class AccountController(BaseController):
             )
     
     def get_all_accounts(self) -> AccountResponse:
-        uri = f"{self.api_base_url}"
+        uri = f"{self.api_base_url}/"
         resp = requests.get(uri)
         
         if resp.status_code != 200:
@@ -67,7 +69,9 @@ class AccountController(BaseController):
                 accounts=[None] # type: ignore
             )
         
-        accounts = resp.json()["accounts"]
+        accounts: list[Account] = []
+        for record in resp.json()["accounts"]:
+            accounts.append(Account(**record))
         
         return AccountResponse(
                 response_code=200,
@@ -90,14 +94,7 @@ class AccountController(BaseController):
                 message=f"Account {account_data.get('account_name', '')} already exists.",
                 accounts=[acct_check]
             )
-        account: Account = Account(
-            account_name = account_data.get('account_name', ''),
-            account_type = account_data.get('account_type', ''),
-            payment_day = account_data.get('payment_day', ''),
-            statement_day = account_data.get('statement_day', ''),
-            rewards_features = account_data.get('rewards_features', '')
-            )
-        
+        account: Account = Account(**account_data)        
         resp = requests.post(self.api_base_url, data=account.to_json())
         
         return AccountResponse(
@@ -108,54 +105,36 @@ class AccountController(BaseController):
         
 
     def update_account(self, account_data: dict) -> AccountResponse:
-        id_account: Account = self.get_account_by_id(account_data.get('accountid', 1))['accounts'][0]
-        name_account: Account = self.get_account_by_name(account_data.get('account_name', ''))['accounts'][0]
-        
-        if id_account is None:
+        accountid = account_data.get("accountid")
+        uri = f"{self.api_base_url}/{account_data.get("accountid")}"
+        resp = requests.put(uri, data=account_data)
+
+        if resp.status_code != 200:
             return AccountResponse(
                 response_code=404,
                 message=f"No Account for Account ID {account_data.get('accountid')}.",
-                accounts=[None] # type: ignore
+                accounts=[None]
             )
-        
-        # If the user is trying to change the account name and it already exists, then let them know an account with
-        # that name already exists.
-        if account_data.get('account_name', '').lower() != id_account.account_name.lower() and name_account is not None:
-            return AccountResponse(
-                response_code=409,
-                message=f"Account {account_data.get('account_name', '')} already exists.",
-                accounts=[name_account]
-            )
-        
-        id_account.account_name = account_data.get('account_name', '')
-        id_account.account_type = account_data.get('account_type', '')
-        id_account.rewards_features = account_data.get('rewards_features', '')
-        id_account.payment_day = account_data.get('payment_day', '')
-        id_account.statement_day = account_data.get('statement_day', '')
-        
-        db.session.commit()
         
         return AccountResponse(
                 response_code=200,
-                message=f"Account {id_account.accountid} update successful.",
-                accounts=[id_account]
+                message=f"Account {accountid} update successful.",
+                accounts=[Account(**account_data)]
             )
 
     def delete_account(self, accountid: int) -> AccountResponse:
-        account: Account = self.get_account_by_id(accountid)['accounts'][0]
+        uri = f"{self.api_base_url}/{accountid}"
+        resp = requests.delete(uri)
         
-        if account == None:
+        if resp.status_code != 200:
             return AccountResponse(
-                response_code=404,
-                message=f"No Account for Account ID {accountid}.",
-                accounts=[None] # type: ignore
+                response_code=resp.status_code,
+                message=resp.json()["message"],
+                accounts=[None]
             )
-        
-        db.session.delete(account)
-        db.session.commit()
         
         return AccountResponse(
                 response_code=200,
                 message=f"Account {accountid} deleted successful.",
-                accounts=[account]
+                accounts=[None]
             )
