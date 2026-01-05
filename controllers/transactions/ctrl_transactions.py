@@ -541,20 +541,6 @@ def get_credit_card_data(start: str, end: str) -> pd.DataFrame:
     return card_data_df
 
 
-def get_cashflow(year: int, month: int) -> dict:
-    month_start = date(year, month, 1).strftime("%Y-%m-%d")
-    month_end = get_month_end(year, month).strftime("%Y-%m-%d")
-
-    cashflow_data = get_cashflow_df(flow_month=str(month), flow_year=str(year))
-
-    # Get Credit Card account info
-    cashflow_data["accounts"] = get_credit_card_data(start=month_start, end=month_end)
-
-    # Get Bank Account info
-
-    return cashflow_data
-
-
 def get_cashflow_chart(year: int, view_month: int, month_range: int = 6):
     chart_sql = f"""
         WITH ccc AS (

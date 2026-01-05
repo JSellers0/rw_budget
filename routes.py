@@ -69,9 +69,8 @@ def summary(year: int, month: int):
         "disp": date(next_year, next_month, 1).strftime("%B")
     }
     cashflow_data = CFC.get_cf_summary(year, month)
-    cashflow_chart_data = TC.get_cashflow_chart(year=year, view_month=month)
-    card_data = TC.get_cashflow(year, month)["accounts"]
-    print(cashflow_chart_data)
+    cashflow_chart_data = CFC.get_cf_chart(year=year, month=month)
+    card_data = CFC.get_cf_cards(year, month)
 
     return render_template(
         "home.html",

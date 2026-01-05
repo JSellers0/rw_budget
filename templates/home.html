@@ -45,11 +45,11 @@
             </div>
             <div id="paycheck-2-values">
                 <div id="paycheck-2-remain" class="flex-center">
-                    <p>Cash Remaining: {{ cashflow["bot"]["remain"] }}</p>
+                    <p>Cash Remaining: ${{ cashflow["bot"]["remain"] }}</p>
                 </div>
                 <div id="paycheck-2-in-out" class="flex-center gap20">
-                    <p>Cash In: {{ cashflow["bot"]["income"] }}</p>
-                    <p>Cash Out: {{ cashflow["bot"]["expens"] }}</p>
+                    <p>Cash In: ${{ cashflow["bot"]["income"] }}</p>
+                    <p>Cash Out: ${{ cashflow["bot"]["expens"] }}</p>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@
             </tr>
             </thead>
             <tbody>
-                {% for card_index, card in cashflow_cards.iterrows() %}
+                {% for card in cashflow_cards %}
                 <tr>
                     <td> {{ card['account_name'] }}</td>
                     <td>${{ card['chg_bal'] }}</td>
