@@ -42,10 +42,6 @@ USER appuser
 # Expose the Flask port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')" || exit 1
-
 # Use run.py as the entry point with gunicorn
 CMD ["uv", "run", "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", \
      "--access-logfile", "/app/logs/access.log", \
