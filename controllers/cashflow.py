@@ -49,7 +49,26 @@ class CashflowController(BaseController):
         resp = requests.get(uri)
 
         cfs = CashflowSummary()
-        for rec in resp.json()["cashflows"]:
+        data = resp.json()["data"]
+        if data is None:
+            return {
+                "sum": {
+                    "remain": "0.00",
+                    "income": "0.00",
+                    "expens": "0.00"
+                },
+                "top": {
+                    "remain": "0.00",
+                    "income": "0.00",
+                    "expens": "0.00"
+                },
+                "bot": {
+                    "remain": "0.00",
+                    "income": "0.00",
+                    "expens": "0.00"
+                }
+            }
+        for rec in data:
             mg = rec.get("month_group")
             cfs.get(mg)[rec.get("cashflow_group")] = f"{rec.get("amount"):,}"
         return cfs.data
@@ -58,7 +77,12 @@ class CashflowController(BaseController):
         uri = f"{self.api_base_url}/chart/{year}/{month}"
         resp = requests.get(uri)
         cfc = CashflowChart()
-        for record in resp.json()["chart"]:
+        data = resp.json()["data"]
+        if data is None:
+            return {
+                "months": []
+            }
+        for record in data:
             if record["tran_month_name"] not in cfc.get('months'):
                 cfc.get("months").append(record["tran_month_name"])
             cfc.get(record["cashflow_category"]).append(record["amount"])

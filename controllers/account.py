@@ -29,7 +29,7 @@ class AccountController(BaseController):
                 accounts=[None]
             )
 
-        account = Account(**resp.json()["accounts"])
+        account = Account(**resp.json()["data"])
 
         return AccountResponse(
             response_code=200,
@@ -49,7 +49,7 @@ class AccountController(BaseController):
             )
         
         accounts: list[Account] = []
-        for record in resp.json()["accounts"]:
+        for record in resp.json()["data"]:
             accounts.append(Account(**record))
         
         return AccountResponse(
@@ -70,7 +70,7 @@ class AccountController(BaseController):
             )
         
         accounts: list[Account] = []
-        for record in resp.json()["accounts"]:
+        for record in resp.json()["data"]:
             accounts.append(Account(**record))
         
         return AccountResponse(
@@ -80,8 +80,8 @@ class AccountController(BaseController):
             )
 
     def get_accounts_for_listbox(self) -> list[tuple[int, str]]:
-        accounts = self.get_all_accounts()
-        account_dump = [(a.accountid, a.account_name) for a in accounts]
+        resp = self.get_all_accounts()
+        account_dump = [(a.accountid, a.account_name) for a in resp['accounts']]
         
         return account_dump
 
