@@ -92,9 +92,14 @@ class CashflowController(BaseController):
     def get_cf_cards(self, year: int, month: int) -> dict:
         uri = f"{self.api_base_url}/card_balances/{year}/{month}"
         resp = requests.get(uri)
-        print("Card Balances: ", resp.json())
+        if resp.json()["success"] == "false":
+            return [{
+                "account_name": "",
+                "chg_bal": "0.00",
+                "pmt_bal": "0.00",
+                "cur_bal": "0.00",
+                "pnd_bal": "0.00",
 
-        if resp.status_code != 200:
-            pass    
-            
-        return resp.json()
+            }]
+
+        return resp.json()["data"]
