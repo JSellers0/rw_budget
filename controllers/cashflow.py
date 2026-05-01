@@ -3,7 +3,10 @@ from ._base import BaseController
 
 
 class CashflowSummary:
-    def __init__(self):
+    def __init__(self, sum=None, top=None, bot=None):
+        self.sum = sum
+        self.top = top
+        self.bot = bot
         self.data = {
             "sum": {
                 "remain": "0.00",
@@ -38,6 +41,15 @@ class CashflowChart:
     def get(self, key: str) -> list:
         return self.data.get(key, [])
 
+class CardBalance:
+    def __init__(self, accountid, account_name, chg_bal, pmt_bal, cur_bal, pnd_bal):
+        self.accountid = accountid
+        self.account_name = account_name
+        self.chg_bal = f"${float(chg_bal):,.2f}"
+        self.pmt_bal = f"${float(chg_bal):,.2f}"
+        self.cur_bal = f"${float(chg_bal):,.2f}"
+        self.pnd_bal = f"${float(chg_bal):,.2f}"
+
 
 class CashflowController(BaseController):
     def __init__(self):
@@ -51,23 +63,7 @@ class CashflowController(BaseController):
         cfs = CashflowSummary()
         data = resp.json()["data"]
         if data is None:
-            return {
-                "sum": {
-                    "remain": "0.00",
-                    "income": "0.00",
-                    "expens": "0.00"
-                },
-                "top": {
-                    "remain": "0.00",
-                    "income": "0.00",
-                    "expens": "0.00"
-                },
-                "bot": {
-                    "remain": "0.00",
-                    "income": "0.00",
-                    "expens": "0.00"
-                }
-            }
+            return cfs.data
         for rec in data:
             mg = rec.get("month_group")
             cfs.get(mg)[rec.get("cashflow_group")] = f"{rec.get("amount"):,}"
@@ -92,14 +88,13 @@ class CashflowController(BaseController):
     def get_cf_cards(self, year: int, month: int) -> dict:
         uri = f"{self.api_base_url}/card_balances/{year}/{month}"
         resp = requests.get(uri)
-        if resp.json()["success"] == "false":
-            return [{
+        if resp.json()["data"] is None:
+            return [CardBalance(**{
                 "account_name": "",
                 "chg_bal": "0.00",
                 "pmt_bal": "0.00",
                 "cur_bal": "0.00",
                 "pnd_bal": "0.00",
 
-            }]
-
-        return resp.json()["data"]
+            })]
+        return [CardBalance(**record) for record in resp.json()["data"]]

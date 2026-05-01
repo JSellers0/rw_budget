@@ -69,11 +69,11 @@
             <tbody>
                 {% for card in cashflow_cards %}
                 <tr>
-                    <td> {{ card['account_name'] }}</td>
-                    <td>${{ card['chg_bal'] }}</td>
-                    <td>${{ card['pmt_bal'] }}</td>
-                    <td>${{ card['cur_bal'] }}</td>
-                    <td>${{ card['pnd_bal'] }}</td>
+                    <td> {{ card.account_name }} </td>
+                    <td> {{ card.chg_bal }} </td>
+                    <td> {{ card.pmt_bal }} </td>
+                    <td> {{ card.cur_bal }} </td>
+                    <td> {{ card.pnd_bal }} </td>
                 </tr>
                 {% endfor %}
             </tbody>
