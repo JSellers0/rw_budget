@@ -70,6 +70,7 @@ function init_events() {
     document.getElementById("quicksilver-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("cap-bills-filter").addEventListener("click", toggle_account_rows)
     document.getElementById("pnc-bills-filter").addEventListener("click", toggle_account_rows)
+    document.getElementById("pnc-reserve-filter").addEventListener("click", toggle_account_rows)
 
     document.getElementById("clear-account-filters").addEventListener("click", clear_account_filters)
 
