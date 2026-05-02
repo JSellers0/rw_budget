@@ -118,9 +118,9 @@ def transactions():
             # Doing the transfer here instead of in Transaction Controller because of access to Account and Category Data.
             # DECISION: Should I just pass that into insert transaction?
             # Get Account and Category information
-            transfer_account = [account for account in form.account.choices if account[0] == int(
+            transfer_account = [account for account in form.account.choices if int(account[0]) == int(
                 form.transfer_account.data)][0]  # type: ignore
-            source_account = [account for account in form.account.choices if account[0] == int(
+            source_account = [account for account in form.account.choices if int(account[0]) == int(
                 form.account.data)][0]  # type: ignore
 
             if form.transaction_type.data == 'trfr':
