@@ -46,9 +46,9 @@ class CardBalance:
         self.accountid = accountid
         self.account_name = account_name
         self.chg_bal = f"${float(chg_bal):,.2f}"
-        self.pmt_bal = f"${float(chg_bal):,.2f}"
-        self.cur_bal = f"${float(chg_bal):,.2f}"
-        self.pnd_bal = f"${float(chg_bal):,.2f}"
+        self.pmt_bal = f"${float(pmt_bal):,.2f}"
+        self.cur_bal = f"${float(cur_bal):,.2f}"
+        self.pnd_bal = f"${float(pnd_bal):,.2f}"
 
 
 class CashflowController(BaseController):
