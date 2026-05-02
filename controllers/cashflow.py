@@ -90,6 +90,7 @@ class CashflowController(BaseController):
         resp = requests.get(uri)
         if resp.json()["data"] is None:
             return [CardBalance(**{
+                "accountid": "",
                 "account_name": "",
                 "chg_bal": "0.00",
                 "pmt_bal": "0.00",
