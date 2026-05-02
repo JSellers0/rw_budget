@@ -28,19 +28,15 @@ class AccountController(BaseController):
                 message=f"Account not found with Account ID {accountid}.",
                 accounts=[None]
             )
-
-        account = Account(**resp.json()["data"])
-
         return AccountResponse(
             response_code=200,
             message=f"Account ID {accountid} retrieved successfully",
-            accounts=[account]
+            accounts=[Account(**resp.json()["data"])]
         )
 
     def get_account_by_name(self, account_name: str) -> AccountResponse:
         uri = f"{self.api_base_url}/"
         resp = requests.get(uri, params={"name": account_name})
-        
         if resp.status_code != 200:
             return AccountResponse(
                 response_code=404,
@@ -66,7 +62,7 @@ class AccountController(BaseController):
             return AccountResponse(
                 response_code=404,
                 message=f"No Accounts found.",
-                accounts=[None] # type: ignore
+                accounts=[None]
             )
         
         accounts: list[Account] = []
@@ -86,17 +82,15 @@ class AccountController(BaseController):
         return account_dump
 
     def insert_account(self, account_data: dict[str, Any])-> AccountResponse:
-        acct_check: Account = self.get_account_by_name(account_data.get('account_name', ''))['accounts'][0]
-        
-        if acct_check is not None:
+        acct_check: bool = len(self.get_account_by_name(account_data.get('account_name', ''))['accounts']) == 0
+        if acct_check is False:
             return AccountResponse(
                 response_code=409,
                 message=f"Account {account_data.get('account_name', '')} already exists.",
                 accounts=[acct_check]
             )
-        account: Account = Account(**account_data)        
-        resp = requests.post(self.api_base_url, data=account.to_json())
-        
+        account: Account = Account(**account_data)
+        resp = requests.post(self.api_base_url, json=account.to_json())
         return AccountResponse(
             response_code=200,
             message=f"Account {account_data.get('account_name', '')} insert successful.",
@@ -107,7 +101,7 @@ class AccountController(BaseController):
     def update_account(self, account_data: dict) -> AccountResponse:
         accountid = account_data.get("accountid")
         uri = f"{self.api_base_url}/{account_data.get("accountid")}"
-        resp = requests.put(uri, data=account_data)
+        resp = requests.put(uri, json=account_data)
 
         if resp.status_code != 200:
             return AccountResponse(
