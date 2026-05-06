@@ -66,7 +66,7 @@ class CashflowController(BaseController):
             return cfs.data
         for rec in data:
             mg = rec.get("month_group")
-            cfs.get(mg)[rec.get("cashflow_group")] = f"{rec.get("amount"):,}"
+            cfs.get(mg)[rec.get("cashflow_group")] = f"${float(rec.get("amount")):,.2f}"
         return cfs.data
 
     def get_cf_chart(self, year: int, month: int) -> CashflowChart:
